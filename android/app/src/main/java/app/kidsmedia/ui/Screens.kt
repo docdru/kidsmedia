@@ -569,6 +569,8 @@ private fun VideoSurface(player: Player, modifier: Modifier = Modifier) {
         factory = { ctx -> PlayerView(ctx).apply { useController = true } },
         update = { it.player = player },
         // Entering or leaving full screen swaps the view; the old one lets go of the player.
+        // The view is only a surface: the player, its position, the session and the rule ticker
+        // live in PlaybackService (SPEC §4.3), so the swap changes nothing for them.
         onRelease = { it.player = null },
         modifier = modifier
     )
