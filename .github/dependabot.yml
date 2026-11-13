@@ -26,3 +26,9 @@ updates:
   - package-ecosystem: docker
     directory: /
     schedule: { interval: weekly }
+    ignore:
+      # A new Python (3.12 -> 3.15) needs onnxruntime wheels for it first, or the image
+      # build fails (Piper read-aloud). Bump Python by hand, together with server/, once
+      # onnxruntime supports it; patch releases of 3.12 still arrive.
+      - dependency-name: python
+        update-types: [version-update:semver-major, version-update:semver-minor]
