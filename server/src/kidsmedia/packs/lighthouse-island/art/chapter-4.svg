@@ -1,0 +1,72 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024">
+  <!-- Chapter 4: The hidden lamp. The spare lamp peeks out from behind the big rock; Mira is delighted. -->
+  <!-- sky -->
+  <rect width="1024" height="1024" fill="#FBE3C8"/>
+  <circle cx="150" cy="150" r="70" fill="#FFD34D"/>
+  <g fill="#FFFFFF">
+    <ellipse cx="560" cy="160" rx="100" ry="36"/>
+    <ellipse cx="620" cy="138" rx="60" ry="42"/>
+  </g>
+  <!-- sea -->
+  <rect y="500" width="1024" height="200" fill="#2E6FA8"/>
+  <path d="M0 545 q32 -22 64 0 t64 0 t64 0 t64 0 t64 0 t64 0 t64 0 t64 0 t64 0 t64 0 t64 0 t64 0 t64 0 t64 0 t64 0 t64 0" fill="none" stroke="#7FB2DD" stroke-width="12" stroke-linecap="round"/>
+  <!-- lighthouse up the hill -->
+  <g transform="translate(910,600) scale(0.6) translate(-512,-640)">
+    <polygon points="430,640 594,640 566,300 458,300" fill="#FFFFFF" stroke="#1B2440" stroke-width="16" stroke-linejoin="round"/>
+    <polygon points="440,520 584,520 576,430 448,430" fill="#D2452E"/>
+    <polygon points="451,390 573,390 568,330 456,330" fill="#D2452E"/>
+    <rect x="436" y="276" width="152" height="26" rx="6" fill="#1B2440"/>
+    <rect x="466" y="196" width="92" height="80" fill="#5B6683" stroke="#1B2440" stroke-width="16"/>
+    <polygon points="452,196 572,196 512,128" fill="#D2452E" stroke="#1B2440" stroke-width="16" stroke-linejoin="round"/>
+  </g>
+  <!-- sand -->
+  <path d="M-10 620 Q500 540 1034 590 L1034 1034 L-10 1034 Z" fill="#E9C27A" stroke="#1B2440" stroke-width="10" stroke-linejoin="round"/>
+  <g fill="none" stroke="#C99A4B" stroke-width="10" stroke-linecap="round">
+    <path d="M120 900 q20 -36 56 -8"/>
+    <path d="M700 960 q20 -36 56 -8"/>
+    <path d="M880 700 q20 -36 56 -8"/>
+  </g>
+  <!-- the spare lamp -->
+  <g stroke="#1B2440" stroke-width="10" stroke-linejoin="round" stroke-linecap="round">
+    <circle cx="630" cy="664" r="16" fill="none"/>
+    <rect x="596" y="700" width="68" height="90" rx="8" fill="#FFD34D"/>
+    <path d="M630 700 L630 790" fill="none"/>
+    <path d="M580 702 L596 676 L664 676 L680 702 Z" fill="#D2452E"/>
+    <rect x="584" y="786" width="92" height="30" rx="6" fill="#5B6683"/>
+  </g>
+  <!-- sparkles -->
+  <g stroke="#D2452E" stroke-width="10" stroke-linecap="round">
+    <path d="M690 664 l30 -22"/>
+    <path d="M590 640 l-20 -26"/>
+    <path d="M650 622 l10 -34"/>
+  </g>
+  <!-- big rock -->
+  <path d="M180 830 Q160 660 280 600 Q400 540 520 610 Q620 670 600 830 Z" fill="#9AA3BA" stroke="#1B2440" stroke-width="10" stroke-linejoin="round"/>
+  <path d="M300 680 q30 30 10 70" fill="none" stroke="#1B2440" stroke-width="8" stroke-linecap="round"/>
+  <path d="M470 660 q-20 20 -10 40" fill="none" stroke="#1B2440" stroke-width="8" stroke-linecap="round"/>
+  <!-- Pip sitting on the rock -->
+  <g transform="translate(400,548) scale(1.4)">
+    <g stroke="#1B2440" stroke-width="7" stroke-linejoin="round" stroke-linecap="round">
+      <path d="M-8 18 L-8 34 M10 18 L10 34" fill="none" stroke="#F2A23A" stroke-width="8"/>
+      <ellipse cx="0" cy="0" rx="40" ry="28" fill="#FFFFFF"/>
+      <path d="M-34 -4 Q-14 -10 6 6 Q-18 12 -34 -4 Z" fill="#E4E8F0"/>
+    </g>
+    <polygon points="34,-12 62,-4 34,4" fill="#F2A23A"/>
+    <circle cx="20" cy="-10" r="5" fill="#1B2440"/>
+  </g>
+  <!-- Mira, happy -->
+  <g transform="translate(850,890) scale(1.4)">
+    <g stroke="#1B2440" stroke-width="7" stroke-linejoin="round" stroke-linecap="round">
+      <path d="M24 -64 L56 -110" fill="none"/>
+      <path d="M-24 -64 L-56 -110" fill="none"/>
+      <circle cx="58" cy="-114" r="9" fill="#F2C9A0"/>
+      <circle cx="-58" cy="-114" r="9" fill="#F2C9A0"/>
+      <path d="M-45 0 L-27 -80 L27 -80 L45 0 Z" fill="#4552C7"/>
+      <circle cx="0" cy="-120" r="44" fill="#F2C9A0"/>
+      <path d="M-45 -125 Q-45 -175 0 -174 Q47 -175 45 -125 Q27 -150 0 -148 Q-27 -150 -45 -125 Z" fill="#7A3E1D"/>
+    </g>
+    <circle cx="-15" cy="-118" r="6" fill="#1B2440"/>
+    <circle cx="15" cy="-118" r="6" fill="#1B2440"/>
+    <path d="M-14 -100 q14 16 28 0 Z" fill="#1B2440" stroke="#1B2440" stroke-width="5" stroke-linejoin="round"/>
+  </g>
+</svg>

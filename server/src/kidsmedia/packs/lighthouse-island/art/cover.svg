@@ -1,0 +1,52 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024">
+  <!-- Lighthouse Island: cover. Style reference for all pack art (SPEC §13.5). -->
+  <!-- sky -->
+  <rect width="1024" height="1024" fill="#FBE3C8"/>
+  <circle cx="820" cy="210" r="92" fill="#FFD34D"/>
+  <!-- clouds -->
+  <g fill="#FFFFFF">
+    <ellipse cx="210" cy="190" rx="110" ry="42"/>
+    <ellipse cx="290" cy="165" rx="70" ry="48"/>
+    <ellipse cx="610" cy="300" rx="80" ry="30"/>
+    <ellipse cx="660" cy="282" rx="50" ry="34"/>
+  </g>
+  <!-- sea -->
+  <rect y="640" width="1024" height="384" fill="#2E6FA8"/>
+  <path d="M0 690 q32 -22 64 0 t64 0 t64 0 t64 0 t64 0 t64 0 t64 0 t64 0 t64 0 t64 0 t64 0 t64 0 t64 0 t64 0 t64 0 t64 0" fill="none" stroke="#7FB2DD" stroke-width="12" stroke-linecap="round"/>
+  <path d="M0 860 q32 -22 64 0 t64 0 t64 0 t64 0 t64 0 t64 0 t64 0 t64 0 t64 0 t64 0 t64 0 t64 0 t64 0 t64 0 t64 0 t64 0" fill="none" stroke="#5A93C7" stroke-width="12" stroke-linecap="round"/>
+  <!-- island -->
+  <path d="M170 700 Q300 580 512 590 Q760 580 860 700 Z" fill="#E9C27A" stroke="#1B2440" stroke-width="10" stroke-linejoin="round"/>
+  <path d="M250 660 q20 -40 60 -10" fill="none" stroke="#C99A4B" stroke-width="10" stroke-linecap="round"/>
+  <!-- lighthouse -->
+  <polygon points="430,640 594,640 566,300 458,300" fill="#FFFFFF" stroke="#1B2440" stroke-width="12" stroke-linejoin="round"/>
+  <polygon points="440,520 584,520 576,430 448,430" fill="#D2452E"/>
+  <polygon points="451,390 573,390 568,330 456,330" fill="#D2452E"/>
+  <rect x="488" y="560" width="48" height="80" rx="20" fill="#3B4560" stroke="#1B2440" stroke-width="8"/>
+  <rect x="436" y="276" width="152" height="26" rx="6" fill="#1B2440"/>
+  <rect x="466" y="196" width="92" height="80" fill="#5B6683" stroke="#1B2440" stroke-width="12"/>
+  <polygon points="452,196 572,196 512,128" fill="#D2452E" stroke="#1B2440" stroke-width="12" stroke-linejoin="round"/>
+  <circle cx="512" cy="122" r="10" fill="#1B2440"/>
+  <!-- Mira -->
+  <g stroke="#1B2440" stroke-width="10" stroke-linejoin="round" stroke-linecap="round">
+    <path d="M300 640 L318 560 L372 560 L390 640 Z" fill="#4552C7"/>
+    <circle cx="345" cy="520" r="44" fill="#F2C9A0"/>
+    <path d="M300 515 Q300 465 345 466 Q392 465 390 515 Q372 490 345 492 Q318 490 300 515 Z" fill="#7A3E1D"/>
+    <path d="M372 575 L420 540" fill="none"/>
+  </g>
+  <circle cx="330" cy="522" r="6" fill="#1B2440"/>
+  <circle cx="360" cy="522" r="6" fill="#1B2440"/>
+  <path d="M332 542 q13 12 26 0" fill="none" stroke="#1B2440" stroke-width="6" stroke-linecap="round"/>
+  <!-- Pip the seagull -->
+  <g stroke="#1B2440" stroke-width="10" stroke-linejoin="round" stroke-linecap="round">
+    <path d="M660 380 q40 -60 80 0" fill="none"/>
+    <path d="M740 380 q40 -60 80 0" fill="none"/>
+    <ellipse cx="740" cy="392" rx="30" ry="20" fill="#FFFFFF"/>
+  </g>
+  <polygon points="766,388 790,394 766,400" fill="#F2A23A"/>
+  <circle cx="752" cy="386" r="4" fill="#1B2440"/>
+  <!-- little boat -->
+  <g stroke="#1B2440" stroke-width="10" stroke-linejoin="round">
+    <path d="M700 800 L860 800 L830 850 L730 850 Z" fill="#D2452E"/>
+    <path d="M780 800 L780 700 L840 790 Z" fill="#FFFFFF"/>
+  </g>
+</svg>

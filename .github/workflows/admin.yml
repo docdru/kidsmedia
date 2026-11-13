@@ -1,0 +1,41 @@
+name: admin
+
+on:
+  pull_request:
+    paths: ["admin/**", ".github/workflows/admin.yml"]
+  push:
+    branches: [main]
+    paths: ["admin/**", ".github/workflows/admin.yml"]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: admin-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: admin
+    steps:
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
+        with:
+          package_json_file: admin/package.json
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 26
+      - name: Install
+        run: |
+          if [ -f pnpm-lock.yaml ]; then pnpm install --frozen-lockfile; else pnpm install --no-frozen-lockfile; fi
+      - name: Lint
+        run: pnpm lint
+      - name: Type check
+        run: pnpm typecheck
+      - name: Test (incl. en/de translation parity)
+        run: pnpm test
+      - name: Build
+        run: pnpm build

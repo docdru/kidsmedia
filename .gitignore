@@ -1,0 +1,27 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Node
+node_modules/
+admin/dist/
+
+# Android / Gradle
+.gradle/
+android/build/
+android/app/build/
+android/local.properties
+android/.idea/
+*.iml
+*.keystore
+*.jks
+
+# Misc
+.DS_Store
+.env
+docs/prototype-assets/out/
+admin/src/api/schema.d.ts

@@ -1,0 +1,44 @@
+# AI PR review config, used by the docdru/ai-review action
+# (.github/workflows/ai-review.yml). Read from main: a change takes effect
+# after it is merged. Try it first with --dry-run --config, see
+# https://github.com/docdru/ai-review#try-it-locally
+
+model = "mistral-large-2512"
+
+project = """
+'kidsmedia', a self-hosted media server for a child's Android tablet
+(FastAPI + SQLite, React admin, Kotlin app; bilingual en/de)."""
+
+instructions = """
+AGENTS.md holds the review guidelines (P0-P3 definitions and an "always check"
+list): apply them. Known spec-sensitive areas: grace vs. stream check
+consistency, midnight-crossing lockout weekday semantics, music playback
+positions, heartbeat delta clamping, group cover fallback when media is deleted.
+Rules-engine code must stay I/O-free."""
+
+reference_docs = [
+  { path = "docs/SPEC.md", role = "the spec, source of truth for behaviour", max_chars = 250_000 },
+  { path = "AGENTS.md", role = "review guidelines and project rules", max_chars = 30_000 },
+]
+
+# Not sent; their sources are reviewed instead (pyproject.toml, package.json, the API code).
+generated_files = ["server/uv.lock", "admin/pnpm-lock.yaml", "openapi.json"]
+generated_suffixes = [".jar"]
+
+[[sections]]
+key = "security"
+title = "🔒 Security"
+security = true
+checklist = """
+missing auth on endpoints, SQL injection/raw queries, hardcoded secrets, path
+traversal in media file serving, unsafe deserialization, CORS/auth
+misconfiguration, Docker exposure. This is a kids app -- be strict."""
+
+[[sections]]
+key = "spec"
+title = "📐 Spec consistency"
+reference = true
+checklist = """
+does the change match docs/SPEC.md and AGENTS.md? This applies to code PRs (does
+the code implement the spec?) AND docs PRs (is the spec internally consistent,
+are edited sections coherent with the rest of the spec?)."""

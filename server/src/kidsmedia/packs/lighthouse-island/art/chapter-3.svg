@@ -1,0 +1,71 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024">
+  <!-- Chapter 3: A letter for the ship. Pip flies Mira's letter out to the captain's ship. -->
+  <!-- sky -->
+  <rect width="1024" height="1024" fill="#FBE3C8"/>
+  <circle cx="880" cy="150" r="72" fill="#FFD34D"/>
+  <g fill="#FFFFFF">
+    <ellipse cx="200" cy="150" rx="96" ry="36"/>
+    <ellipse cx="260" cy="128" rx="58" ry="40"/>
+    <ellipse cx="620" cy="230" rx="70" ry="26"/>
+    <ellipse cx="655" cy="214" rx="42" ry="28"/>
+  </g>
+  <!-- sea -->
+  <rect y="620" width="1024" height="404" fill="#2E6FA8"/>
+  <path d="M0 790 q32 -22 64 0 t64 0 t64 0 t64 0 t64 0 t64 0 t64 0 t64 0 t64 0 t64 0 t64 0 t64 0 t64 0 t64 0 t64 0 t64 0" fill="none" stroke="#7FB2DD" stroke-width="12" stroke-linecap="round"/>
+  <path d="M0 920 q32 -22 64 0 t64 0 t64 0 t64 0 t64 0 t64 0 t64 0 t64 0 t64 0 t64 0 t64 0 t64 0 t64 0 t64 0 t64 0 t64 0" fill="none" stroke="#5A93C7" stroke-width="12" stroke-linecap="round"/>
+  <!-- the island with the lighthouse, far away -->
+  <path d="M20 650 Q120 570 250 650 Z" fill="#E9C27A" stroke="#1B2440" stroke-width="10" stroke-linejoin="round"/>
+  <g transform="translate(135,624) scale(0.42) translate(-512,-640)">
+    <polygon points="430,640 594,640 566,300 458,300" fill="#FFFFFF" stroke="#1B2440" stroke-width="22" stroke-linejoin="round"/>
+    <polygon points="440,520 584,520 576,430 448,430" fill="#D2452E"/>
+    <polygon points="451,390 573,390 568,330 456,330" fill="#D2452E"/>
+    <rect x="436" y="276" width="152" height="26" rx="6" fill="#1B2440"/>
+    <rect x="466" y="196" width="92" height="80" fill="#5B6683" stroke="#1B2440" stroke-width="22"/>
+    <polygon points="452,196 572,196 512,128" fill="#D2452E" stroke="#1B2440" stroke-width="22" stroke-linejoin="round"/>
+  </g>
+  <!-- Pip's flight path -->
+  <path d="M230 470 Q280 380 340 380" fill="none" stroke="#C9B49A" stroke-width="10" stroke-linecap="round" stroke-dasharray="4 26"/>
+  <!-- the captain's ship -->
+  <g stroke="#1B2440" stroke-width="10" stroke-linejoin="round" stroke-linecap="round">
+    <path d="M800 560 L800 400" fill="none"/>
+    <path d="M800 404 L880 430 L800 456 Z" fill="#4552C7"/>
+    <rect x="740" y="540" width="170" height="90" rx="10" fill="#FFFFFF"/>
+  </g>
+  <!-- captain -->
+  <g transform="translate(650,640)">
+    <g stroke="#1B2440" stroke-width="9" stroke-linejoin="round" stroke-linecap="round">
+      <path d="M22 -60 L54 -100" fill="none"/>
+      <circle cx="57" cy="-104" r="9" fill="#F2C9A0"/>
+      <path d="M-40 0 L-26 -76 L26 -76 L40 0 Z" fill="#3B4560"/>
+      <circle cx="0" cy="-112" r="40" fill="#F2C9A0"/>
+      <path d="M-42 -112 Q-50 -80 -36 -66 L-30 -100 Z" fill="#1B2440"/>
+      <path d="M-44 -132 Q-40 -172 0 -172 Q40 -172 44 -132 Z" fill="#FFFFFF"/>
+      <path d="M-50 -132 L50 -132" fill="none"/>
+    </g>
+    <circle cx="0" cy="-152" r="7" fill="#FFD34D"/>
+    <circle cx="-13" cy="-108" r="6" fill="#1B2440"/>
+    <circle cx="15" cy="-108" r="6" fill="#1B2440"/>
+    <path d="M-11 -90 q12 11 24 0" fill="none" stroke="#1B2440" stroke-width="5" stroke-linecap="round"/>
+  </g>
+  <g stroke="#1B2440" stroke-width="10" stroke-linejoin="round">
+    <path d="M570 620 L990 620 L940 730 L620 730 Z" fill="#D2452E"/>
+    <path d="M598 670 L966 670" fill="none" stroke-linecap="round"/>
+  </g>
+  <g fill="#7FB2DD" stroke="#1B2440" stroke-width="8">
+    <circle cx="785" cy="585" r="18"/>
+    <circle cx="865" cy="585" r="18"/>
+  </g>
+  <!-- Pip with the letter -->
+  <g transform="translate(400,370) scale(1.8)">
+    <g stroke="#1B2440" stroke-width="5.5" stroke-linejoin="round" stroke-linecap="round">
+      <path d="M-80 -12 q40 -60 80 0" fill="none"/>
+      <path d="M0 -12 q40 -60 80 0" fill="none"/>
+      <ellipse cx="0" cy="0" rx="30" ry="20" fill="#FFFFFF"/>
+      <rect x="38" y="2" width="48" height="32" rx="3" fill="#FFFFFF"/>
+      <path d="M38 4 L62 20 L86 4" fill="none"/>
+    </g>
+    <polygon points="26,-4 50,2 26,8" fill="#F2A23A" stroke="#1B2440" stroke-width="3" stroke-linejoin="round"/>
+    <circle cx="12" cy="-6" r="4" fill="#1B2440"/>
+    <rect x="70" y="22" width="10" height="8" fill="#D2452E"/>
+  </g>
+</svg>

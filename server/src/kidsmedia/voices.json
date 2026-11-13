@@ -1,0 +1,83 @@
+{
+  "_comment": "Piper voices (SPEC §14.3). Bundled voices are downloaded from their URL when the image is built (scripts/fetch_voices.py) and checked against sha256. Voices with \"bundled\": false are known but not shipped: they are used when their files are in data/voices/ or in the image's /app/voices/ (the family image adds JOY there; Hugging Face only hands it out after sign-in, and its licence is non-commercial). Within a language the first voice that is present is the default. Shown in the admin under Read aloud.",
+  "voices": [
+    {
+      "id": "el_GR-joy-medium",
+      "lang": "el",
+      "bundled": false,
+      "license": "CC BY-NC 4.0",
+      "attribution": "JOY Greek voice — Gemma4GR project, CC BY-NC 4.0",
+      "url": "https://huggingface.co/Efso/joy-greek-tts",
+      "files": [
+        {
+          "name": "el_GR-joy-medium.onnx",
+          "sha256": "31b1d51dc72dd43a5429b67798e27599f8cdcfce8a80265bc6f50d932bf144bc"
+        },
+        {
+          "name": "el_GR-joy-medium.onnx.json",
+          "sha256": "451a8885a0ea72e4432fffe22e65a75bbd2e65f6757273d1a5a9ed8a3419852e"
+        }
+      ]
+    },
+    {
+      "id": "el_GR-rapunzelina-low",
+      "lang": "el",
+      "bundled": true,
+      "license": "MIT (model); CC0 (dataset)",
+      "attribution": "Piper voice el_GR-rapunzelina-low (rhasspy/piper-voices), trained on the Greek Single Speaker Speech Dataset (CC0)",
+      "url": "https://huggingface.co/rhasspy/piper-voices/blob/v1.0.0/el/el_GR/rapunzelina/low/MODEL_CARD",
+      "files": [
+        {
+          "name": "el_GR-rapunzelina-low.onnx",
+          "url": "https://huggingface.co/rhasspy/piper-voices/resolve/217ddc79818708b078d0d14a8fae9608b9d77141/el/el_GR/rapunzelina/low/el_GR-rapunzelina-low.onnx",
+          "sha256": "eebb335946c5d868743ff35fbb66b6f00e431b5b9b2e18caf47d3f609a2bf2e1"
+        },
+        {
+          "name": "el_GR-rapunzelina-low.onnx.json",
+          "url": "https://huggingface.co/rhasspy/piper-voices/resolve/217ddc79818708b078d0d14a8fae9608b9d77141/el/el_GR/rapunzelina/low/el_GR-rapunzelina-low.onnx.json",
+          "sha256": null
+        }
+      ]
+    },
+    {
+      "id": "de_DE-thorsten-medium",
+      "lang": "de",
+      "bundled": true,
+      "license": "MIT (model); CC0 (dataset)",
+      "attribution": "Piper voice de_DE-thorsten-medium (rhasspy/piper-voices), trained on Thorsten-Voice by Thorsten Müller (CC0)",
+      "url": "https://huggingface.co/rhasspy/piper-voices/blob/main/de/de_DE/thorsten/medium/MODEL_CARD",
+      "files": [
+        {
+          "name": "de_DE-thorsten-medium.onnx",
+          "url": "https://huggingface.co/rhasspy/piper-voices/resolve/217ddc79818708b078d0d14a8fae9608b9d77141/de/de_DE/thorsten/medium/de_DE-thorsten-medium.onnx",
+          "sha256": "7e64762d8e5118bb578f2eea6207e1a35a8e0c30595010b666f983fc87bb7819"
+        },
+        {
+          "name": "de_DE-thorsten-medium.onnx.json",
+          "url": "https://huggingface.co/rhasspy/piper-voices/resolve/217ddc79818708b078d0d14a8fae9608b9d77141/de/de_DE/thorsten/medium/de_DE-thorsten-medium.onnx.json",
+          "sha256": null
+        }
+      ]
+    },
+    {
+      "id": "en_GB-cori-medium",
+      "lang": "en",
+      "bundled": true,
+      "license": "MIT (model); public domain (dataset)",
+      "attribution": "Piper voice en_GB-cori-medium (rhasspy/piper-voices), trained on public-domain LibriVox recordings",
+      "url": "https://huggingface.co/rhasspy/piper-voices/blob/main/en/en_GB/cori/medium/MODEL_CARD",
+      "files": [
+        {
+          "name": "en_GB-cori-medium.onnx",
+          "url": "https://huggingface.co/rhasspy/piper-voices/resolve/217ddc79818708b078d0d14a8fae9608b9d77141/en/en_GB/cori/medium/en_GB-cori-medium.onnx",
+          "sha256": "1899f98e5fb8310154f3c2973f4b8a929ba7245e722b3d3a85680b833d95f10d"
+        },
+        {
+          "name": "en_GB-cori-medium.onnx.json",
+          "url": "https://huggingface.co/rhasspy/piper-voices/resolve/217ddc79818708b078d0d14a8fae9608b9d77141/en/en_GB/cori/medium/en_GB-cori-medium.onnx.json",
+          "sha256": null
+        }
+      ]
+    }
+  ]
+}

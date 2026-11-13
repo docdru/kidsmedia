@@ -1,0 +1,208 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Kids Media</string>
+
+    <!-- Reason codes from the server (SPEC §3.2). The server never sends sentences. -->
+    <string name="reason_blocked_today">Not today</string>
+    <string name="reason_blocked_today_next">Not today. Again on %1$s!</string>
+    <string name="reason_lockout">Sleeping time until %1$s</string>
+    <string name="reason_item_limit">You\'ve had your story for today</string>
+    <string name="reason_minute_limit">Time\'s up for today</string>
+    <string name="reason_gems">You need %1$d 💎 — you have %2$d</string>
+    <string name="reason_offline">No connection to the server</string>
+    <string name="reason_pause">Let\'s take a break</string>
+    <string name="reason_generic">That doesn\'t work right now</string>
+    <string name="ok">OK</string>
+
+    <!-- First run (SPEC §8.6) -->
+    <string name="setup_title">Set up this tablet</string>
+    <string name="setup_help">Ask your parents for the server address and the 6-digit code from the admin page.</string>
+    <string name="setup_server">Server address</string>
+    <string name="setup_code">Pairing code</string>
+    <string name="setup_pair">Connect</string>
+    <string name="setup_invalid_url">That doesn\'t look like a server address.</string>
+    <string name="setup_https_required">Public servers must use https://.</string>
+    <string name="setup_bad_code">The code is wrong or has expired.</string>
+    <string name="setup_offline">The server can\'t be reached.</string>
+    <string name="setup_rate_limited">Too many tries. Please wait a minute.</string>
+
+    <!-- Home and groups (SPEC §8.1, §8.2) -->
+    <string name="home_hello">What would you like?</string>
+    <string name="home_empty">Nothing here yet.</string>
+    <string name="offline_banner">No connection. Trying again soon…</string>
+    <string name="badge_ready">Ready to play</string>
+    <plurals name="badge_items_left">
+        <item quantity="one">%d story left today</item>
+        <item quantity="other">%d stories left today</item>
+    </plurals>
+    <string name="badge_minutes_left">%1$d min left today</string>
+    <string name="badge_lockout">Sleeping until %1$s</string>
+    <string name="badge_blocked">Not today</string>
+    <string name="badge_item_limit">Done for today</string>
+    <string name="badge_minute_limit">Time\'s up</string>
+    <string name="badge_gems">💎 %1$d</string>
+    <string name="item_minutes">%1$d min</string>
+    <string name="item_played_today">Heard today</string>
+    <string name="locked">Locked</string>
+    <string name="back">Back</string>
+
+    <!-- Player (SPEC §8.3) -->
+    <string name="player_play">Play</string>
+    <string name="player_pause">Pause</string>
+    <string name="player_back15">Back 15 seconds</string>
+    <string name="player_fwd30">Forward 30 seconds</string>
+    <string name="player_loading">Loading…</string>
+    <string name="player_finishing">Finishing this one</string>
+    <string name="player_less_than_minute">Less than a minute left</string>
+    <string name="player_minutes_left">%1$d min left</string>
+    <!-- Parent gate (SPEC §4.3, §8.5) -->
+    <string name="parent_dot">Parent settings (hold for 2 seconds)</string>
+    <string name="cancel">Cancel</string>
+    <string name="pin_delete">Delete digit</string>
+    <string name="pin_enter_title">Parent PIN</string>
+    <string name="pin_set_title">Choose a 4-digit parent PIN</string>
+    <string name="pin_confirm_title">Enter the PIN again</string>
+    <string name="pin_wrong">Wrong PIN</string>
+    <string name="pin_mismatch">The PINs didn\'t match. Try again.</string>
+    <string name="pin_locked">Too many tries. Wait %1$d s.</string>
+    <string name="settings_title">Settings</string>
+    <string name="settings_server">Server</string>
+    <string name="settings_device">Tablet name</string>
+    <string name="settings_version">App version</string>
+    <string name="settings_max_volume">Max volume</string>
+    <string name="settings_max_volume_percent">%1$d %%</string>
+    <string name="settings_max_volume_none">No limit</string>
+    <string name="settings_language">Language</string>
+    <string name="settings_change_pin">Change PIN</string>
+    <string name="settings_unpair">Pair again</string>
+    <string name="settings_unpair_confirm">This tablet forgets its access and shows the setup screen. You\'ll need a new code from the admin page.</string>
+    <string name="language_en">English</string>
+    <string name="language_de">Deutsch</string>
+    <string name="language_el">Ελληνικά</string>
+    <!-- Self-update (SPEC §4.3) -->
+    <string name="update_check">Check for update</string>
+    <string name="update_checking">Checking…</string>
+    <string name="update_up_to_date">The app is up to date.</string>
+    <string name="update_available">Version %1$s is available.</string>
+    <string name="update_install">Install</string>
+    <string name="update_installing">Downloading…</string>
+    <string name="update_failed">The update didn\'t work.</string>
+    <string name="update_failed_checksum">The download was damaged. Please try again.</string>
+    <!-- Activities (SPEC §13) -->
+    <string name="activity_this_week">THIS WEEK</string>
+    <string name="activity_badge_ready">Chapter %1$d is ready</string>
+    <string name="activity_badge_several">%1$d chapters ready</string>
+    <string name="activity_badge_catch_up">1 chapter to catch up</string>
+    <string name="activity_badge_done_today">Done for today</string>
+    <string name="activity_badge_next_on">Next chapter on %1$s</string>
+    <string name="activity_badge_next_today">Next chapter at %1$s</string>
+    <string name="activity_badge_all_done">All chapters done!</string>
+    <string name="activity_badge_waiting">Coming soon</string>
+    <string name="ideas_open_at">Ideas open at %1$s</string>
+    <string name="ideas_open_on">Ideas open on %1$s at %2$s</string>
+    <string name="ideas_closed">Ideas are resting</string>
+    <string name="reason_ideas_resting">Ideas are resting until %1$s</string>
+    <string name="reason_ideas_resting_on">Ideas are resting until %1$s at %2$s</string>
+    <string name="reason_ideas_resting_now">Ideas are resting for now</string>
+    <string name="activity_chapter_label">CHAPTER %1$d · %2$s</string>
+    <string name="activity_chapter_short">Chapter %1$d · %2$s</string>
+    <string name="activity_chapter_a11y">Chapter %1$d, %2$s</string>
+    <string name="activity_state_done">done</string>
+    <string name="activity_state_locked">locked</string>
+    <string name="activity_next_week">Next wk</string>
+    <string name="activity_choose">What do you want to do?</string>
+    <string name="activity_choose_extra">Chapter done! Want to do an extra?</string>
+    <string name="activity_locked_on">This chapter opens on %1$s</string>
+    <string name="activity_locked_later">This chapter opens soon</string>
+    <string name="activity_kind_draw">Draw</string>
+    <string name="activity_kind_calc">Calculate</string>
+    <string name="activity_kind_write">Write</string>
+    <string name="activity_kind_read">Read</string>
+    <string name="activity_chip_done">Done</string>
+    <string name="activity_chip_extra">Extra</string>
+    <string name="activity_minutes">about %1$d min</string>
+    <string name="activity_listen">Listen</string>
+    <string name="activity_stop">Stop</string>
+    <string name="activity_done_button">I\'m done!</string>
+    <string name="activity_done_title">Chapter %1$d done!</string>
+    <string name="activity_back_to_story">Back to the story</string>
+    <!-- Reading (SPEC §14.2) -->
+    <string name="read_done_reading">I\'ve read it</string>
+    <string name="read_question_count">Question %1$d of %2$d</string>
+    <string name="read_wrong_title">Almost!</string>
+    <string name="read_wrong">Read it again — the answer is in the text.</string>
+    <string name="read_again">Read it again</string>
+    <!-- Checks (SPEC §15) -->
+    <string name="activity_take_picture">Take a picture</string>
+    <string name="activity_lets_start">Let\'s start</string>
+    <string name="done_confirm_title">Did you really finish?</string>
+    <string name="done_confirm_yes">Yes, done!</string>
+    <string name="done_confirm_no">Not yet</string>
+    <string name="calc_problem_count">Problem %1$d of %2$d</string>
+    <string name="calc_answer_a11y">Your answer: %1$s</string>
+    <string name="calc_right">Right!</string>
+    <string name="calc_wrong">Not quite — try again</string>
+    <string name="calc_hint">A tip</string>
+    <string name="calc_delete">Delete</string>
+    <string name="calc_check">Check</string>
+    <string name="photo_shutter">Take the picture</string>
+    <string name="photo_saving">Just a moment…</string>
+    <string name="photo_failed">That didn\'t work. Try once more!</string>
+    <string name="photo_retry">Try again</string>
+    <string name="photo_send_title">Send this picture?</string>
+    <string name="photo_send">Send</string>
+    <string name="photo_again">Take again</string>
+    <string name="photo_permission_title">Ask a grown-up to allow the camera</string>
+    <string name="photo_permission_text">The tablet needs the camera to take a picture of your work.</string>
+    <string name="photo_permission_ask">Ask again</string>
+    <string name="photo_permission_settings">Open settings</string>
+    <!-- Rewards (SPEC §14.4) -->
+    <string name="rewards_title">My stars</string>
+    <string name="rewards_button_a11y">My stars: %1$s</string>
+    <string name="rewards_album">My sticker album</string>
+    <string name="rewards_album_empty">Finish a chapter to get your first sticker!</string>
+    <string name="rewards_sticker_earned">Sticker for chapter %1$d</string>
+    <string name="rewards_sticker_locked">Chapter %1$d: coming soon</string>
+    <string name="rewards_swaps">Swap stars</string>
+    <string name="rewards_wishes">My wishes</string>
+    <string name="rewards_offline">No connection right now. You can swap and wish again soon.</string>
+    <plurals name="reward_stars">
+        <item quantity="one">%d star</item>
+        <item quantity="other">%d stars</item>
+    </plurals>
+    <plurals name="reward_swap_items">
+        <item quantity="one">%d more story</item>
+        <item quantity="other">%d more stories</item>
+    </plurals>
+    <plurals name="reward_swap_minutes">
+        <item quantity="one">%d more minute</item>
+        <item quantity="other">%d more minutes</item>
+    </plurals>
+    <plurals name="reward_swap_button">
+        <item quantity="one">Swap %d star</item>
+        <item quantity="other">Swap %d stars</item>
+    </plurals>
+    <plurals name="reward_need_more">
+        <item quantity="one">%d more star to go</item>
+        <item quantity="other">%d more stars to go</item>
+    </plurals>
+    <string name="reward_swap_label">%1$s · %2$s</string>
+    <string name="reward_swap_limit">That\'s all for today</string>
+    <string name="reward_swapped">Yay! Have fun!</string>
+    <string name="wish_ask">I\'d like this</string>
+    <string name="wish_pending">Waiting for a grown-up</string>
+    <string name="wish_approved">Yes!</string>
+    <string name="wish_declined">Not this time</string>
+    <!-- Gems (SPEC §16) -->
+    <plurals name="gems_count">
+        <item quantity="one">%d gem</item>
+        <item quantity="other">%d gems</item>
+    </plurals>
+    <string name="gems_a11y">My gems: %1$s</string>
+    <string name="gems_cost_a11y">Costs %1$s</string>
+    <string name="gems_spent">💎 −%1$d</string>
+    <string name="gems_title">My gems</string>
+    <string name="gems_none">No gems yet</string>
+    <string name="gems_opens">Gems open</string>
+    <string name="gems_from">A grown-up gives you gems.</string>
+</resources>

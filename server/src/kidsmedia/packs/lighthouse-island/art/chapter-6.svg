@@ -1,0 +1,73 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024">
+  <!-- Chapter 6: Light on! At night the lighthouse shines again and the ships come home safely. -->
+  <!-- night sky -->
+  <rect width="1024" height="1024" fill="#2A3768"/>
+  <circle cx="140" cy="80" r="56" fill="#FFF1C2"/>
+  <circle cx="168" cy="60" r="50" fill="#2A3768"/>
+  <g fill="#FFD34D">
+    <circle cx="330" cy="110" r="8"/>
+    <circle cx="90" cy="330" r="7"/>
+    <circle cx="300" cy="300" r="6"/>
+    <circle cx="700" cy="90" r="8"/>
+    <circle cx="900" cy="80" r="6"/>
+    <circle cx="960" cy="470" r="7"/>
+    <circle cx="640" cy="420" r="6"/>
+    <circle cx="420" cy="420" r="6"/>
+  </g>
+  <!-- light beams -->
+  <g fill="#FFE9A0">
+    <polygon points="512,236 0,140 0,330"/>
+    <polygon points="512,236 1024,150 1024,330"/>
+  </g>
+  <!-- sea -->
+  <rect y="640" width="1024" height="384" fill="#22558C"/>
+  <path d="M0 690 q32 -22 64 0 t64 0 t64 0 t64 0 t64 0 t64 0 t64 0 t64 0 t64 0 t64 0 t64 0 t64 0 t64 0 t64 0 t64 0 t64 0" fill="none" stroke="#4F86BD" stroke-width="12" stroke-linecap="round"/>
+  <path d="M0 930 q32 -22 64 0 t64 0 t64 0 t64 0 t64 0 t64 0 t64 0 t64 0 t64 0 t64 0 t64 0 t64 0 t64 0 t64 0 t64 0 t64 0" fill="none" stroke="#3E74AA" stroke-width="12" stroke-linecap="round"/>
+  <!-- island -->
+  <path d="M170 700 Q300 580 512 590 Q760 580 860 700 Z" fill="#E9C27A" stroke="#1B2440" stroke-width="10" stroke-linejoin="round"/>
+  <!-- lighthouse, light on -->
+  <polygon points="430,640 594,640 566,300 458,300" fill="#FFFFFF" stroke="#1B2440" stroke-width="12" stroke-linejoin="round"/>
+  <polygon points="440,520 584,520 576,430 448,430" fill="#D2452E"/>
+  <polygon points="451,390 573,390 568,330 456,330" fill="#D2452E"/>
+  <rect x="488" y="560" width="48" height="80" rx="20" fill="#3B4560" stroke="#1B2440" stroke-width="8"/>
+  <rect x="436" y="276" width="152" height="26" rx="6" fill="#1B2440"/>
+  <rect x="466" y="196" width="92" height="80" fill="#FFD34D" stroke="#1B2440" stroke-width="12"/>
+  <polygon points="452,196 572,196 512,128" fill="#D2452E" stroke="#1B2440" stroke-width="12" stroke-linejoin="round"/>
+  <circle cx="512" cy="122" r="10" fill="#1B2440"/>
+  <!-- Mira, cheering -->
+  <g transform="translate(320,650)">
+    <g stroke="#1B2440" stroke-width="10" stroke-linejoin="round" stroke-linecap="round">
+      <path d="M24 -64 L56 -110 M-24 -64 L-56 -110" fill="none" stroke-width="22"/>
+      <path d="M24 -64 L56 -110 M-24 -64 L-56 -110" fill="none" stroke="#F2C9A0" stroke-width="8"/>
+      <circle cx="58" cy="-114" r="9" fill="#F2C9A0"/>
+      <circle cx="-58" cy="-114" r="9" fill="#F2C9A0"/>
+      <path d="M-45 0 L-27 -80 L27 -80 L45 0 Z" fill="#4552C7"/>
+      <circle cx="0" cy="-120" r="44" fill="#F2C9A0"/>
+      <path d="M-45 -125 Q-45 -175 0 -174 Q47 -175 45 -125 Q27 -150 0 -148 Q-27 -150 -45 -125 Z" fill="#7A3E1D"/>
+    </g>
+    <circle cx="-15" cy="-118" r="6" fill="#1B2440"/>
+    <circle cx="15" cy="-118" r="6" fill="#1B2440"/>
+    <path d="M-13 -98 q13 12 26 0" fill="none" stroke="#1B2440" stroke-width="6" stroke-linecap="round"/>
+  </g>
+  <!-- Pip -->
+  <g transform="translate(740,470)">
+    <g stroke="#1B2440" stroke-width="10" stroke-linejoin="round" stroke-linecap="round">
+      <path d="M-80 -12 q40 -60 80 0 q-40 -34 -80 0 Z" fill="#FFFFFF"/>
+      <path d="M0 -12 q40 -60 80 0 q-40 -34 -80 0 Z" fill="#FFFFFF"/>
+      <ellipse cx="0" cy="0" rx="30" ry="20" fill="#FFFFFF"/>
+    </g>
+    <polygon points="26,-4 50,2 26,8" fill="#F2A23A"/>
+    <circle cx="12" cy="-6" r="4" fill="#1B2440"/>
+  </g>
+  <!-- ships coming home -->
+  <g stroke="#1B2440" stroke-width="10" stroke-linejoin="round" stroke-linecap="round">
+    <rect x="720" y="760" width="140" height="70" rx="10" fill="#FFFFFF"/>
+    <path d="M640 830 L980 830 L940 920 L680 920 Z" fill="#D2452E"/>
+    <path d="M100 840 L260 840 L235 890 L125 890 Z" fill="#4552C7"/>
+    <path d="M180 840 L180 740 L240 830 Z" fill="#FFFFFF"/>
+  </g>
+  <g fill="#FFD34D" stroke="#1B2440" stroke-width="8">
+    <circle cx="760" cy="795" r="16"/>
+    <circle cx="820" cy="795" r="16"/>
+  </g>
+</svg>

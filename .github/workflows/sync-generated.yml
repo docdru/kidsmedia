@@ -1,0 +1,58 @@
+name: sync generated files
+
+# Keeps server/uv.lock, admin/pnpm-lock.yaml and openapi.json in sync with
+# their sources on feature branches and commits the result back to the branch.
+# The commit shows up in the PR diff like any other change. Pushes made with
+# GITHUB_TOKEN don't trigger other workflows, so re-run CI (or push again)
+# after this bot commits.
+
+on:
+  push:
+    branches-ignore: [main]
+    paths:
+      - "server/pyproject.toml"
+      - "server/src/**"
+      - "admin/package.json"
+      - ".github/workflows/sync-generated.yml"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: sync-generated-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: astral-sh/setup-uv@v7
+        with:
+          python-version: "3.12"
+      - name: uv.lock and openapi.json
+        working-directory: server
+        run: |
+          uv lock
+          uv sync
+          uv run python -m kidsmedia.openapi > ../openapi.json
+      - uses: pnpm/action-setup@v6
+        with:
+          package_json_file: admin/package.json
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 26
+      - name: pnpm-lock.yaml
+        working-directory: admin
+        run: pnpm install --lockfile-only
+      - name: Commit changes
+        run: |
+          git add server/uv.lock openapi.json admin/pnpm-lock.yaml
+          if git diff --cached --quiet; then
+            echo "Generated files are up to date."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "chore: sync lockfiles and openapi.json"
+          git push

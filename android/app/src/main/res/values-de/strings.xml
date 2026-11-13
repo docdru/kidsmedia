@@ -1,0 +1,202 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Kids Media</string>
+
+    <string name="reason_blocked_today">Heute nicht</string>
+    <string name="reason_blocked_today_next">Heute nicht. Wieder am %1$s!</string>
+    <string name="reason_lockout">Schlafenszeit bis %1$s</string>
+    <string name="reason_item_limit">Du hattest heute schon deine Geschichte</string>
+    <string name="reason_minute_limit">Die Zeit für heute ist um</string>
+    <string name="reason_gems">Du brauchst %1$d 💎 — du hast %2$d</string>
+    <string name="reason_offline">Keine Verbindung zum Server</string>
+    <string name="reason_pause">Zeit für eine Pause</string>
+    <string name="reason_generic">Das geht gerade nicht</string>
+    <string name="ok">OK</string>
+
+    <string name="setup_title">Tablet einrichten</string>
+    <string name="setup_help">Frag deine Eltern nach der Serveradresse und dem 6-stelligen Code aus der Verwaltung.</string>
+    <string name="setup_server">Serveradresse</string>
+    <string name="setup_code">Kopplungscode</string>
+    <string name="setup_pair">Verbinden</string>
+    <string name="setup_invalid_url">Das sieht nicht nach einer Serveradresse aus.</string>
+    <string name="setup_https_required">Öffentliche Server brauchen https://.</string>
+    <string name="setup_bad_code">Der Code ist falsch oder abgelaufen.</string>
+    <string name="setup_offline">Der Server ist nicht erreichbar.</string>
+    <string name="setup_rate_limited">Zu viele Versuche. Bitte warte eine Minute.</string>
+
+    <string name="home_hello">Worauf hast du Lust?</string>
+    <string name="home_empty">Hier ist noch nichts.</string>
+    <string name="offline_banner">Keine Verbindung. Gleich nochmal…</string>
+    <string name="badge_ready">Bereit</string>
+    <plurals name="badge_items_left">
+        <item quantity="one">Noch %d Geschichte heute</item>
+        <item quantity="other">Noch %d Geschichten heute</item>
+    </plurals>
+    <string name="badge_minutes_left">Noch %1$d Min. heute</string>
+    <string name="badge_lockout">Schlafen bis %1$s</string>
+    <string name="badge_blocked">Heute nicht</string>
+    <string name="badge_item_limit">Für heute fertig</string>
+    <string name="badge_minute_limit">Zeit ist um</string>
+    <string name="badge_gems">💎 %1$d</string>
+    <string name="item_minutes">%1$d Min.</string>
+    <string name="item_played_today">Heute gehört</string>
+    <string name="locked">Gesperrt</string>
+    <string name="back">Zurück</string>
+
+    <string name="player_play">Abspielen</string>
+    <string name="player_pause">Pause</string>
+    <string name="player_back15">15 Sekunden zurück</string>
+    <string name="player_fwd30">30 Sekunden vor</string>
+    <string name="player_loading">Lädt…</string>
+    <string name="player_finishing">Das hier noch zu Ende</string>
+    <string name="player_less_than_minute">Weniger als eine Minute</string>
+    <string name="player_minutes_left">Noch %1$d Min.</string>
+    <string name="parent_dot">Eltern-Einstellungen (2 Sekunden halten)</string>
+    <string name="cancel">Abbrechen</string>
+    <string name="pin_delete">Ziffer löschen</string>
+    <string name="pin_enter_title">Eltern-PIN</string>
+    <string name="pin_set_title">Wähle eine 4-stellige Eltern-PIN</string>
+    <string name="pin_confirm_title">PIN noch einmal eingeben</string>
+    <string name="pin_wrong">Falsche PIN</string>
+    <string name="pin_mismatch">Die PINs stimmen nicht überein. Nochmal.</string>
+    <string name="pin_locked">Zu viele Versuche. Warte %1$d s.</string>
+    <string name="settings_title">Einstellungen</string>
+    <string name="settings_server">Server</string>
+    <string name="settings_device">Tablet-Name</string>
+    <string name="settings_version">App-Version</string>
+    <string name="settings_max_volume">Maximale Lautstärke</string>
+    <string name="settings_max_volume_percent">%1$d %%</string>
+    <string name="settings_max_volume_none">Keine Grenze</string>
+    <string name="settings_language">Sprache</string>
+    <string name="settings_change_pin">PIN ändern</string>
+    <string name="settings_unpair">Neu koppeln</string>
+    <string name="settings_unpair_confirm">Das Tablet vergisst seinen Zugang und zeigt die Einrichtung. Du brauchst einen neuen Code aus der Verwaltung.</string>
+    <string name="language_en">English</string>
+    <string name="language_de">Deutsch</string>
+    <string name="language_el">Ελληνικά</string>
+    <string name="update_check">Nach Update suchen</string>
+    <string name="update_checking">Suche…</string>
+    <string name="update_up_to_date">Die App ist aktuell.</string>
+    <string name="update_available">Version %1$s ist verfügbar.</string>
+    <string name="update_install">Installieren</string>
+    <string name="update_installing">Lädt herunter…</string>
+    <string name="update_failed">Das Update hat nicht geklappt.</string>
+    <string name="update_failed_checksum">Der Download war beschädigt. Bitte nochmal versuchen.</string>
+    <!-- Aktivitäten (SPEC §13) -->
+    <string name="activity_this_week">DIESE WOCHE</string>
+    <string name="activity_badge_ready">Kapitel %1$d ist bereit</string>
+    <string name="activity_badge_several">%1$d Kapitel bereit</string>
+    <string name="activity_badge_catch_up">1 Kapitel zum Nachholen</string>
+    <string name="activity_badge_done_today">Für heute geschafft</string>
+    <string name="activity_badge_next_on">Nächstes Kapitel am %1$s</string>
+    <string name="activity_badge_next_today">Nächstes Kapitel um %1$s</string>
+    <string name="activity_badge_all_done">Alle Kapitel geschafft!</string>
+    <string name="activity_badge_waiting">Kommt bald</string>
+    <string name="ideas_open_at">Ideen öffnen um %1$s</string>
+    <string name="ideas_open_on">Ideen öffnen am %1$s um %2$s</string>
+    <string name="ideas_closed">Die Ideen ruhen sich aus</string>
+    <string name="reason_ideas_resting">Die Ideen ruhen sich bis %1$s aus</string>
+    <string name="reason_ideas_resting_on">Die Ideen ruhen sich bis %1$s um %2$s aus</string>
+    <string name="reason_ideas_resting_now">Die Ideen ruhen sich gerade aus</string>
+    <string name="activity_chapter_label">KAPITEL %1$d · %2$s</string>
+    <string name="activity_chapter_short">Kapitel %1$d · %2$s</string>
+    <string name="activity_chapter_a11y">Kapitel %1$d, %2$s</string>
+    <string name="activity_state_done">geschafft</string>
+    <string name="activity_state_locked">gesperrt</string>
+    <string name="activity_next_week">Nächste Wo.</string>
+    <string name="activity_choose">Was möchtest du machen?</string>
+    <string name="activity_choose_extra">Kapitel geschafft! Noch etwas extra?</string>
+    <string name="activity_locked_on">Dieses Kapitel öffnet am %1$s</string>
+    <string name="activity_locked_later">Dieses Kapitel öffnet bald</string>
+    <string name="activity_kind_draw">Zeichnen</string>
+    <string name="activity_kind_calc">Rechnen</string>
+    <string name="activity_kind_write">Schreiben</string>
+    <string name="activity_kind_read">Lesen</string>
+    <string name="activity_chip_done">Fertig</string>
+    <string name="activity_chip_extra">Extra</string>
+    <string name="activity_minutes">etwa %1$d Min.</string>
+    <string name="activity_listen">Anhören</string>
+    <string name="activity_stop">Stopp</string>
+    <string name="activity_done_button">Fertig!</string>
+    <string name="activity_done_title">Kapitel %1$d geschafft!</string>
+    <string name="activity_back_to_story">Zurück zur Geschichte</string>
+    <!-- Lesen (SPEC §14.2) -->
+    <string name="read_done_reading">Ich hab\'s gelesen</string>
+    <string name="read_question_count">Frage %1$d von %2$d</string>
+    <string name="read_wrong_title">Fast!</string>
+    <string name="read_wrong">Lies es noch einmal – die Antwort steht im Text.</string>
+    <string name="read_again">Noch mal lesen</string>
+    <!-- Prüfen (SPEC §15) -->
+    <string name="activity_take_picture">Foto machen</string>
+    <string name="activity_lets_start">Los geht\'s</string>
+    <string name="done_confirm_title">Bist du wirklich fertig?</string>
+    <string name="done_confirm_yes">Ja, fertig!</string>
+    <string name="done_confirm_no">Noch nicht</string>
+    <string name="calc_problem_count">Aufgabe %1$d von %2$d</string>
+    <string name="calc_answer_a11y">Deine Antwort: %1$s</string>
+    <string name="calc_right">Richtig!</string>
+    <string name="calc_wrong">Noch nicht ganz – versuch es noch mal</string>
+    <string name="calc_hint">Ein Tipp</string>
+    <string name="calc_delete">Löschen</string>
+    <string name="calc_check">Prüfen</string>
+    <string name="photo_shutter">Foto aufnehmen</string>
+    <string name="photo_saving">Einen Moment …</string>
+    <string name="photo_failed">Das hat nicht geklappt. Versuch es noch mal!</string>
+    <string name="photo_retry">Nochmal versuchen</string>
+    <string name="photo_send_title">Dieses Foto schicken?</string>
+    <string name="photo_send">Schicken</string>
+    <string name="photo_again">Neues Foto</string>
+    <string name="photo_permission_title">Bitte einen Erwachsenen, die Kamera zu erlauben</string>
+    <string name="photo_permission_text">Das Tablet braucht die Kamera, um ein Foto von deiner Arbeit zu machen.</string>
+    <string name="photo_permission_ask">Noch mal fragen</string>
+    <string name="photo_permission_settings">Einstellungen öffnen</string>
+    <!-- Belohnungen (SPEC §14.4) -->
+    <string name="rewards_title">Meine Sterne</string>
+    <string name="rewards_button_a11y">Meine Sterne: %1$s</string>
+    <string name="rewards_album">Mein Stickeralbum</string>
+    <string name="rewards_album_empty">Schaffe ein Kapitel, dann bekommst du deinen ersten Sticker!</string>
+    <string name="rewards_sticker_earned">Sticker für Kapitel %1$d</string>
+    <string name="rewards_sticker_locked">Kapitel %1$d: kommt bald</string>
+    <string name="rewards_swaps">Sterne eintauschen</string>
+    <string name="rewards_wishes">Meine Wünsche</string>
+    <string name="rewards_offline">Gerade keine Verbindung. Tauschen und Wünschen geht bald wieder.</string>
+    <plurals name="reward_stars">
+        <item quantity="one">%d Stern</item>
+        <item quantity="other">%d Sterne</item>
+    </plurals>
+    <plurals name="reward_swap_items">
+        <item quantity="one">%d Geschichte mehr</item>
+        <item quantity="other">%d Geschichten mehr</item>
+    </plurals>
+    <plurals name="reward_swap_minutes">
+        <item quantity="one">%d Minute mehr</item>
+        <item quantity="other">%d Minuten mehr</item>
+    </plurals>
+    <plurals name="reward_swap_button">
+        <item quantity="one">%d Stern tauschen</item>
+        <item quantity="other">%d Sterne tauschen</item>
+    </plurals>
+    <plurals name="reward_need_more">
+        <item quantity="one">Dir fehlt noch %d Stern</item>
+        <item quantity="other">Dir fehlen noch %d Sterne</item>
+    </plurals>
+    <string name="reward_swap_label">%1$s · %2$s</string>
+    <string name="reward_swap_limit">Für heute ist das alles</string>
+    <string name="reward_swapped">Juhu! Viel Spaß!</string>
+    <string name="wish_ask">Das wünsch ich mir</string>
+    <string name="wish_pending">Wartet auf einen Erwachsenen</string>
+    <string name="wish_approved">Ja!</string>
+    <string name="wish_declined">Diesmal nicht</string>
+    <!-- Gems (SPEC §16) -->
+    <plurals name="gems_count">
+        <item quantity="one">%d Edelstein</item>
+        <item quantity="other">%d Edelsteine</item>
+    </plurals>
+    <string name="gems_a11y">Meine Edelsteine: %1$s</string>
+    <string name="gems_cost_a11y">Kostet %1$s</string>
+    <string name="gems_spent">💎 −%1$d</string>
+    <string name="gems_title">Meine Edelsteine</string>
+    <string name="gems_none">Noch keine Edelsteine</string>
+    <string name="gems_opens">Edelsteine öffnen</string>
+    <string name="gems_from">Edelsteine bekommst du von einem Erwachsenen.</string>
+</resources>

@@ -1,0 +1,202 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Kids Media</string>
+
+    <string name="reason_blocked_today">Όχι σήμερα</string>
+    <string name="reason_blocked_today_next">Όχι σήμερα. Επόμενη φορά: %1$s!</string>
+    <string name="reason_lockout">Ώρα για ύπνο μέχρι τις %1$s</string>
+    <string name="reason_item_limit">Άκουσες ήδη την ιστορία σου για σήμερα</string>
+    <string name="reason_minute_limit">Ο χρόνος για σήμερα τελείωσε</string>
+    <string name="reason_gems">Χρειάζεσαι %1$d 💎 — έχεις %2$d</string>
+    <string name="reason_offline">Δεν υπάρχει σύνδεση με τον διακομιστή</string>
+    <string name="reason_pause">Ας κάνουμε ένα διάλειμμα</string>
+    <string name="reason_generic">Αυτό δεν γίνεται τώρα</string>
+    <string name="ok">OK</string>
+
+    <string name="setup_title">Ρύθμιση του tablet</string>
+    <string name="setup_help">Ζήτα από τους γονείς σου τη διεύθυνση του διακομιστή και τον 6ψήφιο κωδικό από τη σελίδα διαχείρισης.</string>
+    <string name="setup_server">Διεύθυνση διακομιστή</string>
+    <string name="setup_code">Κωδικός σύζευξης</string>
+    <string name="setup_pair">Σύνδεση</string>
+    <string name="setup_invalid_url">Αυτό δεν μοιάζει με διεύθυνση διακομιστή.</string>
+    <string name="setup_https_required">Οι δημόσιοι διακομιστές πρέπει να χρησιμοποιούν https://.</string>
+    <string name="setup_bad_code">Ο κωδικός είναι λάθος ή έχει λήξει.</string>
+    <string name="setup_offline">Δεν είναι δυνατή η σύνδεση με τον διακομιστή.</string>
+    <string name="setup_rate_limited">Πάρα πολλές προσπάθειες. Περίμενε ένα λεπτό.</string>
+
+    <string name="home_hello">Τι θα ήθελες;</string>
+    <string name="home_empty">Δεν υπάρχει τίποτα εδώ ακόμα.</string>
+    <string name="offline_banner">Δεν υπάρχει σύνδεση. Ξαναδοκιμάζω σε λίγο…</string>
+    <string name="badge_ready">Έτοιμο</string>
+    <plurals name="badge_items_left">
+        <item quantity="one">Μένει %d ιστορία σήμερα</item>
+        <item quantity="other">Μένουν %d ιστορίες σήμερα</item>
+    </plurals>
+    <string name="badge_minutes_left">Ακόμα %1$d λεπ. σήμερα</string>
+    <string name="badge_lockout">Ύπνος μέχρι τις %1$s</string>
+    <string name="badge_blocked">Όχι σήμερα</string>
+    <string name="badge_item_limit">Τέλος για σήμερα</string>
+    <string name="badge_minute_limit">Ο χρόνος τελείωσε</string>
+    <string name="badge_gems">💎 %1$d</string>
+    <string name="item_minutes">%1$d λεπ.</string>
+    <string name="item_played_today">Το άκουσες σήμερα</string>
+    <string name="locked">Κλειδωμένο</string>
+    <string name="back">Πίσω</string>
+
+    <string name="player_play">Παίξε</string>
+    <string name="player_pause">Παύση</string>
+    <string name="player_back15">15 δευτερόλεπτα πίσω</string>
+    <string name="player_fwd30">30 δευτερόλεπτα μπροστά</string>
+    <string name="player_loading">Φορτώνει…</string>
+    <string name="player_finishing">Αυτό μέχρι το τέλος</string>
+    <string name="player_less_than_minute">Λιγότερο από ένα λεπτό</string>
+    <string name="player_minutes_left">Ακόμα %1$d λεπ.</string>
+    <string name="parent_dot">Ρυθμίσεις γονέων (κράτα πατημένο 2 δευτερόλεπτα)</string>
+    <string name="cancel">Ακύρωση</string>
+    <string name="pin_delete">Διαγραφή ψηφίου</string>
+    <string name="pin_enter_title">PIN γονέων</string>
+    <string name="pin_set_title">Επίλεξε ένα 4ψήφιο PIN γονέων</string>
+    <string name="pin_confirm_title">Γράψε ξανά το PIN</string>
+    <string name="pin_wrong">Λάθος PIN</string>
+    <string name="pin_mismatch">Τα PIN δεν ταιριάζουν. Δοκίμασε ξανά.</string>
+    <string name="pin_locked">Πάρα πολλές προσπάθειες. Περίμενε %1$d δευτ.</string>
+    <string name="settings_title">Ρυθμίσεις</string>
+    <string name="settings_server">Διακομιστής</string>
+    <string name="settings_device">Όνομα tablet</string>
+    <string name="settings_version">Έκδοση εφαρμογής</string>
+    <string name="settings_max_volume">Μέγιστη ένταση</string>
+    <string name="settings_max_volume_percent">%1$d %%</string>
+    <string name="settings_max_volume_none">Χωρίς όριο</string>
+    <string name="settings_language">Γλώσσα</string>
+    <string name="settings_change_pin">Αλλαγή PIN</string>
+    <string name="settings_unpair">Νέα σύζευξη</string>
+    <string name="settings_unpair_confirm">Το tablet ξεχνά την πρόσβασή του και δείχνει την οθόνη ρύθμισης. Θα χρειαστείς νέο κωδικό από τη σελίδα διαχείρισης.</string>
+    <string name="language_en">English</string>
+    <string name="language_de">Deutsch</string>
+    <string name="language_el">Ελληνικά</string>
+    <string name="update_check">Έλεγχος για ενημέρωση</string>
+    <string name="update_checking">Έλεγχος…</string>
+    <string name="update_up_to_date">Η εφαρμογή είναι ενημερωμένη.</string>
+    <string name="update_available">Η έκδοση %1$s είναι διαθέσιμη.</string>
+    <string name="update_install">Εγκατάσταση</string>
+    <string name="update_installing">Λήψη…</string>
+    <string name="update_failed">Η ενημέρωση δεν πέτυχε.</string>
+    <string name="update_failed_checksum">Η λήψη ήταν κατεστραμμένη. Δοκίμασε ξανά.</string>
+    <!-- Δραστηριότητες (SPEC §13) -->
+    <string name="activity_this_week">ΑΥΤΗ ΤΗΝ ΕΒΔΟΜΑΔΑ</string>
+    <string name="activity_badge_ready">Το κεφάλαιο %1$d είναι έτοιμο</string>
+    <string name="activity_badge_several">%1$d κεφάλαια έτοιμα</string>
+    <string name="activity_badge_catch_up">1 κεφάλαιο σε περιμένει</string>
+    <string name="activity_badge_done_today">Τελείωσες για σήμερα</string>
+    <string name="activity_badge_next_on">Επόμενο κεφάλαιο: %1$s</string>
+    <string name="activity_badge_next_today">Επόμενο κεφάλαιο στις %1$s</string>
+    <string name="activity_badge_all_done">Τελείωσες όλα τα κεφάλαια!</string>
+    <string name="activity_badge_waiting">Έρχεται σύντομα</string>
+    <string name="ideas_open_at">Οι Ιδέες ανοίγουν στις %1$s</string>
+    <string name="ideas_open_on">Οι Ιδέες ανοίγουν: %1$s στις %2$s</string>
+    <string name="ideas_closed">Οι Ιδέες ξεκουράζονται</string>
+    <string name="reason_ideas_resting">Οι Ιδέες ξεκουράζονται μέχρι τις %1$s</string>
+    <string name="reason_ideas_resting_on">Οι Ιδέες ξεκουράζονται. Ξανά: %1$s στις %2$s</string>
+    <string name="reason_ideas_resting_now">Οι Ιδέες ξεκουράζονται τώρα</string>
+    <string name="activity_chapter_label">ΚΕΦΑΛΑΙΟ %1$d · %2$s</string>
+    <string name="activity_chapter_short">Κεφάλαιο %1$d · %2$s</string>
+    <string name="activity_chapter_a11y">Κεφάλαιο %1$d, %2$s</string>
+    <string name="activity_state_done">έγινε</string>
+    <string name="activity_state_locked">κλειδωμένο</string>
+    <string name="activity_next_week">Επόμ. εβδ.</string>
+    <string name="activity_choose">Τι θέλεις να κάνεις;</string>
+    <string name="activity_choose_extra">Το κεφάλαιο τελείωσε! Θέλεις κάτι έξτρα;</string>
+    <string name="activity_locked_on">Αυτό το κεφάλαιο ανοίγει: %1$s</string>
+    <string name="activity_locked_later">Αυτό το κεφάλαιο ανοίγει σύντομα</string>
+    <string name="activity_kind_draw">Ζωγραφική</string>
+    <string name="activity_kind_calc">Μαθηματικά</string>
+    <string name="activity_kind_write">Γράψιμο</string>
+    <string name="activity_kind_read">Διάβασμα</string>
+    <string name="activity_chip_done">Έγινε</string>
+    <string name="activity_chip_extra">Έξτρα</string>
+    <string name="activity_minutes">περίπου %1$d λεπ.</string>
+    <string name="activity_listen">Άκου</string>
+    <string name="activity_stop">Σταμάτα</string>
+    <string name="activity_done_button">Τελείωσα!</string>
+    <string name="activity_done_title">Τελείωσες το κεφάλαιο %1$d!</string>
+    <string name="activity_back_to_story">Πίσω στην ιστορία</string>
+    <!-- Διάβασμα (SPEC §14.2) -->
+    <string name="read_done_reading">Το διάβασα</string>
+    <string name="read_question_count">Ερώτηση %1$d από %2$d</string>
+    <string name="read_wrong_title">Σχεδόν!</string>
+    <string name="read_wrong">Διάβασέ το ξανά — η απάντηση είναι μέσα στο κείμενο.</string>
+    <string name="read_again">Ξαναδιάβασέ το</string>
+    <!-- Έλεγχοι (SPEC §15) -->
+    <string name="activity_take_picture">Βγάλε φωτογραφία</string>
+    <string name="activity_lets_start">Ας ξεκινήσουμε</string>
+    <string name="done_confirm_title">Τελείωσες στ\' αλήθεια;</string>
+    <string name="done_confirm_yes">Ναι, τελείωσα!</string>
+    <string name="done_confirm_no">Όχι ακόμα</string>
+    <string name="calc_problem_count">Πρόβλημα %1$d από %2$d</string>
+    <string name="calc_answer_a11y">Η απάντησή σου: %1$s</string>
+    <string name="calc_right">Σωστά!</string>
+    <string name="calc_wrong">Όχι ακριβώς — δοκίμασε ξανά</string>
+    <string name="calc_hint">Μια βοήθεια</string>
+    <string name="calc_delete">Σβήσε</string>
+    <string name="calc_check">Έλεγχος</string>
+    <string name="photo_shutter">Τράβηξε τη φωτογραφία</string>
+    <string name="photo_saving">Μια στιγμή…</string>
+    <string name="photo_failed">Δεν πέτυχε. Δοκίμασε ξανά!</string>
+    <string name="photo_retry">Ξαναδοκίμασε</string>
+    <string name="photo_send_title">Να στείλουμε αυτή τη φωτογραφία;</string>
+    <string name="photo_send">Στείλε</string>
+    <string name="photo_again">Νέα φωτογραφία</string>
+    <string name="photo_permission_title">Ζήτα από έναν μεγάλο να επιτρέψει την κάμερα</string>
+    <string name="photo_permission_text">Το τάμπλετ χρειάζεται την κάμερα για να φωτογραφίσει τη δουλειά σου.</string>
+    <string name="photo_permission_ask">Ρώτα ξανά</string>
+    <string name="photo_permission_settings">Άνοιξε τις ρυθμίσεις</string>
+    <!-- Ανταμοιβές (SPEC §14.4) -->
+    <string name="rewards_title">Τα αστέρια μου</string>
+    <string name="rewards_button_a11y">Τα αστέρια μου: %1$s</string>
+    <string name="rewards_album">Το άλμπουμ μου</string>
+    <string name="rewards_album_empty">Τελείωσε ένα κεφάλαιο και πάρε το πρώτο σου αυτοκόλλητο!</string>
+    <string name="rewards_sticker_earned">Αυτοκόλλητο για το κεφάλαιο %1$d</string>
+    <string name="rewards_sticker_locked">Κεφάλαιο %1$d: έρχεται σύντομα</string>
+    <string name="rewards_swaps">Άλλαξε αστέρια</string>
+    <string name="rewards_wishes">Οι ευχές μου</string>
+    <string name="rewards_offline">Τώρα δεν υπάρχει σύνδεση. Σε λίγο μπορείς πάλι να αλλάξεις αστέρια και να κάνεις ευχές.</string>
+    <plurals name="reward_stars">
+        <item quantity="one">%d αστέρι</item>
+        <item quantity="other">%d αστέρια</item>
+    </plurals>
+    <plurals name="reward_swap_items">
+        <item quantity="one">%d ακόμα ιστορία</item>
+        <item quantity="other">%d ακόμα ιστορίες</item>
+    </plurals>
+    <plurals name="reward_swap_minutes">
+        <item quantity="one">%d ακόμα λεπτό</item>
+        <item quantity="other">%d ακόμα λεπτά</item>
+    </plurals>
+    <plurals name="reward_swap_button">
+        <item quantity="one">Άλλαξε %d αστέρι</item>
+        <item quantity="other">Άλλαξε %d αστέρια</item>
+    </plurals>
+    <plurals name="reward_need_more">
+        <item quantity="one">Σου λείπει %d αστέρι</item>
+        <item quantity="other">Σου λείπουν %d αστέρια</item>
+    </plurals>
+    <string name="reward_swap_label">%1$s · %2$s</string>
+    <string name="reward_swap_limit">Αυτό ήταν για σήμερα</string>
+    <string name="reward_swapped">Ζήτω! Καλή διασκέδαση!</string>
+    <string name="wish_ask">Αυτό θα ήθελα</string>
+    <string name="wish_pending">Περιμένουμε έναν μεγάλο</string>
+    <string name="wish_approved">Ναι!</string>
+    <string name="wish_declined">Όχι αυτή τη φορά</string>
+    <!-- Gems (SPEC §16) -->
+    <plurals name="gems_count">
+        <item quantity="one">%d πετράδι</item>
+        <item quantity="other">%d πετράδια</item>
+    </plurals>
+    <string name="gems_a11y">Τα πετράδια μου: %1$s</string>
+    <string name="gems_cost_a11y">Κοστίζει %1$s</string>
+    <string name="gems_spent">💎 −%1$d</string>
+    <string name="gems_title">Τα πετράδια μου</string>
+    <string name="gems_none">Δεν έχεις ακόμα πετράδια</string>
+    <string name="gems_opens">Τα πετράδια ανοίγουν</string>
+    <string name="gems_from">Τα πετράδια σού τα δίνει ένας μεγάλος.</string>
+</resources>

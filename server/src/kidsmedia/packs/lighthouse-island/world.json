@@ -1,0 +1,3151 @@
+{
+  "format": 1,
+  "slug": "lighthouse-island",
+  "age_band": "6-7",
+  "color": "#B84A12",
+  "cover": "cover.webp",
+  "texts": {
+    "de": {
+      "name": "Leuchtturm-Insel",
+      "guide": "mit Mira und der Möwe Pip"
+    },
+    "en": {
+      "name": "Lighthouse Island",
+      "guide": "with Mira and Pip the seagull"
+    },
+    "el": {
+      "name": "Το νησί του φάρου",
+      "guide": "με τη Μίρα και τον γλάρο Πιπ"
+    }
+  },
+  "chapters": [
+    {
+      "image": "chapter-1.webp",
+      "texts": {
+        "de": {
+          "title": "Miras Leuchtturm",
+          "intro": "Hallo, ich bin Mira! Letzte Nacht hat ein grosser Sturm das Licht meines Leuchtturms ausgemacht, und die Schiffe finden den Weg nicht mehr. Hilfst du mir und Pip diese Woche?",
+          "outro": "Dank dir hat Pip den Leuchtturm gefunden! Morgen suchen wir meine verlorenen Muscheln."
+        },
+        "en": {
+          "title": "Mira's lighthouse",
+          "intro": "Hi, I'm Mira! Last night a big storm put out the light of my lighthouse, and the ships can't find their way. Will you help me and Pip this week?",
+          "outro": "Pip found the lighthouse, thanks to you! Tomorrow we look for my lost shells."
+        },
+        "el": {
+          "title": "Ο φάρος της Μίρας",
+          "intro": "Γεια σου, είμαι η Μίρα! Χθες το βράδυ μια μεγάλη καταιγίδα έσβησε το φως του φάρου μου. Τώρα τα καράβια δεν βρίσκουν τον δρόμο τους. Θα βοηθήσεις εμένα και τον Πιπ αυτή την εβδομάδα;",
+          "outro": "Χάρη σε σένα, ο Πιπ βρήκε τον φάρο! Αύριο θα ψάξουμε τα χαμένα μου κοχύλια."
+        }
+      },
+      "tasks": [
+        {
+          "kind": "draw",
+          "minutes": 15,
+          "texts": {
+            "de": {
+              "title": "Mal meinen Leuchtturm",
+              "text": "Kannst du meinen Leuchtturm auf seiner kleinen Insel zeichnen, mit Streifen in deinen Lieblingsfarben, damit Pip ihn wiederfindet?",
+              "materials": [
+                "Papier",
+                "Buntstifte"
+              ],
+              "easier": "Kannst du meinen Leuchtturm auf seiner kleinen Insel zeichnen? Nur den Turm und die Insel, damit Pip ihn wiederfindet.",
+              "harder": "Kannst du meinen Leuchtturm auf seiner kleinen Insel zeichnen, mit Streifen in deinen Lieblingsfarben? Mal noch ein Schiff auf dem Meer und drei Sachen am Strand dazu, damit Pip viel zu entdecken hat."
+            },
+            "en": {
+              "title": "Draw my lighthouse",
+              "text": "Can you draw my lighthouse on its little island, with stripes in your favourite colours, so Pip can find it again?",
+              "materials": [
+                "Paper",
+                "Coloured pencils"
+              ],
+              "easier": "Can you draw my lighthouse on its little island? Just the tower and the island, so Pip can find it again.",
+              "harder": "Can you draw my lighthouse on its little island, with stripes in your favourite colours? Add a ship on the sea and three things on the beach, so Pip has lots to spot."
+            },
+            "el": {
+              "title": "Ζωγράφισε τον φάρο μου",
+              "text": "Μπορείς να ζωγραφίσεις τον φάρο μου πάνω στο μικρό του νησί; Βάλε του ρίγες με τα αγαπημένα σου χρώματα, για να τον ξαναβρεί ο Πιπ.",
+              "materials": [
+                "Χαρτί",
+                "Ξυλομπογιές"
+              ],
+              "easier": "Μπορείς να ζωγραφίσεις τον φάρο μου πάνω στο μικρό του νησί; Μόνο τον φάρο και το νησί, για να τον ξαναβρεί ο Πιπ.",
+              "harder": "Μπορείς να ζωγραφίσεις τον φάρο μου πάνω στο μικρό του νησί, με ρίγες στα αγαπημένα σου χρώματα; Πρόσθεσε ένα καράβι στη θάλασσα και τρία πράγματα στην παραλία, για να έχει ο Πιπ πολλά να δει."
+            }
+          }
+        },
+        {
+          "kind": "calc",
+          "minutes": 15,
+          "texts": {
+            "de": {
+              "title": "Rechnen am Leuchtturm",
+              "text": "Mein Leuchtturm ist dunkel. Pip und ich wollen alles auf der Insel zählen, bevor es Nacht wird. Hol dir Papier und einen Bleistift. Hier sind 4 Aufgaben. Mal Punkte oder Striche, wenn es dir hilft, und tipp dann deine Antwort ein.",
+              "materials": [
+                "Papier",
+                "Bleistift"
+              ],
+              "easier": "Mein Leuchtturm ist dunkel. Pip und ich wollen alles auf der Insel zählen, bevor es Nacht wird. Hol dir Papier und einen Bleistift. Hier sind 3 kleine Aufgaben. Mal Punkte, die du zählen kannst, und tipp dann deine Antwort ein.",
+              "harder": "Mein Leuchtturm ist dunkel. Pip und ich wollen alles auf der Insel zählen, bevor es Nacht wird. Hol dir Papier und einen Bleistift. Hier sind 5 Aufgaben, und ein paar davon sind knifflig. Schreib deine Rechenschritte auf und tipp dann deine Antwort ein.",
+              "problems": {
+                "easier": [
+                  {
+                    "text": "Miras Leuchtturm hat 4 rote und 3 weisse Streifen. Wie viele Streifen hat er?",
+                    "answer": 7,
+                    "hint": "Mal 4 Striche und dann noch 3 Striche. Zähl alle Striche."
+                  },
+                  {
+                    "text": "8 Schiffe warten draussen auf dem Meer. 2 Schiffe fahren weg. Wie viele Schiffe warten noch?",
+                    "answer": 6,
+                    "hint": "Mal 8 Punkte für die Schiffe. Streich 2 durch. Zähl die Punkte, die übrig sind."
+                  },
+                  {
+                    "text": "Pip zählt die Stufen im Leuchtturm: 2, 4, 6, … Welche Zahl kommt als Nächstes?",
+                    "answer": 8,
+                    "hint": "Pip zählt jedes Mal 2 dazu. Fang bei der letzten Zahl an und zähl zwei weiter."
+                  }
+                ],
+                "normal": [
+                  {
+                    "text": "Mira hat 9 Kerzen für die dunkle Nacht. In einer Kiste findet sie noch 6. Wie viele Kerzen hat sie jetzt?",
+                    "answer": 15,
+                    "hint": "Fang bei 9 an und zähl an den Fingern 6 weiter. Oder: 9 und 1 sind 10, dann den Rest dazu."
+                  },
+                  {
+                    "text": "12 Schiffe sind auf dem Meer. 5 davon sehen die Insel schon. Wie viele Schiffe sehen sie noch nicht?",
+                    "answer": 7,
+                    "hint": "Mal 12 Punkte. Streich 5 durch. Zähl die Punkte, die übrig sind."
+                  },
+                  {
+                    "text": "Der Leuchtturm hat 14 Fenster. Miras kleines Haus hat 8 Fenster. Wie viele Fenster hat der Leuchtturm mehr?",
+                    "answer": 6,
+                    "hint": "Zähl von 8 weiter bis 14. Wie viele Zahlen hast du gezählt?"
+                  },
+                  {
+                    "text": "Pip fängt am Morgen 7 Fische und am Abend 7 Fische. 4 Fische schenkt er Mira. Wie viele Fische behält Pip?",
+                    "answer": 10,
+                    "hint": "Rechne zuerst die Fische vom Morgen und vom Abend zusammen. Nimm dann die Fische für Mira weg."
+                  }
+                ],
+                "harder": [
+                  {
+                    "text": "Mira steigt 30 Stufen hoch, macht eine Pause und steigt dann noch 25 Stufen bis ganz oben. Wie viele Stufen hat ihr Leuchtturm?",
+                    "answer": 55,
+                    "hint": "Teil die Zahlen in Zehner und Einer. Rechne zuerst die Zehner zusammen, dann die Einer."
+                  },
+                  {
+                    "text": "Am Strand lagen 48 Muscheln. Der Sturm hat 20 davon weggespült. Wie viele Muscheln sind noch da?",
+                    "answer": 28,
+                    "hint": "Nimm 2 Zehner von den Zehnern weg. Die Einer bleiben gleich."
+                  },
+                  {
+                    "text": "Pip fliegt am Morgen 15-mal um den Leuchtturm und am Abend genauso oft. Wie oft ist das zusammen?",
+                    "answer": 30,
+                    "hint": "Genauso oft heisst: das Doppelte. Verdopple 10, verdopple 5 und rechne beides zusammen."
+                  },
+                  {
+                    "text": "Mira braucht heute Nacht 50 Kerzen für die Insel. Sie hat 35. Wie viele Kerzen fehlen ihr noch?",
+                    "answer": 15,
+                    "hint": "Zähl von 35 bis 40, dann in Zehnerschritten bis 50. Rechne deine Sprünge zusammen."
+                  },
+                  {
+                    "text": "Auf einem Schiff sind 24 Matrosen. An der Insel steigen 8 aus, dann kommen 13 neue an Bord. Wie viele Matrosen sind jetzt auf dem Schiff?",
+                    "answer": 29,
+                    "hint": "Rechne in zwei Schritten: zuerst wegnehmen, dann dazuzählen. Schreib nach jedem Schritt die Zahl auf."
+                  }
+                ]
+              }
+            },
+            "en": {
+              "title": "Lighthouse sums",
+              "text": "My lighthouse is dark, and Pip and I want to count everything on the island before night comes. Get paper and a pencil. Here are 4 problems. Draw dots or lines if it helps, then type your answer.",
+              "materials": [
+                "Paper",
+                "Pencil"
+              ],
+              "easier": "My lighthouse is dark, and Pip and I want to count everything on the island before night comes. Get paper and a pencil. Here are 3 small problems. Draw dots to help you count, then type your answer.",
+              "harder": "My lighthouse is dark, and Pip and I want to count everything on the island before night comes. Get paper and a pencil. Here are 5 problems, and some of them are tricky. Write down your steps, then type your answer.",
+              "problems": {
+                "easier": [
+                  {
+                    "text": "Mira's lighthouse has 4 red stripes and 3 white stripes. How many stripes does it have?",
+                    "answer": 7,
+                    "hint": "Draw 4 lines and then 3 more lines. Count all the lines."
+                  },
+                  {
+                    "text": "8 ships are waiting out at sea. 2 ships sail away. How many ships are still waiting?",
+                    "answer": 6,
+                    "hint": "Draw 8 dots for the ships. Cross out 2. Count the dots that are left."
+                  },
+                  {
+                    "text": "Pip counts the steps of the lighthouse: 2, 4, 6, … Which number comes next?",
+                    "answer": 8,
+                    "hint": "Each time Pip adds 2. Start at the last number and count on two more."
+                  }
+                ],
+                "normal": [
+                  {
+                    "text": "Mira has 9 candles for the dark night. She finds 6 more in a box. How many candles does she have now?",
+                    "answer": 15,
+                    "hint": "Start at 9 and count on 6 on your fingers. Or: 9 and 1 make 10, then add the rest."
+                  },
+                  {
+                    "text": "12 ships are out at sea. 5 of them can already see the island. How many ships can't see it yet?",
+                    "answer": 7,
+                    "hint": "Draw 12 dots. Cross out 5. Count the dots that are left."
+                  },
+                  {
+                    "text": "The lighthouse has 14 windows. Mira's little house has 8 windows. How many more windows does the lighthouse have?",
+                    "answer": 6,
+                    "hint": "Count on from 8 up to 14. How many numbers did you count?"
+                  },
+                  {
+                    "text": "Pip catches 7 fish in the morning and 7 fish in the evening. He gives 4 fish to Mira. How many fish does Pip keep?",
+                    "answer": 10,
+                    "hint": "First add the morning fish and the evening fish. Then take away the fish for Mira."
+                  }
+                ],
+                "harder": [
+                  {
+                    "text": "Mira climbs 30 steps, takes a rest, and then climbs 25 more steps to the top. How many steps does her lighthouse have?",
+                    "answer": 55,
+                    "hint": "Split the numbers into tens and ones. Add the tens first, then the ones."
+                  },
+                  {
+                    "text": "There were 48 shells on the beach. The storm washed 20 of them away. How many shells are left?",
+                    "answer": 28,
+                    "hint": "Take 2 tens away from the tens. The ones stay the same."
+                  },
+                  {
+                    "text": "Pip flies around the lighthouse 15 times in the morning and just as many times in the evening. How many times is that?",
+                    "answer": 30,
+                    "hint": "Just as many means double. Double 10, double 5, then put them together."
+                  },
+                  {
+                    "text": "Mira needs 50 candles to light up the island tonight. She has 35. How many more candles does she need?",
+                    "answer": 15,
+                    "hint": "Count on from 35 to 40, then jump in tens up to 50. Add up your jumps."
+                  },
+                  {
+                    "text": "There are 24 sailors on a ship. At the island 8 sailors get off, and then 13 new sailors come on board. How many sailors are on the ship now?",
+                    "answer": 29,
+                    "hint": "Do it in two steps: first take away, then add. Write down the number after each step."
+                  }
+                ]
+              }
+            },
+            "el": {
+              "title": "Λογαριασμοί στον φάρο",
+              "text": "Ο φάρος μου είναι σβηστός. Ο Πιπ κι εγώ θέλουμε να μετρήσουμε τα πάντα στο νησί πριν νυχτώσει. Πάρε ένα χαρτί και ένα μολύβι. Έχω 4 προβλήματα για σένα. Ζωγράφισε τελείες ή γραμμούλες, αν σε βοηθάει, και μετά γράψε την απάντησή σου στην οθόνη.",
+              "materials": [
+                "Χαρτί",
+                "Μολύβι"
+              ],
+              "easier": "Ο φάρος μου είναι σβηστός. Ο Πιπ κι εγώ θέλουμε να μετρήσουμε τα πάντα στο νησί πριν νυχτώσει. Πάρε ένα χαρτί και ένα μολύβι. Έχω 3 μικρά προβλήματα για σένα. Ζωγράφισε τελείες για να μετρήσεις και μετά γράψε την απάντησή σου στην οθόνη.",
+              "harder": "Ο φάρος μου είναι σβηστός. Ο Πιπ κι εγώ θέλουμε να μετρήσουμε τα πάντα στο νησί πριν νυχτώσει. Πάρε ένα χαρτί και ένα μολύβι. Έχω 5 προβλήματα για σένα, και μερικά είναι δύσκολα. Γράψε τα βήματά σου στο χαρτί και μετά γράψε την απάντηση στην οθόνη.",
+              "problems": {
+                "easier": [
+                  {
+                    "text": "Ο φάρος της Μίρας έχει 4 κόκκινες και 3 άσπρες ρίγες. Πόσες ρίγες έχει;",
+                    "answer": 7,
+                    "hint": "Ζωγράφισε 4 γραμμούλες και μετά άλλες 3. Μέτρα όλες τις γραμμούλες."
+                  },
+                  {
+                    "text": "8 καράβια περιμένουν στα ανοιχτά. Τα 2 φεύγουν. Πόσα καράβια περιμένουν ακόμα;",
+                    "answer": 6,
+                    "hint": "Ζωγράφισε 8 τελείες για τα καράβια. Σβήσε τις 2 με μια γραμμή. Μέτρα όσες έμειναν."
+                  },
+                  {
+                    "text": "Ο Πιπ μετράει τα σκαλιά του φάρου: 2, 4, 6, … Ποιος αριθμός έρχεται μετά;",
+                    "answer": 8,
+                    "hint": "Κάθε φορά ο Πιπ προσθέτει 2. Ξεκίνα από τον τελευταίο αριθμό και μέτρα δύο ακόμα."
+                  }
+                ],
+                "normal": [
+                  {
+                    "text": "Η Μίρα έχει 9 κεριά για τη σκοτεινή νύχτα. Βρίσκει άλλα 6 σε ένα κουτί. Πόσα κεριά έχει τώρα;",
+                    "answer": 15,
+                    "hint": "Ξεκίνα από το 9 και μέτρα 6 ακόμα στα δάχτυλα. Ή: 9 και 1 κάνουν 10, και μετά βάλε τα υπόλοιπα."
+                  },
+                  {
+                    "text": "12 καράβια είναι στη θάλασσα. Τα 5 βλέπουν ήδη το νησί. Πόσα καράβια δεν το βλέπουν ακόμα;",
+                    "answer": 7,
+                    "hint": "Ζωγράφισε 12 τελείες. Σβήσε τις 5 με μια γραμμή. Μέτρα όσες έμειναν."
+                  },
+                  {
+                    "text": "Ο φάρος έχει 14 παράθυρα. Το σπιτάκι της Μίρας έχει 8 παράθυρα. Πόσα παράθυρα έχει ο φάρος περισσότερα;",
+                    "answer": 6,
+                    "hint": "Μέτρα από το 8 μέχρι το 14. Πόσους αριθμούς μέτρησες;"
+                  },
+                  {
+                    "text": "Ο Πιπ πιάνει 7 ψάρια το πρωί και 7 ψάρια το βράδυ. Δίνει 4 ψάρια στη Μίρα. Πόσα ψάρια κρατάει ο Πιπ;",
+                    "answer": 10,
+                    "hint": "Πρώτα πρόσθεσε τα ψάρια του πρωιού και του βραδιού. Μετά βγάλε τα ψάρια της Μίρας."
+                  }
+                ],
+                "harder": [
+                  {
+                    "text": "Η Μίρα ανεβαίνει 30 σκαλιά, ξεκουράζεται και μετά ανεβαίνει άλλα 25 ως την κορυφή. Πόσα σκαλιά έχει ο φάρος της;",
+                    "answer": 55,
+                    "hint": "Χώρισε τους αριθμούς σε δεκάδες και μονάδες. Πρόσθεσε πρώτα τις δεκάδες και μετά τις μονάδες."
+                  },
+                  {
+                    "text": "Στην παραλία υπήρχαν 48 κοχύλια. Η καταιγίδα πήρε τα 20. Πόσα κοχύλια έμειναν;",
+                    "answer": 28,
+                    "hint": "Βγάλε 2 δεκάδες από τις δεκάδες. Οι μονάδες μένουν ίδιες."
+                  },
+                  {
+                    "text": "Ο Πιπ πετάει 15 φορές γύρω από τον φάρο το πρωί και άλλες τόσες το βράδυ. Πόσες φορές είναι όλες μαζί;",
+                    "answer": 30,
+                    "hint": "Άλλες τόσες σημαίνει το διπλό. Διπλασίασε το 10, διπλασίασε το 5 και πρόσθεσέ τα."
+                  },
+                  {
+                    "text": "Η Μίρα θέλει 50 κεριά για να φωτίσει το νησί απόψε. Έχει 35. Πόσα κεριά της λείπουν ακόμα;",
+                    "answer": 15,
+                    "hint": "Μέτρα από το 35 ως το 40 και μετά με δεκάδες ως το 50. Πρόσθεσε τα πηδήματά σου."
+                  },
+                  {
+                    "text": "Σε ένα καράβι είναι 24 ναύτες. Στο νησί κατεβαίνουν οι 8 και μετά ανεβαίνουν 13 καινούργιοι. Πόσοι ναύτες είναι τώρα στο καράβι;",
+                    "answer": 29,
+                    "hint": "Κάν' το σε δύο βήματα: πρώτα αφαίρεση, μετά πρόσθεση. Γράψε τον αριθμό μετά από κάθε βήμα."
+                  }
+                ]
+              }
+            }
+          }
+        },
+        {
+          "kind": "write",
+          "minutes": 15,
+          "texts": {
+            "de": {
+              "title": "Miras Insel",
+              "text": "Schreib eine kleine Geschichte über Mira, Pip und den Leuchtturm. Was ist im grossen Sturm passiert? Schreib 3 oder 4 Sätze auf dein Papier. Hilfswörter: Leuchtturm, Sturm, Licht.",
+              "materials": [
+                "Papier",
+                "Bleistift"
+              ],
+              "easier": "Schreib 1 oder 2 kurze Sätze über Miras Leuchtturm. Du kannst diesen Anfang abschreiben: „Der Leuchtturm ist …“ Hilfswörter: hoch, dunkel, Insel.",
+              "harder": "Schreib eine Geschichte über die Sturmnacht, mit 5 oder 6 Sätzen. Anfang: Mira und Pip sind im Leuchtturm. Mitte: Der Sturm macht das Licht aus. Schluss: Was machen die beiden dann? Hilfswörter: Sturm, Wellen, Schiffe."
+            },
+            "en": {
+              "title": "Mira's island",
+              "text": "Write a little story about Mira, Pip and the lighthouse. What happened in the big storm? Write 3 or 4 sentences on your paper. Helping words: lighthouse, storm, light.",
+              "materials": [
+                "Paper",
+                "Pencil"
+              ],
+              "easier": "Write 1 or 2 short sentences about Mira's lighthouse. You can copy this start: “The lighthouse is …” Helping words: tall, dark, island.",
+              "harder": "Write a story about the night of the storm, with 5 or 6 sentences. Beginning: Mira and Pip are in the lighthouse. Middle: the storm puts out the light. End: what do they do next? Helping words: storm, waves, ships."
+            },
+            "el": {
+              "title": "Το νησί της Μίρας",
+              "text": "Γράψε μια μικρή ιστορία για τη Μίρα, τον Πιπ και τον φάρο. Τι έγινε στη μεγάλη καταιγίδα; Γράψε 3 ή 4 προτάσεις στο χαρτί σου. Λέξεις που βοηθάνε: φάρος, καταιγίδα, φως.",
+              "materials": [
+                "Χαρτί",
+                "Μολύβι"
+              ],
+              "easier": "Γράψε 1 ή 2 μικρές προτάσεις για τον φάρο της Μίρας. Μπορείς να αντιγράψεις αυτή την αρχή: «Ο φάρος είναι …» Λέξεις που βοηθάνε: ψηλός, σκοτεινός, νησί.",
+              "harder": "Γράψε μια ιστορία για τη νύχτα της καταιγίδας, με 5 ή 6 προτάσεις. Αρχή: η Μίρα και ο Πιπ είναι στον φάρο. Μέση: η καταιγίδα σβήνει το φως. Τέλος: τι κάνουν μετά; Λέξεις που βοηθάνε: καταιγίδα, κύματα, καράβια."
+            }
+          }
+        },
+        {
+          "kind": "read",
+          "minutes": 10,
+          "texts": {
+            "de": {
+              "title": "Pip findet den Weg",
+              "text": "Es ist Nacht. Pip fliegt über das Meer. Alles ist dunkel, denn das Licht ist aus. Pip ist müde und ein bisschen traurig. Da sieht er etwas: rote und weisse Streifen! Das ist Miras Leuchtturm. Pip landet oben auf dem Dach. Mira winkt und ruft: «Pip, du bist da!»",
+              "materials": [],
+              "easier": "Es ist Nacht. Pip fliegt. Alles ist dunkel. Da sieht Pip rote und weisse Streifen. Das ist der Leuchtturm! Mira ruft: «Hallo, Pip!»",
+              "harder": "Es ist Nacht, und über dem Meer ist es ganz dunkel. Pip fliegt schon lange. Seine Flügel sind müde, und er hat ein bisschen Angst. Wo ist nur der Leuchtturm? Ohne das Licht sieht jede Insel gleich aus. Da kommt der Mond hinter einer Wolke hervor. Unten glänzt etwas: rote und weisse Streifen! Das ist Miras Leuchtturm. Pip fliegt eine grosse Runde und landet oben auf dem Dach. Mira öffnet das Fenster und lacht. «Pip, du hast mich gefunden!», ruft sie. Dann bekommt Pip ein Stück Brot und schläft sofort ein.",
+              "questions": {
+                "normal": [
+                  {
+                    "question": "Warum ist alles dunkel?",
+                    "answers": [
+                      "Weil Pip schläft",
+                      "Weil das Licht aus ist",
+                      "Weil Mira ein Buch liest"
+                    ],
+                    "correct": 1
+                  },
+                  {
+                    "question": "Wo landet Pip?",
+                    "answers": [
+                      "Oben auf dem Dach",
+                      "Auf einem Schiff",
+                      "Im Sand am Strand"
+                    ],
+                    "correct": 0
+                  }
+                ],
+                "easier": [
+                  {
+                    "question": "Was sieht Pip?",
+                    "answers": [
+                      "Einen Fisch",
+                      "Ein Schiff",
+                      "Rote und weisse Streifen"
+                    ],
+                    "correct": 2
+                  }
+                ],
+                "harder": [
+                  {
+                    "question": "Was kommt hinter einer Wolke hervor?",
+                    "answers": [
+                      "Der Mond",
+                      "Ein Schiff",
+                      "Ein Vogel"
+                    ],
+                    "correct": 0
+                  },
+                  {
+                    "question": "Was bekommt Pip am Ende?",
+                    "answers": [
+                      "Einen Fisch",
+                      "Ein Stück Brot",
+                      "Eine Muschel"
+                    ],
+                    "correct": 1
+                  }
+                ]
+              }
+            },
+            "en": {
+              "title": "Pip finds the way",
+              "text": "It is night. Pip flies over the sea. Everything is dark, because the light is out. Pip is tired and a little sad. Then he sees something: red and white stripes! It is Mira's lighthouse. Pip lands on the roof. Mira waves and calls, “Pip, you're here!”",
+              "materials": [],
+              "easier": "It is night. Pip flies. It is very dark. Then Pip sees red and white stripes. It is the lighthouse! Mira calls, “Hello, Pip!”",
+              "harder": "It is night, and the sea is very dark. Pip has been flying for a long time. His wings are tired, and he feels a little scared. Where is the lighthouse? Without the light, every island looks the same. Then the moon comes out from behind a cloud. Down below, something shines: red and white stripes! It is Mira's lighthouse. Pip flies a big circle and lands on the roof. Mira opens the window and laughs. “Pip, you found me!” she calls. She gives Pip a piece of bread, and he falls asleep at once.",
+              "questions": {
+                "normal": [
+                  {
+                    "question": "Why is everything dark?",
+                    "answers": [
+                      "Because Pip is asleep",
+                      "Because the light is out",
+                      "Because Mira is reading"
+                    ],
+                    "correct": 1
+                  },
+                  {
+                    "question": "Where does Pip land?",
+                    "answers": [
+                      "On the roof",
+                      "On a ship",
+                      "In the sand on the beach"
+                    ],
+                    "correct": 0
+                  }
+                ],
+                "easier": [
+                  {
+                    "question": "What does Pip see?",
+                    "answers": [
+                      "A fish",
+                      "A ship",
+                      "Red and white stripes"
+                    ],
+                    "correct": 2
+                  }
+                ],
+                "harder": [
+                  {
+                    "question": "What comes out from behind a cloud?",
+                    "answers": [
+                      "The moon",
+                      "A ship",
+                      "A bird"
+                    ],
+                    "correct": 0
+                  },
+                  {
+                    "question": "What does Pip get at the end?",
+                    "answers": [
+                      "A fish",
+                      "A piece of bread",
+                      "A shell"
+                    ],
+                    "correct": 1
+                  }
+                ]
+              }
+            },
+            "el": {
+              "title": "Ο Πιπ βρίσκει τον δρόμο",
+              "text": "Είναι νύχτα. Ο Πιπ πετάει πάνω από τη θάλασσα. Όλα είναι σκοτεινά, γιατί το φως είναι σβηστό. Ο Πιπ είναι κουρασμένος και λίγο λυπημένος. Τότε βλέπει κάτι: κόκκινες και άσπρες ρίγες! Είναι ο φάρος της Μίρας. Ο Πιπ κάθεται πάνω στη στέγη. Η Μίρα τον χαιρετάει και φωνάζει: «Πιπ, ήρθες!»",
+              "materials": [],
+              "easier": "Είναι νύχτα. Ο Πιπ πετάει. Όλα είναι σκοτεινά. Τότε ο Πιπ βλέπει κόκκινες και άσπρες ρίγες. Είναι ο φάρος! Η Μίρα φωνάζει: «Γεια σου, Πιπ!»",
+              "harder": "Είναι νύχτα και η θάλασσα είναι πολύ σκοτεινή. Ο Πιπ πετάει εδώ και πολλή ώρα. Τα φτερά του είναι κουρασμένα και φοβάται λίγο. Πού είναι ο φάρος; Χωρίς το φως, όλα τα νησιά μοιάζουν ίδια. Τότε το φεγγάρι βγαίνει πίσω από ένα σύννεφο. Κάτω κάτι γυαλίζει: κόκκινες και άσπρες ρίγες! Είναι ο φάρος της Μίρας. Ο Πιπ κάνει έναν μεγάλο κύκλο και κάθεται στη στέγη. Η Μίρα ανοίγει το παράθυρο και γελάει. «Πιπ, με βρήκες!» φωνάζει. Του δίνει ένα κομμάτι ψωμί, και ο Πιπ αποκοιμιέται αμέσως.",
+              "questions": {
+                "normal": [
+                  {
+                    "question": "Γιατί είναι όλα σκοτεινά;",
+                    "answers": [
+                      "Γιατί ο Πιπ κοιμάται",
+                      "Γιατί το φως είναι σβηστό",
+                      "Γιατί η Μίρα διαβάζει"
+                    ],
+                    "correct": 1
+                  },
+                  {
+                    "question": "Πού κάθεται ο Πιπ;",
+                    "answers": [
+                      "Πάνω στη στέγη",
+                      "Σε ένα καράβι",
+                      "Στην άμμο της παραλίας"
+                    ],
+                    "correct": 0
+                  }
+                ],
+                "easier": [
+                  {
+                    "question": "Τι βλέπει ο Πιπ;",
+                    "answers": [
+                      "Ένα ψάρι",
+                      "Ένα καράβι",
+                      "Κόκκινες και άσπρες ρίγες"
+                    ],
+                    "correct": 2
+                  }
+                ],
+                "harder": [
+                  {
+                    "question": "Τι βγαίνει πίσω από ένα σύννεφο;",
+                    "answers": [
+                      "Το φεγγάρι",
+                      "Ένα καράβι",
+                      "Ένα πουλί"
+                    ],
+                    "correct": 0
+                  },
+                  {
+                    "question": "Τι παίρνει ο Πιπ στο τέλος;",
+                    "answers": [
+                      "Ένα ψάρι",
+                      "Ένα κομμάτι ψωμί",
+                      "Ένα κοχύλι"
+                    ],
+                    "correct": 1
+                  }
+                ]
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "image": "chapter-2.webp",
+      "texts": {
+        "de": {
+          "title": "Der Sturm",
+          "intro": "Der Sturm hat alles durcheinandergewirbelt. Meine 10 Muscheln sind weg, und das Meer ist noch ganz wild.",
+          "outro": "Die Muscheln sind zurück und der Sturm ist vorbei. Morgen braucht ein Schiff unsere Hilfe!"
+        },
+        "en": {
+          "title": "The storm",
+          "intro": "The storm blew everything around. My 10 shells are gone, and the sea is still wild.",
+          "outro": "The shells are back and the storm is over. Tomorrow a ship needs our help!"
+        },
+        "el": {
+          "title": "Η καταιγίδα",
+          "intro": "Η καταιγίδα σκόρπισε τα πάντα. Τα 10 κοχύλια μου χάθηκαν, και η θάλασσα είναι ακόμα άγρια.",
+          "outro": "Τα κοχύλια γύρισαν και η καταιγίδα πέρασε. Αύριο ένα καράβι χρειάζεται τη βοήθειά μας!"
+        }
+      },
+      "tasks": [
+        {
+          "kind": "draw",
+          "minutes": 15,
+          "texts": {
+            "de": {
+              "title": "Mal den Sturm",
+              "text": "Zeichne den Sturm über dem Meer: grosse Wellen, dunkle Wolken und Wind. Steht mein Leuchtturm noch?",
+              "materials": [
+                "Papier",
+                "Buntstifte"
+              ],
+              "easier": "Zeichne den Sturm über dem Meer. Mal nur die grossen, wilden Wellen.",
+              "harder": "Zeichne den Sturm über dem Meer: grosse Wellen, dunkle Wolken und Wind. Mal auch meinen Leuchtturm dazu und Pip, wie er im Wind flattert."
+            },
+            "en": {
+              "title": "Draw the storm",
+              "text": "Draw the storm over the sea: big waves, dark clouds and wind. Is my lighthouse still standing?",
+              "materials": [
+                "Paper",
+                "Coloured pencils"
+              ],
+              "easier": "Draw the storm over the sea. Just draw the big, wild waves.",
+              "harder": "Draw the storm over the sea: big waves, dark clouds and wind. Add my lighthouse too, and Pip flapping in the wind."
+            },
+            "el": {
+              "title": "Ζωγράφισε την καταιγίδα",
+              "text": "Ζωγράφισε την καταιγίδα πάνω από τη θάλασσα: μεγάλα κύματα, μαύρα σύννεφα και αέρα. Στέκεται ακόμα ο φάρος μου;",
+              "materials": [
+                "Χαρτί",
+                "Ξυλομπογιές"
+              ],
+              "easier": "Ζωγράφισε την καταιγίδα πάνω από τη θάλασσα. Ζωγράφισε μόνο τα μεγάλα, άγρια κύματα.",
+              "harder": "Ζωγράφισε την καταιγίδα πάνω από τη θάλασσα: μεγάλα κύματα, μαύρα σύννεφα και αέρα. Πρόσθεσε και τον φάρο μου, και τον Πιπ να χτυπάει τα φτερά του μέσα στον αέρα."
+            }
+          }
+        },
+        {
+          "kind": "calc",
+          "minutes": 15,
+          "texts": {
+            "de": {
+              "title": "Wo sind meine Muscheln?",
+              "text": "Der Sturm hat meine Muscheln über den ganzen Strand geweht. Finden wir heraus, wie viele noch da sind! Hol dir Papier und einen Bleistift. Hier sind 4 Aufgaben. Mal Punkte oder Striche, wenn es dir hilft, und tipp dann deine Antwort ein.",
+              "materials": [
+                "Papier",
+                "Bleistift"
+              ],
+              "easier": "Der Sturm hat meine Muscheln über den ganzen Strand geweht. Finden wir heraus, wie viele noch da sind! Hol dir Papier und einen Bleistift. Hier sind 3 kleine Aufgaben. Mal Punkte, die du zählen kannst, und tipp dann deine Antwort ein.",
+              "harder": "Der Sturm hat meine Muscheln über den ganzen Strand geweht. Finden wir heraus, wie viele noch da sind! Hol dir Papier und einen Bleistift. Hier sind 5 Aufgaben, und ein paar davon sind knifflig. Schreib deine Rechenschritte auf und tipp dann deine Antwort ein.",
+              "problems": {
+                "easier": [
+                  {
+                    "text": "Mira hatte 10 Muscheln. Der Sturm hat 4 davon weggeweht. Wie viele Muscheln hat sie noch?",
+                    "answer": 6,
+                    "hint": "Mal 10 kleine Kreise für die Muscheln. Streich 4 durch. Zähl den Rest."
+                  },
+                  {
+                    "text": "Mira findet 5 Muscheln im Sand und noch ein paar unter einem Felsen. Jetzt hat sie 9. Wie viele Muscheln lagen unter dem Felsen?",
+                    "answer": 4,
+                    "hint": "Fang bei 5 an und zähl weiter bis 9. Wie viele Zahlen hast du gezählt?"
+                  },
+                  {
+                    "text": "Pip findet 4 Muscheln. Mira findet doppelt so viele. Wie viele Muscheln findet Mira?",
+                    "answer": 8,
+                    "hint": "Doppelt so viele heisst: zweimal dieselbe Zahl. Mal 4 Punkte und noch einmal 4 Punkte."
+                  }
+                ],
+                "normal": [
+                  {
+                    "text": "Der Sturm macht 8 grosse und 9 kleine Wellen. Wie viele Wellen sind das?",
+                    "answer": 17,
+                    "hint": "Fang bei 9 an und zähl 8 weiter. Oder mach zuerst die 10 voll: 9 und 1, dann den Rest."
+                  },
+                  {
+                    "text": "Mira sammelt 16 Muscheln. 7 davon sind kaputt. Wie viele Muscheln sind ganz?",
+                    "answer": 9,
+                    "hint": "Mal 16 Punkte und streich 7 durch. Oder nimm zuerst 6 weg, dann bist du bei 10, und dann noch 1."
+                  },
+                  {
+                    "text": "Pip findet 13 Muscheln, Mira findet 6. Wie viele Muscheln findet Pip mehr?",
+                    "answer": 7,
+                    "hint": "Zähl von 6 weiter bis 13. Wie viele Zahlen hast du gezählt?"
+                  },
+                  {
+                    "text": "Mira hat 10 Muscheln. Am Strand findet sie noch 5 und schenkt Pip 3 für sein Nest. Wie viele Muscheln hat sie jetzt?",
+                    "answer": 12,
+                    "hint": "Zähl zuerst die gefundenen Muscheln dazu. Nimm dann die Muscheln für Pip weg. Schreib die Zahl dazwischen auf."
+                  }
+                ],
+                "harder": [
+                  {
+                    "text": "Mira legt 36 Muscheln in eine lange Reihe. Der Wind weht 14 davon weg. Wie viele Muscheln liegen noch in der Reihe?",
+                    "answer": 22,
+                    "hint": "Nimm zuerst die Zehner weg, dann die Einer. Mal Zehner als Striche und Einer als Punkte."
+                  },
+                  {
+                    "text": "Mira und Pip teilen 40 Muscheln gerecht. Wie viele Muscheln bekommt jeder?",
+                    "answer": 20,
+                    "hint": "Gerecht teilen heisst: Jeder bekommt die Hälfte. Mal 4 Zehnerstriche und teil sie in zwei gleiche Gruppen."
+                  },
+                  {
+                    "text": "Mira will einen Weg aus 60 Muscheln bis zu ihrer Tür legen. Sie hat 45. Wie viele Muscheln braucht sie noch?",
+                    "answer": 15,
+                    "hint": "Zähl von 45 bis 50, dann noch 10 bis 60. Rechne deine Sprünge zusammen."
+                  },
+                  {
+                    "text": "Nach dem Sturm zählt Pip die Wellen in Zehnerschritten: 13, 23, 33, … Welche Zahl kommt als Nächstes?",
+                    "answer": 43,
+                    "hint": "Schau auf die Zehner: Jedes Mal kommt ein Zehner dazu. Die Einer bleiben gleich."
+                  },
+                  {
+                    "text": "Am Montag spült das Meer 18 Muscheln an den Strand, am Dienstag 27. Pip nimmt 5 für sein Nest. Wie viele Muscheln liegen noch am Strand?",
+                    "answer": 40,
+                    "hint": "Rechne zuerst die zwei Tage zusammen: Zehner zu Zehnern, Einer zu Einern. Nimm dann Pips Muscheln weg."
+                  }
+                ]
+              }
+            },
+            "en": {
+              "title": "Where are my shells?",
+              "text": "The storm blew my shells all over the beach. Let's find out how many are left! Get paper and a pencil. Here are 4 problems. Draw dots or lines if it helps, then type your answer.",
+              "materials": [
+                "Paper",
+                "Pencil"
+              ],
+              "easier": "The storm blew my shells all over the beach. Let's find out how many are left! Get paper and a pencil. Here are 3 small problems. Draw dots to help you count, then type your answer.",
+              "harder": "The storm blew my shells all over the beach. Let's find out how many are left! Get paper and a pencil. Here are 5 problems, and some of them are tricky. Write down your steps, then type your answer.",
+              "problems": {
+                "easier": [
+                  {
+                    "text": "Mira had 10 shells. The storm blew 4 of them away. How many shells does she still have?",
+                    "answer": 6,
+                    "hint": "Draw 10 small circles for the shells. Cross out 4. Count the rest."
+                  },
+                  {
+                    "text": "Mira finds 5 shells in the sand and some more under a rock. Now she has 9. How many shells were under the rock?",
+                    "answer": 4,
+                    "hint": "Start at 5 and count on until you get to 9. How many numbers did you count?"
+                  },
+                  {
+                    "text": "Pip finds 4 shells. Mira finds twice as many. How many shells does Mira find?",
+                    "answer": 8,
+                    "hint": "Twice as many means the same number two times. Draw 4 dots and 4 more dots."
+                  }
+                ],
+                "normal": [
+                  {
+                    "text": "The storm makes 8 big waves and 9 small waves. How many waves is that?",
+                    "answer": 17,
+                    "hint": "Start at 9 and count on 8. Or make 10 first: 9 and 1, then add the rest."
+                  },
+                  {
+                    "text": "Mira collects 16 shells. 7 of them are broken. How many shells are not broken?",
+                    "answer": 9,
+                    "hint": "Draw 16 dots and cross out 7. Or take away 6 first to get to 10, then 1 more."
+                  },
+                  {
+                    "text": "Pip finds 13 shells, and Mira finds 6. How many more shells does Pip find?",
+                    "answer": 7,
+                    "hint": "Count on from 6 up to 13. How many numbers did you count?"
+                  },
+                  {
+                    "text": "Mira has 10 shells. She finds 5 more on the beach and gives 3 to Pip for his nest. How many shells does she have now?",
+                    "answer": 12,
+                    "hint": "First add the shells she finds. Then take away the shells for Pip. Write down the number in between."
+                  }
+                ],
+                "harder": [
+                  {
+                    "text": "Mira lays 36 shells in a long line. The wind blows 14 of them away. How many shells are still in the line?",
+                    "answer": 22,
+                    "hint": "Take away the tens first, then the ones. Draw tens as sticks and ones as dots."
+                  },
+                  {
+                    "text": "Mira and Pip share 40 shells fairly. How many shells does each of them get?",
+                    "answer": 20,
+                    "hint": "Sharing fairly means half each. Draw 4 sticks for the tens and split them into two equal groups."
+                  },
+                  {
+                    "text": "Mira wants 60 shells for a path to her door. She has 45. How many shells does she still need?",
+                    "answer": 15,
+                    "hint": "Count on from 45 to 50, then 10 more to 60. Add up your jumps."
+                  },
+                  {
+                    "text": "After the storm, Pip counts the waves in tens: 13, 23, 33, … Which number comes next?",
+                    "answer": 43,
+                    "hint": "Look at the tens: each time there is one more ten. The ones stay the same."
+                  },
+                  {
+                    "text": "On Monday the sea washes 18 shells onto the beach, and on Tuesday 27. Pip takes 5 for his nest. How many shells are left on the beach?",
+                    "answer": 40,
+                    "hint": "First add the two days: tens with tens, ones with ones. Then take away Pip's shells."
+                  }
+                ]
+              }
+            },
+            "el": {
+              "title": "Πού είναι τα κοχύλια μου;",
+              "text": "Η καταιγίδα σκόρπισε τα κοχύλια μου σε όλη την παραλία. Πάμε να βρούμε πόσα έμειναν! Πάρε ένα χαρτί και ένα μολύβι. Έχω 4 προβλήματα για σένα. Ζωγράφισε τελείες ή γραμμούλες, αν σε βοηθάει, και μετά γράψε την απάντησή σου στην οθόνη.",
+              "materials": [
+                "Χαρτί",
+                "Μολύβι"
+              ],
+              "easier": "Η καταιγίδα σκόρπισε τα κοχύλια μου σε όλη την παραλία. Πάμε να βρούμε πόσα έμειναν! Πάρε ένα χαρτί και ένα μολύβι. Έχω 3 μικρά προβλήματα για σένα. Ζωγράφισε τελείες για να μετρήσεις και μετά γράψε την απάντησή σου στην οθόνη.",
+              "harder": "Η καταιγίδα σκόρπισε τα κοχύλια μου σε όλη την παραλία. Πάμε να βρούμε πόσα έμειναν! Πάρε ένα χαρτί και ένα μολύβι. Έχω 5 προβλήματα για σένα, και μερικά είναι δύσκολα. Γράψε τα βήματά σου στο χαρτί και μετά γράψε την απάντηση στην οθόνη.",
+              "problems": {
+                "easier": [
+                  {
+                    "text": "Η Μίρα είχε 10 κοχύλια. Η καταιγίδα πήρε τα 4. Πόσα κοχύλια έχει ακόμα;",
+                    "answer": 6,
+                    "hint": "Ζωγράφισε 10 κυκλάκια για τα κοχύλια. Σβήσε τα 4 με μια γραμμή. Μέτρα όσα έμειναν."
+                  },
+                  {
+                    "text": "Η Μίρα βρίσκει 5 κοχύλια στην άμμο και μερικά ακόμα κάτω από έναν βράχο. Τώρα έχει 9. Πόσα κοχύλια ήταν κάτω από τον βράχο;",
+                    "answer": 4,
+                    "hint": "Ξεκίνα από το 5 και μέτρα μέχρι το 9. Πόσους αριθμούς μέτρησες;"
+                  },
+                  {
+                    "text": "Ο Πιπ βρίσκει 4 κοχύλια. Η Μίρα βρίσκει τα διπλά. Πόσα κοχύλια βρίσκει η Μίρα;",
+                    "answer": 8,
+                    "hint": "Τα διπλά σημαίνει τον ίδιο αριθμό δύο φορές. Ζωγράφισε 4 τελείες και άλλες 4."
+                  }
+                ],
+                "normal": [
+                  {
+                    "text": "Η καταιγίδα κάνει 8 μεγάλα κύματα και 9 μικρά. Πόσα κύματα είναι όλα μαζί;",
+                    "answer": 17,
+                    "hint": "Ξεκίνα από το 9 και μέτρα 8 ακόμα. Ή φτιάξε πρώτα το 10: 9 και 1, και μετά τα υπόλοιπα."
+                  },
+                  {
+                    "text": "Η Μίρα μαζεύει 16 κοχύλια. Τα 7 είναι σπασμένα. Πόσα κοχύλια δεν είναι σπασμένα;",
+                    "answer": 9,
+                    "hint": "Ζωγράφισε 16 τελείες και σβήσε τις 7. Ή βγάλε πρώτα 6 για να φτάσεις στο 10 και μετά άλλο 1."
+                  },
+                  {
+                    "text": "Ο Πιπ βρίσκει 13 κοχύλια και η Μίρα 6. Πόσα κοχύλια περισσότερα βρίσκει ο Πιπ;",
+                    "answer": 7,
+                    "hint": "Μέτρα από το 6 μέχρι το 13. Πόσους αριθμούς μέτρησες;"
+                  },
+                  {
+                    "text": "Η Μίρα έχει 10 κοχύλια. Βρίσκει άλλα 5 στην παραλία και δίνει 3 στον Πιπ για τη φωλιά του. Πόσα κοχύλια έχει τώρα;",
+                    "answer": 12,
+                    "hint": "Πρώτα πρόσθεσε τα κοχύλια που βρίσκει. Μετά βγάλε όσα δίνει στον Πιπ. Γράψε τον αριθμό στο ενδιάμεσο."
+                  }
+                ],
+                "harder": [
+                  {
+                    "text": "Η Μίρα βάζει 36 κοχύλια σε μια μεγάλη σειρά. Ο αέρας παίρνει τα 14. Πόσα κοχύλια έμειναν στη σειρά;",
+                    "answer": 22,
+                    "hint": "Βγάλε πρώτα τις δεκάδες και μετά τις μονάδες. Ζωγράφισε τις δεκάδες με γραμμές και τις μονάδες με τελείες."
+                  },
+                  {
+                    "text": "Η Μίρα και ο Πιπ μοιράζονται δίκαια 40 κοχύλια. Πόσα κοχύλια παίρνει ο καθένας;",
+                    "answer": 20,
+                    "hint": "Δίκαια σημαίνει ότι ο καθένας παίρνει τα μισά. Ζωγράφισε 4 γραμμές για τις δεκάδες και χώρισέ τες σε δύο ίσες ομάδες."
+                  },
+                  {
+                    "text": "Η Μίρα θέλει 60 κοχύλια για ένα μονοπάτι ως την πόρτα της. Έχει 45. Πόσα κοχύλια χρειάζεται ακόμα;",
+                    "answer": 15,
+                    "hint": "Μέτρα από το 45 ως το 50 και μετά 10 ακόμα ως το 60. Πρόσθεσε τα πηδήματά σου."
+                  },
+                  {
+                    "text": "Μετά την καταιγίδα ο Πιπ μετράει τα κύματα ανά δέκα: 13, 23, 33, … Ποιος αριθμός έρχεται μετά;",
+                    "answer": 43,
+                    "hint": "Κοίτα τις δεκάδες: κάθε φορά μπαίνει μία δεκάδα ακόμα. Οι μονάδες μένουν ίδιες."
+                  },
+                  {
+                    "text": "Τη Δευτέρα η θάλασσα βγάζει 18 κοχύλια στην παραλία και την Τρίτη 27. Ο Πιπ παίρνει 5 για τη φωλιά του. Πόσα κοχύλια μένουν στην παραλία;",
+                    "answer": 40,
+                    "hint": "Πρώτα πρόσθεσε τις δύο μέρες: δεκάδες με δεκάδες, μονάδες με μονάδες. Μετά βγάλε τα κοχύλια του Πιπ."
+                  }
+                ]
+              }
+            }
+          }
+        },
+        {
+          "kind": "write",
+          "minutes": 15,
+          "texts": {
+            "de": {
+              "title": "Der wilde Sturm",
+              "text": "Schreib eine kleine Geschichte über den Sturm. Was hat der Wind mit Miras Muscheln gemacht? Schreib 3 oder 4 Sätze auf dein Papier. Hilfswörter: Wind, Muscheln, Meer.",
+              "materials": [
+                "Papier",
+                "Bleistift"
+              ],
+              "easier": "Schreib 1 oder 2 kurze Sätze über den Sturm. Du kannst diesen Anfang abschreiben: „Der Wind ist …“ Hilfswörter: laut, wild, kalt.",
+              "harder": "Schreib eine Geschichte über den Sturm und die verlorenen Muscheln, mit 5 oder 6 Sätzen. Anfang: Der Sturm kommt zur Insel. Mitte: Die Muscheln fliegen weg. Schluss: Wie finden Mira und Pip sie wieder? Hilfswörter: Wind, Muscheln, Sand."
+            },
+            "en": {
+              "title": "The wild storm",
+              "text": "Write a little story about the storm. What did the wind do with Mira's shells? Write 3 or 4 sentences on your paper. Helping words: wind, shells, sea.",
+              "materials": [
+                "Paper",
+                "Pencil"
+              ],
+              "easier": "Write 1 or 2 short sentences about the storm. You can copy this start: “The wind is …” Helping words: loud, wild, cold.",
+              "harder": "Write a story about the storm and the lost shells, with 5 or 6 sentences. Beginning: the storm comes to the island. Middle: the shells blow away. End: how do Mira and Pip find them again? Helping words: wind, shells, sand."
+            },
+            "el": {
+              "title": "Η άγρια καταιγίδα",
+              "text": "Γράψε μια μικρή ιστορία για την καταιγίδα. Τι έκανε ο αέρας στα κοχύλια της Μίρας; Γράψε 3 ή 4 προτάσεις στο χαρτί σου. Λέξεις που βοηθάνε: αέρας, κοχύλια, θάλασσα.",
+              "materials": [
+                "Χαρτί",
+                "Μολύβι"
+              ],
+              "easier": "Γράψε 1 ή 2 μικρές προτάσεις για την καταιγίδα. Μπορείς να αντιγράψεις αυτή την αρχή: «Ο αέρας είναι …» Λέξεις που βοηθάνε: δυνατός, άγριος, κρύος.",
+              "harder": "Γράψε μια ιστορία για την καταιγίδα και τα χαμένα κοχύλια, με 5 ή 6 προτάσεις. Αρχή: η καταιγίδα έρχεται στο νησί. Μέση: ο αέρας παίρνει τα κοχύλια. Τέλος: πώς τα ξαναβρίσκουν η Μίρα και ο Πιπ; Λέξεις που βοηθάνε: αέρας, κοχύλια, άμμος."
+            }
+          }
+        },
+        {
+          "kind": "read",
+          "minutes": 10,
+          "texts": {
+            "de": {
+              "title": "Muscheln im Sand",
+              "text": "Der Sturm ist vorbei. Mira und Pip gehen an den Strand. Der Sand ist nass und voller Algen. Pip pickt im Sand. Er findet eine Muschel, dann noch eine. Mira findet drei unter einem Stein. Am Ende liegen alle zehn Muscheln in Miras Korb. «Gut gemacht, Pip!», sagt Mira.",
+              "materials": [],
+              "easier": "Der Sturm ist vorbei. Mira und Pip gehen an den Strand. Pip findet eine Muschel. Mira findet noch mehr. Jetzt sind alle zehn Muscheln wieder da!",
+              "harder": "Am Morgen ist der Sturm vorbei. Die Sonne scheint, und das Meer ist wieder ruhig. Mira und Pip gehen an den Strand. Der Sand ist nass und voller grüner Algen. «Meine Muscheln müssen hier irgendwo sein», sagt Mira. Pip pickt mit dem Schnabel im Sand. Er findet eine Muschel, dann noch eine und noch eine. Mira hebt einen grossen Stein hoch. Darunter liegen drei Muscheln und ein kleiner Krebs. Der Krebs läuft schnell weg. Am Ende zählt Mira alle Muscheln in ihrem Korb. Es sind genau zehn! Mira lacht und gibt Pip einen Kuss auf den Kopf.",
+              "questions": {
+                "normal": [
+                  {
+                    "question": "Wo findet Mira drei Muscheln?",
+                    "answers": [
+                      "Im Leuchtturm",
+                      "Auf dem Schiff",
+                      "Unter einem Stein"
+                    ],
+                    "correct": 2
+                  },
+                  {
+                    "question": "Wohin kommen die Muscheln am Ende?",
+                    "answers": [
+                      "In eine Kiste",
+                      "In Miras Korb",
+                      "In Pips Nest"
+                    ],
+                    "correct": 1
+                  }
+                ],
+                "easier": [
+                  {
+                    "question": "Wer geht an den Strand?",
+                    "answers": [
+                      "Mira und Pip",
+                      "Nur Mira",
+                      "Die Kapitänin"
+                    ],
+                    "correct": 0
+                  }
+                ],
+                "harder": [
+                  {
+                    "question": "Was liegt unter dem grossen Stein?",
+                    "answers": [
+                      "Eine Lampe",
+                      "Drei Muscheln und ein Krebs",
+                      "Ein Brief"
+                    ],
+                    "correct": 1
+                  },
+                  {
+                    "question": "Wie viele Muscheln sind am Ende im Korb?",
+                    "answers": [
+                      "Drei",
+                      "Sieben",
+                      "Zehn"
+                    ],
+                    "correct": 2
+                  }
+                ]
+              }
+            },
+            "en": {
+              "title": "Shells in the sand",
+              "text": "The storm is over. Mira and Pip go down to the beach. The sand is wet and full of seaweed. Pip pecks in the sand. He finds a shell, then another one. Mira finds three under a stone. In the end, all ten shells are in Mira's basket. “Well done, Pip!” says Mira.",
+              "materials": [],
+              "easier": "The storm is over. Mira and Pip go to the beach. Pip finds a shell. Mira finds more. Now all ten shells are back again!",
+              "harder": "In the morning, the storm is over. The sun is shining, and the sea is calm again. Mira and Pip go down to the beach. The sand is wet and full of green seaweed. “My shells must be here somewhere,” says Mira. Pip pecks in the sand with his beak. He finds a shell, then another, and another. Mira lifts up a big stone. Under it are three shells and a little crab. The crab runs away fast. At the end, Mira counts all the shells in her basket. There are exactly ten! Mira laughs and gives Pip a kiss on the head.",
+              "questions": {
+                "normal": [
+                  {
+                    "question": "Where does Mira find three shells?",
+                    "answers": [
+                      "In the lighthouse",
+                      "On the ship",
+                      "Under a stone"
+                    ],
+                    "correct": 2
+                  },
+                  {
+                    "question": "Where are the shells in the end?",
+                    "answers": [
+                      "In a box",
+                      "In Mira's basket",
+                      "In Pip's nest"
+                    ],
+                    "correct": 1
+                  }
+                ],
+                "easier": [
+                  {
+                    "question": "Who goes to the beach?",
+                    "answers": [
+                      "Mira and Pip",
+                      "Only Mira",
+                      "The captain"
+                    ],
+                    "correct": 0
+                  }
+                ],
+                "harder": [
+                  {
+                    "question": "What is under the big stone?",
+                    "answers": [
+                      "A lamp",
+                      "Three shells and a crab",
+                      "A letter"
+                    ],
+                    "correct": 1
+                  },
+                  {
+                    "question": "How many shells are in the basket at the end?",
+                    "answers": [
+                      "Three",
+                      "Seven",
+                      "Ten"
+                    ],
+                    "correct": 2
+                  }
+                ]
+              }
+            },
+            "el": {
+              "title": "Κοχύλια στην άμμο",
+              "text": "Η καταιγίδα πέρασε. Η Μίρα και ο Πιπ κατεβαίνουν στην παραλία. Η άμμος είναι βρεγμένη και γεμάτη φύκια. Ο Πιπ ψάχνει στην άμμο με το ράμφος του. Βρίσκει ένα κοχύλι, μετά κι άλλο ένα. Η Μίρα βρίσκει τρία κάτω από μια πέτρα. Στο τέλος, και τα δέκα κοχύλια είναι στο καλάθι της Μίρας. «Μπράβο, Πιπ!» λέει η Μίρα.",
+              "materials": [],
+              "easier": "Η καταιγίδα πέρασε. Η Μίρα και ο Πιπ πάνε στην παραλία. Ο Πιπ βρίσκει ένα κοχύλι. Η Μίρα βρίσκει κι άλλα. Τώρα είναι εδώ και τα δέκα κοχύλια!",
+              "harder": "Το πρωί η καταιγίδα έχει περάσει. Ο ήλιος λάμπει και η θάλασσα είναι πάλι ήρεμη. Η Μίρα και ο Πιπ κατεβαίνουν στην παραλία. Η άμμος είναι βρεγμένη και γεμάτη πράσινα φύκια. «Τα κοχύλια μου πρέπει να είναι κάπου εδώ», λέει η Μίρα. Ο Πιπ ψάχνει στην άμμο με το ράμφος του. Βρίσκει ένα κοχύλι, μετά άλλο ένα και άλλο ένα. Η Μίρα σηκώνει μια μεγάλη πέτρα. Από κάτω είναι τρία κοχύλια και ένα μικρό καβουράκι. Το καβουράκι τρέχει γρήγορα μακριά. Στο τέλος η Μίρα μετράει όλα τα κοχύλια στο καλάθι της. Είναι ακριβώς δέκα! Η Μίρα γελάει και δίνει στον Πιπ ένα φιλί στο κεφάλι.",
+              "questions": {
+                "normal": [
+                  {
+                    "question": "Πού βρίσκει η Μίρα τρία κοχύλια;",
+                    "answers": [
+                      "Μέσα στον φάρο",
+                      "Πάνω στο καράβι",
+                      "Κάτω από μια πέτρα"
+                    ],
+                    "correct": 2
+                  },
+                  {
+                    "question": "Πού είναι τα κοχύλια στο τέλος;",
+                    "answers": [
+                      "Σε ένα κουτί",
+                      "Στο καλάθι της Μίρας",
+                      "Στη φωλιά του Πιπ"
+                    ],
+                    "correct": 1
+                  }
+                ],
+                "easier": [
+                  {
+                    "question": "Ποιοι πάνε στην παραλία;",
+                    "answers": [
+                      "Η Μίρα και ο Πιπ",
+                      "Μόνο η Μίρα",
+                      "Η καπετάνισσα"
+                    ],
+                    "correct": 0
+                  }
+                ],
+                "harder": [
+                  {
+                    "question": "Τι υπάρχει κάτω από τη μεγάλη πέτρα;",
+                    "answers": [
+                      "Μια λάμπα",
+                      "Τρία κοχύλια και ένα καβουράκι",
+                      "Ένα γράμμα"
+                    ],
+                    "correct": 1
+                  },
+                  {
+                    "question": "Πόσα κοχύλια είναι στο καλάθι στο τέλος;",
+                    "answers": [
+                      "Τρία",
+                      "Επτά",
+                      "Δέκα"
+                    ],
+                    "correct": 2
+                  }
+                ]
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "image": "chapter-3.webp",
+      "texts": {
+        "de": {
+          "title": "Ein Brief fürs Schiff",
+          "intro": "Draussen auf dem Meer wartet ein Schiff. Pip kann der Kapitänin einen Brief bringen, damit sie weiss, dass wir das Licht reparieren.",
+          "outro": "Pip hat den Brief zum Schiff gebracht. Morgen suchen wir die Ersatzlampe!"
+        },
+        "en": {
+          "title": "A letter for the ship",
+          "intro": "A ship is waiting out at sea. Pip can fly a letter to the captain, so she knows we are fixing the light.",
+          "outro": "Pip flew the letter to the ship. Tomorrow we hunt for the spare lamp!"
+        },
+        "el": {
+          "title": "Ένα γράμμα για το καράβι",
+          "intro": "Ένα καράβι περιμένει έξω στη θάλασσα. Ο Πιπ μπορεί να πάει πετώντας ένα γράμμα στην καπετάνισσα, για να ξέρει ότι φτιάχνουμε το φως.",
+          "outro": "Ο Πιπ πήγε το γράμμα στο καράβι. Αύριο ψάχνουμε την ανταλλακτική λάμπα!"
+        }
+      },
+      "tasks": [
+        {
+          "kind": "draw",
+          "minutes": 15,
+          "texts": {
+            "de": {
+              "title": "Mal das Schiff",
+              "text": "Zeichne das Schiff der Kapitänin auf den Wellen, mit einer Fahne und runden Fenstern.",
+              "materials": [
+                "Papier",
+                "Buntstifte"
+              ],
+              "easier": "Zeichne das Schiff der Kapitänin auf den Wellen. Nur das Schiff, so gross du willst.",
+              "harder": "Zeichne das Schiff der Kapitänin auf den Wellen, mit einer Fahne und runden Fenstern. Mal auch die Kapitänin an Deck. Wie viele Fenster hast du gemalt? Zähl sie!"
+            },
+            "en": {
+              "title": "Draw the ship",
+              "text": "Draw the captain's ship on the waves, with a flag and round windows.",
+              "materials": [
+                "Paper",
+                "Coloured pencils"
+              ],
+              "easier": "Draw the captain's ship on the waves. Just the ship, as big as you like.",
+              "harder": "Draw the captain's ship on the waves, with a flag and round windows. Add the captain standing on deck. How many windows did you draw? Count them!"
+            },
+            "el": {
+              "title": "Ζωγράφισε το καράβι",
+              "text": "Ζωγράφισε το καράβι της καπετάνισσας πάνω στα κύματα, με μια σημαία και στρογγυλά παράθυρα.",
+              "materials": [
+                "Χαρτί",
+                "Ξυλομπογιές"
+              ],
+              "easier": "Ζωγράφισε το καράβι της καπετάνισσας πάνω στα κύματα. Μόνο το καράβι, όσο μεγάλο θέλεις.",
+              "harder": "Ζωγράφισε το καράβι της καπετάνισσας πάνω στα κύματα, με μια σημαία και στρογγυλά παράθυρα. Πρόσθεσε και την καπετάνισσα στο κατάστρωμα. Πόσα παράθυρα ζωγράφισες; Μέτρησέ τα!"
+            }
+          }
+        },
+        {
+          "kind": "calc",
+          "minutes": 15,
+          "texts": {
+            "de": {
+              "title": "Matrosen an Bord",
+              "text": "Das Schiff der Kapitänin wartet draussen auf dem Meer, und ihre Matrosen haben viel zu tun. Hol dir Papier und einen Bleistift. Hier sind 4 Aufgaben. Mal Punkte oder Striche, wenn es dir hilft, und tipp dann deine Antwort ein.",
+              "materials": [
+                "Papier",
+                "Bleistift"
+              ],
+              "easier": "Das Schiff der Kapitänin wartet draussen auf dem Meer, und ihre Matrosen haben viel zu tun. Hol dir Papier und einen Bleistift. Hier sind 3 kleine Aufgaben. Mal Punkte, die du zählen kannst, und tipp dann deine Antwort ein.",
+              "harder": "Das Schiff der Kapitänin wartet draussen auf dem Meer, und ihre Matrosen haben viel zu tun. Hol dir Papier und einen Bleistift. Hier sind 5 Aufgaben, und ein paar davon sind knifflig. Schreib deine Rechenschritte auf und tipp dann deine Antwort ein.",
+              "problems": {
+                "easier": [
+                  {
+                    "text": "3 Matrosen sind auf dem Schiff. 4 kommen noch an Bord. Wie viele Matrosen sind es jetzt?",
+                    "answer": 7,
+                    "hint": "Mal 3 Punkte für die Matrosen und dann noch 4 Punkte. Zähl alle."
+                  },
+                  {
+                    "text": "Das Schiff hat 9 runde Fenster. 5 Fenster sind offen. Wie viele Fenster sind zu?",
+                    "answer": 4,
+                    "hint": "Mal 9 Kreise. Streich die 5 offenen durch. Zähl die Kreise, die übrig sind."
+                  },
+                  {
+                    "text": "Die Kapitänin hat 8 Fahnen. Pip hat 3 Fahnen. Wie viele Fahnen hat die Kapitänin mehr?",
+                    "answer": 5,
+                    "hint": "Mal die Fahnen der Kapitänin in eine Reihe und Pips Fahnen darunter. Zähl die Fahnen ohne Partner."
+                  }
+                ],
+                "normal": [
+                  {
+                    "text": "7 Matrosen sind auf dem Schiff. 6 kommen noch an Bord. Wie viele Matrosen sind es jetzt?",
+                    "answer": 13,
+                    "hint": "Fang bei 7 an und zähl 6 weiter. Oder: 7 und 3 sind 10, dann den Rest dazu."
+                  },
+                  {
+                    "text": "Pip hat 15 Briefe in seiner Tasche. 6 davon bringt er zum Schiff. Wie viele Briefe sind noch in der Tasche?",
+                    "answer": 9,
+                    "hint": "Mal 15 Punkte. Streich 6 durch. Zähl die Punkte, die übrig sind."
+                  },
+                  {
+                    "text": "Die Kapitänin braucht 18 Seile für ihr Schiff. Sie hat 10. Wie viele Seile fehlen noch?",
+                    "answer": 8,
+                    "hint": "Zähl von 10 weiter bis 18. Wie viele Zahlen hast du gezählt?"
+                  },
+                  {
+                    "text": "Auf dem Schiff sind 8 Matrosen. 5 rudern zur Insel, und 9 neue kommen an Bord. Wie viele Matrosen sind jetzt auf dem Schiff?",
+                    "answer": 12,
+                    "hint": "Zwei Schritte: Nimm zuerst die weg, die gehen, und zähl dann die neuen dazu. Schreib die Zahl dazwischen auf."
+                  }
+                ],
+                "harder": [
+                  {
+                    "text": "Das Schiff hat 40 Kisten Äpfel und 35 Kisten Brot geladen. Wie viele Kisten sind das?",
+                    "answer": 75,
+                    "hint": "Rechne zuerst die Zehner zusammen, dann die Einer."
+                  },
+                  {
+                    "text": "Pip braucht 90 Flügelschläge bis zum Schiff. 60 hat er schon geschafft. Wie viele Flügelschläge fehlen noch?",
+                    "answer": 30,
+                    "hint": "Zähl in Zehnerschritten von 60 bis 90. Wie viele Zehner hast du gezählt?"
+                  },
+                  {
+                    "text": "Der Brief der Kapitänin hat 25 Wörter. Miras Brief hat doppelt so viele. Wie viele Wörter hat Miras Brief?",
+                    "answer": 50,
+                    "hint": "Doppelt so viele heisst: 25 und 25. Rechne 20 und 20, dann 5 und 5, und zähl beides zusammen."
+                  },
+                  {
+                    "text": "52 Möwen sitzen auf dem Schiff und 30 Möwen auf dem Leuchtturm. Wie viele Möwen sitzen mehr auf dem Schiff?",
+                    "answer": 22,
+                    "hint": "Nimm 3 Zehner von 5 Zehnern weg. Die Einer bleiben gleich."
+                  },
+                  {
+                    "text": "46 Matrosen sind auf dem Schiff. 12 rudern zur Insel, um Mira zu helfen. Später kommen 7 davon zurück. Wie viele Matrosen sind jetzt auf dem Schiff?",
+                    "answer": 41,
+                    "hint": "Erster Schritt: Nimm die weg, die gehen. Zweiter Schritt: Zähl die dazu, die zurückkommen."
+                  }
+                ]
+              }
+            },
+            "en": {
+              "title": "Sailors on board",
+              "text": "The captain's ship is waiting out at sea, and her sailors are very busy. Get paper and a pencil. Here are 4 problems. Draw dots or lines if it helps, then type your answer.",
+              "materials": [
+                "Paper",
+                "Pencil"
+              ],
+              "easier": "The captain's ship is waiting out at sea, and her sailors are very busy. Get paper and a pencil. Here are 3 small problems. Draw dots to help you count, then type your answer.",
+              "harder": "The captain's ship is waiting out at sea, and her sailors are very busy. Get paper and a pencil. Here are 5 problems, and some of them are tricky. Write down your steps, then type your answer.",
+              "problems": {
+                "easier": [
+                  {
+                    "text": "3 sailors are on the ship. 4 more climb on board. How many sailors are there now?",
+                    "answer": 7,
+                    "hint": "Draw 3 dots for the sailors, then 4 more dots. Count them all."
+                  },
+                  {
+                    "text": "The ship has 9 round windows. 5 windows are open. How many windows are closed?",
+                    "answer": 4,
+                    "hint": "Draw 9 circles. Cross out the 5 open ones. Count the circles that are left."
+                  },
+                  {
+                    "text": "The captain has 8 flags. Pip has 3 flags. How many more flags does the captain have?",
+                    "answer": 5,
+                    "hint": "Draw the captain's flags in one row and Pip's flags under them. Count the flags that have no partner."
+                  }
+                ],
+                "normal": [
+                  {
+                    "text": "7 sailors are on the ship. 6 more climb on board. How many sailors are there now?",
+                    "answer": 13,
+                    "hint": "Start at 7 and count on 6. Or: 7 and 3 make 10, then add the rest."
+                  },
+                  {
+                    "text": "Pip has 15 letters in his bag. He brings 6 of them to the ship. How many letters are still in his bag?",
+                    "answer": 9,
+                    "hint": "Draw 15 dots. Cross out 6. Count the dots that are left."
+                  },
+                  {
+                    "text": "The captain needs 18 ropes for her ship. She has 10. How many more ropes does she need?",
+                    "answer": 8,
+                    "hint": "Count on from 10 up to 18. How many numbers did you count?"
+                  },
+                  {
+                    "text": "There are 8 sailors on the ship. 5 row to the island, and 9 new sailors come on board. How many sailors are on the ship now?",
+                    "answer": 12,
+                    "hint": "Two steps: first take away the sailors who leave, then add the new ones. Write down the number in between."
+                  }
+                ],
+                "harder": [
+                  {
+                    "text": "The ship carries 40 boxes of apples and 35 boxes of bread. How many boxes is that?",
+                    "answer": 75,
+                    "hint": "Add the tens first, then the ones."
+                  },
+                  {
+                    "text": "Pip needs 90 wing flaps to reach the ship. He has done 60. How many wing flaps are still to go?",
+                    "answer": 30,
+                    "hint": "Count in tens from 60 up to 90. How many tens did you count?"
+                  },
+                  {
+                    "text": "The captain's letter has 25 words. Mira's letter has twice as many. How many words does Mira's letter have?",
+                    "answer": 50,
+                    "hint": "Twice 25 means 25 and 25. Add 20 and 20, then 5 and 5, and put them together."
+                  },
+                  {
+                    "text": "52 seagulls sit on the ship and 30 seagulls sit on the lighthouse. How many more seagulls sit on the ship?",
+                    "answer": 22,
+                    "hint": "Take away 3 tens from 5 tens. The ones stay the same."
+                  },
+                  {
+                    "text": "46 sailors are on the ship. 12 of them row to the island to help Mira. Later 7 of them come back. How many sailors are on the ship now?",
+                    "answer": 41,
+                    "hint": "Step one: take away the sailors who leave. Step two: add the ones who come back."
+                  }
+                ]
+              }
+            },
+            "el": {
+              "title": "Ναύτες στο καράβι",
+              "text": "Το καράβι της καπετάνισσας περιμένει στα ανοιχτά και οι ναύτες της έχουν πολλή δουλειά. Πάρε ένα χαρτί και ένα μολύβι. Έχω 4 προβλήματα για σένα. Ζωγράφισε τελείες ή γραμμούλες, αν σε βοηθάει, και μετά γράψε την απάντησή σου στην οθόνη.",
+              "materials": [
+                "Χαρτί",
+                "Μολύβι"
+              ],
+              "easier": "Το καράβι της καπετάνισσας περιμένει στα ανοιχτά και οι ναύτες της έχουν πολλή δουλειά. Πάρε ένα χαρτί και ένα μολύβι. Έχω 3 μικρά προβλήματα για σένα. Ζωγράφισε τελείες για να μετρήσεις και μετά γράψε την απάντησή σου στην οθόνη.",
+              "harder": "Το καράβι της καπετάνισσας περιμένει στα ανοιχτά και οι ναύτες της έχουν πολλή δουλειά. Πάρε ένα χαρτί και ένα μολύβι. Έχω 5 προβλήματα για σένα, και μερικά είναι δύσκολα. Γράψε τα βήματά σου στο χαρτί και μετά γράψε την απάντηση στην οθόνη.",
+              "problems": {
+                "easier": [
+                  {
+                    "text": "3 ναύτες είναι στο καράβι. Ανεβαίνουν άλλοι 4. Πόσοι ναύτες είναι τώρα;",
+                    "answer": 7,
+                    "hint": "Ζωγράφισε 3 τελείες για τους ναύτες και μετά άλλες 4. Μέτρα τις όλες."
+                  },
+                  {
+                    "text": "Το καράβι έχει 9 στρογγυλά παράθυρα. Τα 5 είναι ανοιχτά. Πόσα παράθυρα είναι κλειστά;",
+                    "answer": 4,
+                    "hint": "Ζωγράφισε 9 κύκλους. Σβήσε τους 5 ανοιχτούς. Μέτρα τους κύκλους που έμειναν."
+                  },
+                  {
+                    "text": "Η καπετάνισσα έχει 8 σημαίες. Ο Πιπ έχει 3. Πόσες σημαίες περισσότερες έχει η καπετάνισσα;",
+                    "answer": 5,
+                    "hint": "Ζωγράφισε τις σημαίες της καπετάνισσας σε μια σειρά και του Πιπ από κάτω. Μέτρα όσες δεν έχουν ζευγάρι."
+                  }
+                ],
+                "normal": [
+                  {
+                    "text": "7 ναύτες είναι στο καράβι. Ανεβαίνουν άλλοι 6. Πόσοι ναύτες είναι τώρα;",
+                    "answer": 13,
+                    "hint": "Ξεκίνα από το 7 και μέτρα 6 ακόμα. Ή: 7 και 3 κάνουν 10, και μετά βάλε τα υπόλοιπα."
+                  },
+                  {
+                    "text": "Ο Πιπ έχει 15 γράμματα στην τσάντα του. Πηγαίνει τα 6 στο καράβι. Πόσα γράμματα έμειναν στην τσάντα;",
+                    "answer": 9,
+                    "hint": "Ζωγράφισε 15 τελείες. Σβήσε τις 6. Μέτρα όσες έμειναν."
+                  },
+                  {
+                    "text": "Η καπετάνισσα χρειάζεται 18 σκοινιά για το καράβι της. Έχει 10. Πόσα σκοινιά της λείπουν;",
+                    "answer": 8,
+                    "hint": "Μέτρα από το 10 μέχρι το 18. Πόσους αριθμούς μέτρησες;"
+                  },
+                  {
+                    "text": "Στο καράβι είναι 8 ναύτες. Οι 5 πάνε με τη βάρκα στο νησί και ανεβαίνουν 9 καινούργιοι. Πόσοι ναύτες είναι τώρα στο καράβι;",
+                    "answer": 12,
+                    "hint": "Δύο βήματα: πρώτα βγάλε όσους φεύγουν και μετά πρόσθεσε τους καινούργιους. Γράψε τον αριθμό στο ενδιάμεσο."
+                  }
+                ],
+                "harder": [
+                  {
+                    "text": "Το καράβι κουβαλάει 40 κιβώτια με μήλα και 35 κιβώτια με ψωμί. Πόσα κιβώτια είναι όλα μαζί;",
+                    "answer": 75,
+                    "hint": "Πρόσθεσε πρώτα τις δεκάδες και μετά τις μονάδες."
+                  },
+                  {
+                    "text": "Ο Πιπ χρειάζεται 90 φτεροκοπήματα για να φτάσει στο καράβι. Έχει κάνει ήδη 60. Πόσα φτεροκοπήματα μένουν;",
+                    "answer": 30,
+                    "hint": "Μέτρα ανά δέκα από το 60 ως το 90. Πόσες δεκάδες μέτρησες;"
+                  },
+                  {
+                    "text": "Το γράμμα της καπετάνισσας έχει 25 λέξεις. Το γράμμα της Μίρας έχει τις διπλές. Πόσες λέξεις έχει το γράμμα της Μίρας;",
+                    "answer": 50,
+                    "hint": "Το διπλό του 25 είναι 25 και 25. Πρόσθεσε 20 και 20, μετά 5 και 5, και βάλ' τα μαζί."
+                  },
+                  {
+                    "text": "52 γλάροι κάθονται στο καράβι και 30 γλάροι στον φάρο. Πόσοι γλάροι περισσότεροι κάθονται στο καράβι;",
+                    "answer": 22,
+                    "hint": "Βγάλε 3 δεκάδες από τις 5 δεκάδες. Οι μονάδες μένουν ίδιες."
+                  },
+                  {
+                    "text": "Στο καράβι είναι 46 ναύτες. Οι 12 πάνε με τη βάρκα στο νησί για να βοηθήσουν τη Μίρα. Αργότερα γυρίζουν πίσω οι 7. Πόσοι ναύτες είναι τώρα στο καράβι;",
+                    "answer": 41,
+                    "hint": "Πρώτο βήμα: βγάλε όσους φεύγουν. Δεύτερο βήμα: πρόσθεσε όσους γυρίζουν."
+                  }
+                ]
+              }
+            }
+          }
+        },
+        {
+          "kind": "write",
+          "minutes": 15,
+          "texts": {
+            "de": {
+              "title": "Pip fliegt zum Schiff",
+              "text": "Schreib eine kleine Geschichte darüber, wie Pip Miras Brief zum Schiff bringt. Was sieht er unterwegs? Schreib 3 oder 4 Sätze auf dein Papier. Hilfswörter: Brief, Wellen, Kapitänin.",
+              "materials": [
+                "Papier",
+                "Bleistift"
+              ],
+              "easier": "Schreib 1 oder 2 kurze Sätze über Pip. Du kannst diesen Anfang abschreiben: „Pip fliegt zum …“ Hilfswörter: Schiff, Meer, Brief.",
+              "harder": "Schreib eine Geschichte über Pips Flug, mit 5 oder 6 Sätzen. Anfang: Mira gibt Pip den Brief. Mitte: Was passiert auf dem Weg über das Meer? Schluss: Was sagt die Kapitänin? Hilfswörter: Schnabel, Wind, Kapitänin."
+            },
+            "en": {
+              "title": "Pip flies to the ship",
+              "text": "Write a little story about Pip flying Mira's letter to the ship. What does he see on the way? Write 3 or 4 sentences on your paper. Helping words: letter, waves, captain.",
+              "materials": [
+                "Paper",
+                "Pencil"
+              ],
+              "easier": "Write 1 or 2 short sentences about Pip. You can copy this start: “Pip flies to …” Helping words: ship, sea, letter.",
+              "harder": "Write a story about Pip's flight, with 5 or 6 sentences. Beginning: Mira gives Pip the letter. Middle: what happens on the way over the sea? End: what does the captain say? Helping words: beak, wind, captain."
+            },
+            "el": {
+              "title": "Ο Πιπ πετάει στο καράβι",
+              "text": "Γράψε μια μικρή ιστορία για τον Πιπ που πηγαίνει το γράμμα της Μίρας στο καράβι. Τι βλέπει στον δρόμο; Γράψε 3 ή 4 προτάσεις στο χαρτί σου. Λέξεις που βοηθάνε: γράμμα, κύματα, καπετάνισσα.",
+              "materials": [
+                "Χαρτί",
+                "Μολύβι"
+              ],
+              "easier": "Γράψε 1 ή 2 μικρές προτάσεις για τον Πιπ. Μπορείς να αντιγράψεις αυτή την αρχή: «Ο Πιπ πετάει στο …» Λέξεις που βοηθάνε: καράβι, θάλασσα, γράμμα.",
+              "harder": "Γράψε μια ιστορία για το ταξίδι του Πιπ, με 5 ή 6 προτάσεις. Αρχή: η Μίρα δίνει στον Πιπ το γράμμα. Μέση: τι γίνεται στον δρόμο πάνω από τη θάλασσα; Τέλος: τι λέει η καπετάνισσα; Λέξεις που βοηθάνε: ράμφος, αέρας, καπετάνισσα."
+            }
+          }
+        },
+        {
+          "kind": "read",
+          "minutes": 10,
+          "texts": {
+            "de": {
+              "title": "Post für die Kapitänin",
+              "text": "Pip hält den Brief fest im Schnabel. Er fliegt über die Wellen zum Schiff. Die Kapitänin steht an Deck und winkt. Pip lässt den Brief in ihre Hände fallen. Sie liest ihn und lächelt. «Danke, Pip! Wir warten, bis das Licht wieder brennt.» Dann bekommt Pip ein Stück Fisch.",
+              "materials": [],
+              "easier": "Pip hat den Brief im Schnabel. Er fliegt zum Schiff. Die Kapitänin winkt. Sie liest den Brief und lacht. «Danke, Pip!», ruft sie.",
+              "harder": "Pip hält den Brief fest im Schnabel. Der Wind ist stark, aber Pip fliegt tapfer weiter, über eine Welle nach der anderen. Endlich sieht er das Schiff mit der roten Fahne. Die Kapitänin steht an Deck und hält ein Fernrohr. «Eine Möwe mit Post!», ruft sie. Pip lässt den Brief in ihre Hände fallen. Die Kapitänin liest ihn laut vor: «Wir reparieren das Licht. Bitte wartet noch ein bisschen.» Die Matrosen jubeln. Die Kapitänin gibt Pip ein Stück Fisch. Dann lässt sie das Horn ertönen: Tuut, tuut! So weiss Mira, dass der Brief angekommen ist.",
+              "questions": {
+                "normal": [
+                  {
+                    "question": "Womit trägt Pip den Brief?",
+                    "answers": [
+                      "Mit den Füssen",
+                      "Mit dem Schnabel",
+                      "Unter dem Flügel"
+                    ],
+                    "correct": 1
+                  },
+                  {
+                    "question": "Was macht die Kapitänin, als Pip kommt?",
+                    "answers": [
+                      "Sie schläft",
+                      "Sie singt",
+                      "Sie winkt"
+                    ],
+                    "correct": 2
+                  }
+                ],
+                "easier": [
+                  {
+                    "question": "Wohin fliegt Pip?",
+                    "answers": [
+                      "Zum Schiff",
+                      "Zum Felsen",
+                      "Zum Mond"
+                    ],
+                    "correct": 0
+                  }
+                ],
+                "harder": [
+                  {
+                    "question": "Welche Farbe hat die Fahne am Schiff?",
+                    "answers": [
+                      "Rot",
+                      "Blau",
+                      "Grün"
+                    ],
+                    "correct": 0
+                  },
+                  {
+                    "question": "Woran merkt Mira, dass der Brief angekommen ist?",
+                    "answers": [
+                      "Pip bringt eine Antwort",
+                      "Das Schiff fährt weg",
+                      "Die Kapitänin lässt das Horn ertönen"
+                    ],
+                    "correct": 2
+                  }
+                ]
+              }
+            },
+            "en": {
+              "title": "Post for the captain",
+              "text": "Pip holds the letter tight in his beak. He flies over the waves to the ship. The captain is on deck, and she waves. Pip drops the letter into her hands. She reads it and smiles. “Thank you, Pip! We will wait until the light is on again.” Then she gives Pip a piece of fish.",
+              "materials": [],
+              "easier": "Pip has the letter in his beak. He flies to the ship. The captain waves. She reads the letter and smiles. “Thank you, Pip!” she calls.",
+              "harder": "Pip holds the letter tight in his beak. The wind is strong, but Pip is brave and flies on, over one wave after another. At last he sees the ship with the red flag. The captain stands on deck with a telescope. “A seagull with post!” she calls. Pip drops the letter into her hands. The captain reads it out loud: “We are fixing the light. Please wait a little longer.” The sailors cheer. The captain gives Pip a piece of fish. Then she blows the ship's horn: toot, toot! Now Mira knows the letter got there.",
+              "questions": {
+                "normal": [
+                  {
+                    "question": "How does Pip carry the letter?",
+                    "answers": [
+                      "With his feet",
+                      "In his beak",
+                      "Under his wing"
+                    ],
+                    "correct": 1
+                  },
+                  {
+                    "question": "What does the captain do when Pip comes?",
+                    "answers": [
+                      "She sleeps",
+                      "She sings",
+                      "She waves"
+                    ],
+                    "correct": 2
+                  }
+                ],
+                "easier": [
+                  {
+                    "question": "Where does Pip fly?",
+                    "answers": [
+                      "To the ship",
+                      "To the rock",
+                      "To the moon"
+                    ],
+                    "correct": 0
+                  }
+                ],
+                "harder": [
+                  {
+                    "question": "What colour is the flag on the ship?",
+                    "answers": [
+                      "Red",
+                      "Blue",
+                      "Green"
+                    ],
+                    "correct": 0
+                  },
+                  {
+                    "question": "How does Mira know the letter got there?",
+                    "answers": [
+                      "Pip brings an answer",
+                      "The ship sails away",
+                      "The captain blows the horn"
+                    ],
+                    "correct": 2
+                  }
+                ]
+              }
+            },
+            "el": {
+              "title": "Ένα γράμμα για την καπετάνισσα",
+              "text": "Ο Πιπ κρατάει σφιχτά το γράμμα στο ράμφος του. Πετάει πάνω από τα κύματα ως το καράβι. Η καπετάνισσα στέκεται στο κατάστρωμα και χαιρετάει. Ο Πιπ αφήνει το γράμμα να πέσει στα χέρια της. Εκείνη το διαβάζει και χαμογελάει. «Ευχαριστώ, Πιπ! Θα περιμένουμε να ανάψει ξανά το φως.» Μετά δίνει στον Πιπ ένα κομμάτι ψάρι.",
+              "materials": [],
+              "easier": "Ο Πιπ έχει το γράμμα στο ράμφος. Πετάει ως το καράβι. Η καπετάνισσα χαιρετάει. Διαβάζει το γράμμα και χαμογελάει. «Ευχαριστώ, Πιπ!» φωνάζει.",
+              "harder": "Ο Πιπ κρατάει σφιχτά το γράμμα στο ράμφος του. Ο αέρας είναι δυνατός, αλλά ο Πιπ είναι γενναίος και πετάει πάνω από το ένα κύμα μετά το άλλο. Επιτέλους βλέπει το καράβι με την κόκκινη σημαία. Η καπετάνισσα στέκεται στο κατάστρωμα με ένα κιάλι. «Ένας γλάρος με γράμμα!» φωνάζει. Ο Πιπ αφήνει το γράμμα να πέσει στα χέρια της. Η καπετάνισσα το διαβάζει δυνατά: «Φτιάχνουμε το φως. Περιμένετε λίγο ακόμα.» Οι ναύτες φωνάζουν χαρούμενοι. Η καπετάνισσα δίνει στον Πιπ ένα κομμάτι ψάρι. Μετά χτυπάει την κόρνα του καραβιού: του-ουτ, του-ουτ! Έτσι η Μίρα ξέρει ότι το γράμμα έφτασε.",
+              "questions": {
+                "normal": [
+                  {
+                    "question": "Πώς κρατάει ο Πιπ το γράμμα;",
+                    "answers": [
+                      "Με τα πόδια του",
+                      "Στο ράμφος του",
+                      "Κάτω από το φτερό του"
+                    ],
+                    "correct": 1
+                  },
+                  {
+                    "question": "Τι κάνει η καπετάνισσα όταν έρχεται ο Πιπ;",
+                    "answers": [
+                      "Κοιμάται",
+                      "Τραγουδάει",
+                      "Χαιρετάει"
+                    ],
+                    "correct": 2
+                  }
+                ],
+                "easier": [
+                  {
+                    "question": "Πού πετάει ο Πιπ;",
+                    "answers": [
+                      "Ως το καράβι",
+                      "Ως τον βράχο",
+                      "Ως το φεγγάρι"
+                    ],
+                    "correct": 0
+                  }
+                ],
+                "harder": [
+                  {
+                    "question": "Τι χρώμα έχει η σημαία του καραβιού;",
+                    "answers": [
+                      "Κόκκινο",
+                      "Μπλε",
+                      "Πράσινο"
+                    ],
+                    "correct": 0
+                  },
+                  {
+                    "question": "Πώς ξέρει η Μίρα ότι το γράμμα έφτασε;",
+                    "answers": [
+                      "Ο Πιπ φέρνει μια απάντηση",
+                      "Το καράβι φεύγει",
+                      "Η καπετάνισσα χτυπάει την κόρνα"
+                    ],
+                    "correct": 2
+                  }
+                ]
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "image": "chapter-4.webp",
+      "texts": {
+        "de": {
+          "title": "Die versteckte Lampe",
+          "intro": "Meine Ersatzlampe ist irgendwo auf der Insel versteckt. Ich weiss nur noch: Sie war bei einem grossen Felsen.",
+          "outro": "Du hast die Lampe gefunden! Morgen tragen wir sie die Treppe hoch."
+        },
+        "en": {
+          "title": "The hidden lamp",
+          "intro": "My spare lamp is hidden somewhere on the island. I only remember that it was near a big rock.",
+          "outro": "You found the lamp! Tomorrow we carry it up the stairs."
+        },
+        "el": {
+          "title": "Η κρυμμένη λάμπα",
+          "intro": "Η ανταλλακτική μου λάμπα είναι κρυμμένη κάπου στο νησί. Θυμάμαι μόνο ότι ήταν κοντά σε έναν μεγάλο βράχο.",
+          "outro": "Βρήκες τη λάμπα! Αύριο θα την ανεβάσουμε τις σκάλες."
+        }
+      },
+      "tasks": [
+        {
+          "kind": "draw",
+          "minutes": 15,
+          "texts": {
+            "de": {
+              "title": "Eine Schatzkarte",
+              "text": "Zeichne eine Schatzkarte der Insel, mit einem grossen Felsen und einem grossen X, wo die Lampe liegt.",
+              "materials": [
+                "Papier",
+                "Bleistift",
+                "Buntstifte"
+              ],
+              "easier": "Zeichne eine Schatzkarte der Insel. Mal nur die Insel und ein grosses X, wo die Lampe liegt.",
+              "harder": "Zeichne eine Schatzkarte der Insel, mit einem grossen Felsen und einem grossen X, wo die Lampe liegt. Mal einen Weg mit 5 Schritten zum X und schreib die Zahlen 1 bis 5 daneben."
+            },
+            "en": {
+              "title": "A treasure map",
+              "text": "Draw a treasure map of the island, with a big rock and a big X where the lamp is hidden.",
+              "materials": [
+                "Paper",
+                "Pencil",
+                "Coloured pencils"
+              ],
+              "easier": "Draw a treasure map of the island. Just draw the island and a big X where the lamp is hidden.",
+              "harder": "Draw a treasure map of the island, with a big rock and a big X where the lamp is hidden. Draw a path with 5 steps to the X, and write the numbers 1 to 5 next to them."
+            },
+            "el": {
+              "title": "Ένας χάρτης θησαυρού",
+              "text": "Ζωγράφισε έναν χάρτη θησαυρού για το νησί, με έναν μεγάλο βράχο και ένα μεγάλο Χ εκεί που είναι κρυμμένη η λάμπα.",
+              "materials": [
+                "Χαρτί",
+                "Μολύβι",
+                "Ξυλομπογιές"
+              ],
+              "easier": "Ζωγράφισε έναν χάρτη θησαυρού για το νησί. Μόνο το νησί και ένα μεγάλο Χ εκεί που είναι κρυμμένη η λάμπα.",
+              "harder": "Ζωγράφισε έναν χάρτη θησαυρού για το νησί, με έναν μεγάλο βράχο και ένα μεγάλο Χ εκεί που είναι κρυμμένη η λάμπα. Φτιάξε ένα μονοπάτι με 5 βήματα ως το Χ και γράψε δίπλα τους αριθμούς 1 ως 5.",
+              "say": {
+                "text": "Ζωγράφισε έναν χάρτη θησαυρού για το νησί, με έναν μεγάλο βράχο και ένα μεγάλο χι εκεί που είναι κρυμμένη η λάμπα.",
+                "easier": "Ζωγράφισε έναν χάρτη θησαυρού για το νησί. Μόνο το νησί και ένα μεγάλο χι εκεί που είναι κρυμμένη η λάμπα.",
+                "harder": "Ζωγράφισε έναν χάρτη θησαυρού για το νησί, με έναν μεγάλο βράχο και ένα μεγάλο χι εκεί που είναι κρυμμένη η λάμπα. Φτιάξε ένα μονοπάτι με 5 βήματα ως το χι και γράψε δίπλα τους αριθμούς 1 ως 5."
+              }
+            }
+          }
+        },
+        {
+          "kind": "calc",
+          "minutes": 15,
+          "texts": {
+            "de": {
+              "title": "Schritte zum Schatz",
+              "text": "Wir suchen meine Ersatzlampe beim grossen Felsen. Jeder Schritt zählt! Hol dir Papier und einen Bleistift. Hier sind 4 Aufgaben. Mal Punkte oder Striche, wenn es dir hilft, und tipp dann deine Antwort ein.",
+              "materials": [
+                "Papier",
+                "Bleistift"
+              ],
+              "easier": "Wir suchen meine Ersatzlampe beim grossen Felsen. Jeder Schritt zählt! Hol dir Papier und einen Bleistift. Hier sind 3 kleine Aufgaben. Mal Punkte, die du zählen kannst, und tipp dann deine Antwort ein.",
+              "harder": "Wir suchen meine Ersatzlampe beim grossen Felsen. Jeder Schritt zählt! Hol dir Papier und einen Bleistift. Hier sind 5 Aufgaben, und ein paar davon sind knifflig. Schreib deine Rechenschritte auf und tipp dann deine Antwort ein.",
+              "problems": {
+                "easier": [
+                  {
+                    "text": "Vom grossen Felsen geht Mira 3 grosse Schritte und dann noch 5. Wie viele Schritte sind das?",
+                    "answer": 8,
+                    "hint": "Mal 3 Striche und dann noch 5 Striche. Zähl alle Striche."
+                  },
+                  {
+                    "text": "Pip findet beim Felsen 9 glänzende Kiesel. 3 lässt er ins Meer fallen. Wie viele Kiesel hat er noch?",
+                    "answer": 6,
+                    "hint": "Mal 9 Punkte. Streich 3 durch. Zähl die Punkte, die übrig sind."
+                  },
+                  {
+                    "text": "Auf der Schatzkarte hat der Weg die Zahlen 1, 3, 5, 7, … Welche Zahl kommt als Nächstes?",
+                    "answer": 9,
+                    "hint": "Die Zahlen springen immer um 2. Zähl von der letzten Zahl zwei weiter."
+                  }
+                ],
+                "normal": [
+                  {
+                    "text": "Vom Felsen geht Mira 8 kleine Schritte und dann noch 7. Wie viele Schritte sind das?",
+                    "answer": 15,
+                    "hint": "Mach zuerst die 10 voll: 8 und 2 sind 10. Dann zähl den Rest der Schritte dazu."
+                  },
+                  {
+                    "text": "Mira und Pip finden 14 glänzende Kiesel und teilen sie gerecht. Wie viele Kiesel bekommt jeder?",
+                    "answer": 7,
+                    "hint": "Mal 14 Punkte. Gib abwechselnd einen Mira und einen Pip. Zähl dann eine Gruppe."
+                  },
+                  {
+                    "text": "Die Lampe liegt 20 Schritte vom Felsen entfernt. Mira ist schon 12 Schritte gegangen. Wie viele Schritte fehlen noch?",
+                    "answer": 8,
+                    "hint": "Zähl von 12 weiter bis 20. Wie viele Zahlen hast du gezählt?"
+                  },
+                  {
+                    "text": "Mira geht 6 Schritte bis zum Baum, 6 Schritte bis zum Busch und 5 Schritte bis zur Lampe. Wie viele Schritte sind das zusammen?",
+                    "answer": 17,
+                    "hint": "Rechne zuerst 6 und 6, das ist ein Doppel. Zähl dann die letzten Schritte dazu."
+                  }
+                ],
+                "harder": [
+                  {
+                    "text": "Der Schatzweg hat 45 Schritte. Mira ist 20 gegangen. Wie viele Schritte fehlen noch?",
+                    "answer": 25,
+                    "hint": "Nimm 2 Zehner von 45 weg. Mal Zehner als Striche und Einer als Punkte."
+                  },
+                  {
+                    "text": "Mira geht 27 Schritte bis zum Felsen und dann 16 Schritte bis zur Lampe. Wie viele Schritte sind das?",
+                    "answer": 43,
+                    "hint": "Rechne die Zehner zusammen, dann die Einer. Sind es mehr als 10 Einer, mach aus zehn Einern einen Zehner."
+                  },
+                  {
+                    "text": "Die Steine auf dem Kartenweg haben die Nummern 5, 10, 15, … Die Lampe liegt unter dem 8. Stein. Welche Nummer hat dieser Stein?",
+                    "answer": 40,
+                    "hint": "Zähl in Fünferschritten und schreib jede Zahl auf. Hör bei der achten Zahl auf."
+                  },
+                  {
+                    "text": "Pip hüpft 35-mal bis zum Felsen und genauso oft zurück. Wie viele Hüpfer sind das?",
+                    "answer": 70,
+                    "hint": "Genauso oft heisst: das Doppelte. Verdopple 30, verdopple 5 und rechne beides zusammen."
+                  },
+                  {
+                    "text": "Mira malt 50 kleine Steine auf ihre Karte. 18 liegen auf dem Weg und 12 um den Felsen. Der Rest liegt am Strand. Wie viele Steine liegen am Strand?",
+                    "answer": 20,
+                    "hint": "Rechne zuerst die Steine auf dem Weg und am Felsen zusammen. Nimm das dann von allen Steinen weg."
+                  }
+                ]
+              }
+            },
+            "en": {
+              "title": "Steps to the treasure",
+              "text": "We are looking for my spare lamp near the big rock. Every step counts! Get paper and a pencil. Here are 4 problems. Draw dots or lines if it helps, then type your answer.",
+              "materials": [
+                "Paper",
+                "Pencil"
+              ],
+              "easier": "We are looking for my spare lamp near the big rock. Every step counts! Get paper and a pencil. Here are 3 small problems. Draw dots to help you count, then type your answer.",
+              "harder": "We are looking for my spare lamp near the big rock. Every step counts! Get paper and a pencil. Here are 5 problems, and some of them are tricky. Write down your steps, then type your answer.",
+              "problems": {
+                "easier": [
+                  {
+                    "text": "From the big rock, Mira walks 3 big steps and then 5 more. How many steps is that?",
+                    "answer": 8,
+                    "hint": "Draw 3 lines and then 5 more lines. Count all the lines."
+                  },
+                  {
+                    "text": "Pip finds 9 shiny pebbles near the rock. He drops 3 into the sea. How many pebbles does he still have?",
+                    "answer": 6,
+                    "hint": "Draw 9 dots. Cross out 3. Count the dots that are left."
+                  },
+                  {
+                    "text": "On the treasure map the path has the numbers 1, 3, 5, 7, … Which number comes next?",
+                    "answer": 9,
+                    "hint": "The numbers jump by 2 each time. Count on two from the last number."
+                  }
+                ],
+                "normal": [
+                  {
+                    "text": "From the rock, Mira walks 8 small steps and then 7 more. How many steps is that?",
+                    "answer": 15,
+                    "hint": "Make 10 first: 8 and 2 make 10. Then add the rest of the steps."
+                  },
+                  {
+                    "text": "Mira and Pip find 14 shiny pebbles and share them fairly. How many pebbles does each of them get?",
+                    "answer": 7,
+                    "hint": "Draw 14 dots. Give one to Mira, one to Pip, again and again. Then count one group."
+                  },
+                  {
+                    "text": "The lamp is 20 steps away from the rock. Mira has walked 12 steps. How many steps are still to go?",
+                    "answer": 8,
+                    "hint": "Count on from 12 up to 20. How many numbers did you count?"
+                  },
+                  {
+                    "text": "Mira walks 6 steps to the tree, 6 steps to the bush and 5 steps to the lamp. How many steps is that in all?",
+                    "answer": 17,
+                    "hint": "First add 6 and 6, that is a double. Then add the last steps."
+                  }
+                ],
+                "harder": [
+                  {
+                    "text": "The treasure path has 45 steps. Mira has walked 20. How many steps are still to go?",
+                    "answer": 25,
+                    "hint": "Take 2 tens away from 45. Draw tens as sticks and ones as dots."
+                  },
+                  {
+                    "text": "Mira walks 27 steps to the rock and then 16 steps to the lamp. How many steps is that?",
+                    "answer": 43,
+                    "hint": "Add the tens, then the ones. If the ones make more than 10, turn ten ones into a new ten."
+                  },
+                  {
+                    "text": "The stones on the map path are numbered 5, 10, 15, … The lamp is under the 8th stone. Which number does that stone have?",
+                    "answer": 40,
+                    "hint": "Count in fives and write each number down. Stop at the eighth number."
+                  },
+                  {
+                    "text": "Pip hops 35 times to the rock and the same number of times back. How many hops is that?",
+                    "answer": 70,
+                    "hint": "The same number again means double. Double 30, double 5, then put them together."
+                  },
+                  {
+                    "text": "Mira draws 50 little stones on her map. 18 are on the path and 12 are around the rock. The rest are on the beach. How many stones are on the beach?",
+                    "answer": 20,
+                    "hint": "First add the stones on the path and at the rock. Then take that away from all the stones."
+                  }
+                ]
+              }
+            },
+            "el": {
+              "title": "Βήματα ως τον θησαυρό",
+              "text": "Ψάχνουμε την εφεδρική μου λάμπα κοντά στον μεγάλο βράχο. Κάθε βήμα μετράει! Πάρε ένα χαρτί και ένα μολύβι. Έχω 4 προβλήματα για σένα. Ζωγράφισε τελείες ή γραμμούλες, αν σε βοηθάει, και μετά γράψε την απάντησή σου στην οθόνη.",
+              "materials": [
+                "Χαρτί",
+                "Μολύβι"
+              ],
+              "easier": "Ψάχνουμε την εφεδρική μου λάμπα κοντά στον μεγάλο βράχο. Κάθε βήμα μετράει! Πάρε ένα χαρτί και ένα μολύβι. Έχω 3 μικρά προβλήματα για σένα. Ζωγράφισε τελείες για να μετρήσεις και μετά γράψε την απάντησή σου στην οθόνη.",
+              "harder": "Ψάχνουμε την εφεδρική μου λάμπα κοντά στον μεγάλο βράχο. Κάθε βήμα μετράει! Πάρε ένα χαρτί και ένα μολύβι. Έχω 5 προβλήματα για σένα, και μερικά είναι δύσκολα. Γράψε τα βήματά σου στο χαρτί και μετά γράψε την απάντηση στην οθόνη.",
+              "problems": {
+                "easier": [
+                  {
+                    "text": "Από τον μεγάλο βράχο η Μίρα κάνει 3 μεγάλα βήματα και μετά άλλα 5. Πόσα βήματα είναι;",
+                    "answer": 8,
+                    "hint": "Ζωγράφισε 3 γραμμούλες και μετά άλλες 5. Μέτρα όλες τις γραμμούλες."
+                  },
+                  {
+                    "text": "Ο Πιπ βρίσκει 9 γυαλιστερά βοτσαλάκια κοντά στον βράχο. Ρίχνει τα 3 στη θάλασσα. Πόσα βοτσαλάκια έχει ακόμα;",
+                    "answer": 6,
+                    "hint": "Ζωγράφισε 9 τελείες. Σβήσε τις 3. Μέτρα όσες έμειναν."
+                  },
+                  {
+                    "text": "Στον χάρτη του θησαυρού το μονοπάτι έχει τους αριθμούς 1, 3, 5, 7, … Ποιος αριθμός έρχεται μετά;",
+                    "answer": 9,
+                    "hint": "Οι αριθμοί πηδάνε κάθε φορά 2. Μέτρα δύο ακόμα από τον τελευταίο αριθμό."
+                  }
+                ],
+                "normal": [
+                  {
+                    "text": "Από τον βράχο η Μίρα κάνει 8 μικρά βήματα και μετά άλλα 7. Πόσα βήματα είναι;",
+                    "answer": 15,
+                    "hint": "Φτιάξε πρώτα το 10: 8 και 2 κάνουν 10. Μετά πρόσθεσε τα υπόλοιπα βήματα."
+                  },
+                  {
+                    "text": "Η Μίρα και ο Πιπ βρίσκουν 14 γυαλιστερά βοτσαλάκια και τα μοιράζουν δίκαια. Πόσα παίρνει ο καθένας;",
+                    "answer": 7,
+                    "hint": "Ζωγράφισε 14 τελείες. Δώσε μία στη Μίρα, μία στον Πιπ, ξανά και ξανά. Μετά μέτρα τη μία ομάδα."
+                  },
+                  {
+                    "text": "Η λάμπα είναι 20 βήματα μακριά από τον βράχο. Η Μίρα έχει κάνει ήδη 12 βήματα. Πόσα βήματα μένουν ακόμα;",
+                    "answer": 8,
+                    "hint": "Μέτρα από το 12 μέχρι το 20. Πόσους αριθμούς μέτρησες;"
+                  },
+                  {
+                    "text": "Η Μίρα κάνει 6 βήματα ως το δέντρο, 6 βήματα ως τον θάμνο και 5 βήματα ως τη λάμπα. Πόσα βήματα είναι όλα μαζί;",
+                    "answer": 17,
+                    "hint": "Πρόσθεσε πρώτα 6 και 6, αυτό είναι ένα διπλό. Μετά πρόσθεσε τα τελευταία βήματα."
+                  }
+                ],
+                "harder": [
+                  {
+                    "text": "Το μονοπάτι του θησαυρού έχει 45 βήματα. Η Μίρα έχει κάνει τα 20. Πόσα βήματα μένουν ακόμα;",
+                    "answer": 25,
+                    "hint": "Βγάλε 2 δεκάδες από το 45. Ζωγράφισε τις δεκάδες με γραμμές και τις μονάδες με τελείες."
+                  },
+                  {
+                    "text": "Η Μίρα κάνει 27 βήματα ως τον βράχο και μετά 16 βήματα ως τη λάμπα. Πόσα βήματα είναι;",
+                    "answer": 43,
+                    "hint": "Πρόσθεσε τις δεκάδες και μετά τις μονάδες. Αν οι μονάδες περάσουν το 10, κάνε δέκα μονάδες μια δεκάδα."
+                  },
+                  {
+                    "text": "Οι πέτρες στο μονοπάτι του χάρτη έχουν τους αριθμούς 5, 10, 15, … Η λάμπα είναι κάτω από την 8η πέτρα. Ποιον αριθμό έχει αυτή η πέτρα;",
+                    "answer": 40,
+                    "hint": "Μέτρα ανά πέντε και γράψε κάθε αριθμό. Σταμάτα στον όγδοο αριθμό."
+                  },
+                  {
+                    "text": "Ο Πιπ κάνει 35 πηδηματάκια ως τον βράχο και άλλα τόσα για να γυρίσει. Πόσα πηδηματάκια είναι;",
+                    "answer": 70,
+                    "hint": "Άλλα τόσα σημαίνει το διπλό. Διπλασίασε το 30, διπλασίασε το 5 και πρόσθεσέ τα."
+                  },
+                  {
+                    "text": "Η Μίρα ζωγραφίζει 50 πετρούλες στον χάρτη της. Οι 18 είναι στο μονοπάτι και οι 12 γύρω από τον βράχο. Οι υπόλοιπες είναι στην παραλία. Πόσες πετρούλες είναι στην παραλία;",
+                    "answer": 20,
+                    "hint": "Πρόσθεσε πρώτα τις πετρούλες του μονοπατιού και του βράχου. Μετά βγάλε τες από όλες τις πετρούλες."
+                  }
+                ]
+              }
+            }
+          }
+        },
+        {
+          "kind": "write",
+          "minutes": 15,
+          "texts": {
+            "de": {
+              "title": "Die Schatzsuche",
+              "text": "Schreib eine kleine Geschichte über die Suche nach der versteckten Lampe. Wo suchen Mira und Pip? Schreib 3 oder 4 Sätze auf dein Papier. Hilfswörter: Felsen, Lampe, Karte.",
+              "materials": [
+                "Papier",
+                "Bleistift"
+              ],
+              "easier": "Schreib 1 oder 2 kurze Sätze über die versteckte Lampe. Du kannst diesen Anfang abschreiben: „Die Lampe ist …“ Hilfswörter: Felsen, Sand, versteckt.",
+              "harder": "Schreib eine Geschichte über die Schatzsuche, mit 5 oder 6 Sätzen. Anfang: Mira findet ihre Ersatzlampe nicht. Mitte: Mira und Pip suchen an vielen Orten. Schluss: Wer findet die Lampe, und wo? Hilfswörter: Karte, Felsen, glänzt."
+            },
+            "en": {
+              "title": "The treasure hunt",
+              "text": "Write a little story about the hunt for the hidden lamp. Where do Mira and Pip look? Write 3 or 4 sentences on your paper. Helping words: rock, lamp, map.",
+              "materials": [
+                "Paper",
+                "Pencil"
+              ],
+              "easier": "Write 1 or 2 short sentences about the hidden lamp. You can copy this start: “The lamp is …” Helping words: rock, sand, hidden.",
+              "harder": "Write a story about the treasure hunt, with 5 or 6 sentences. Beginning: Mira can't find her spare lamp. Middle: Mira and Pip look in lots of places. End: who finds the lamp, and where? Helping words: map, rock, shiny."
+            },
+            "el": {
+              "title": "Το κυνήγι του θησαυρού",
+              "text": "Γράψε μια μικρή ιστορία για το ψάξιμο της κρυμμένης λάμπας. Πού ψάχνουν η Μίρα και ο Πιπ; Γράψε 3 ή 4 προτάσεις στο χαρτί σου. Λέξεις που βοηθάνε: βράχος, λάμπα, χάρτης.",
+              "materials": [
+                "Χαρτί",
+                "Μολύβι"
+              ],
+              "easier": "Γράψε 1 ή 2 μικρές προτάσεις για την κρυμμένη λάμπα. Μπορείς να αντιγράψεις αυτή την αρχή: «Η λάμπα είναι …» Λέξεις που βοηθάνε: βράχος, άμμος, κρυμμένη.",
+              "harder": "Γράψε μια ιστορία για το κυνήγι του θησαυρού, με 5 ή 6 προτάσεις. Αρχή: η Μίρα δεν βρίσκει την εφεδρική της λάμπα. Μέση: η Μίρα και ο Πιπ ψάχνουν σε πολλά μέρη. Τέλος: ποιος βρίσκει τη λάμπα και πού; Λέξεις που βοηθάνε: χάρτης, βράχος, γυαλίζει."
+            }
+          }
+        },
+        {
+          "kind": "read",
+          "minutes": 10,
+          "texts": {
+            "de": {
+              "title": "Was glänzt im Gras?",
+              "text": "Mira und Pip suchen beim grossen Felsen. Mira schaut hinter den Felsen. Nichts! Pip fliegt auf den Felsen und schaut nach unten. Da glänzt etwas im Gras. Es ist eine alte blaue Kiste. Mira macht sie auf. Drinnen liegt die Lampe, in eine Decke gewickelt. Sie ist ganz heil!",
+              "materials": [],
+              "easier": "Mira und Pip suchen beim Felsen. Pip sieht eine blaue Kiste. Mira macht die Kiste auf. Da ist die Lampe! Mira ist sehr froh.",
+              "harder": "Mira und Pip gehen zum grossen Felsen. Mira schaut hinter den Felsen, aber da ist nur Sand. Sie schaut unter die Büsche, aber da sind nur Blätter. «Wo habe ich die Lampe nur versteckt?», fragt sie. Pip fliegt hoch auf den Felsen. Von oben sieht er mehr. Da glänzt etwas im hohen Gras! Pip ruft laut: «Kiek, kiek!» Mira rennt hin. Im Gras steht eine alte blaue Kiste. Mira macht sie langsam auf. Drinnen liegt die Lampe, in eine weiche Decke gewickelt. Sie ist ganz heil. Mira drückt die Kiste fest an sich. «Pip, du bist der beste Schatzsucher!»",
+              "questions": {
+                "normal": [
+                  {
+                    "question": "Wo liegt die Kiste?",
+                    "answers": [
+                      "Im Gras",
+                      "Im Wasser",
+                      "Auf dem Schiff"
+                    ],
+                    "correct": 0
+                  },
+                  {
+                    "question": "Welche Farbe hat die Kiste?",
+                    "answers": [
+                      "Rot",
+                      "Blau",
+                      "Gelb"
+                    ],
+                    "correct": 1
+                  }
+                ],
+                "easier": [
+                  {
+                    "question": "Was ist in der Kiste?",
+                    "answers": [
+                      "Eine Muschel",
+                      "Ein Brief",
+                      "Die Lampe"
+                    ],
+                    "correct": 2
+                  }
+                ],
+                "harder": [
+                  {
+                    "question": "Warum sieht Pip die Kiste?",
+                    "answers": [
+                      "Weil er oben auf dem Felsen ist",
+                      "Weil er unter die Büsche schaut",
+                      "Weil die Kapitänin es ihm sagt"
+                    ],
+                    "correct": 0
+                  },
+                  {
+                    "question": "Worin ist die Lampe eingewickelt?",
+                    "answers": [
+                      "In eine Zeitung",
+                      "In ein Fischernetz",
+                      "In eine weiche Decke"
+                    ],
+                    "correct": 2
+                  }
+                ]
+              }
+            },
+            "en": {
+              "title": "What shines in the grass?",
+              "text": "Mira and Pip search near the big rock. Mira looks behind the rock. Nothing! Pip flies up onto the rock and looks down. Something shines in the grass. It is an old blue box. Mira opens it. Inside is the lamp, wrapped in a blanket. It is not broken!",
+              "materials": [],
+              "easier": "Mira and Pip look near the rock. Pip sees a blue box. Mira opens the box. There is the lamp! Mira is very happy.",
+              "harder": "Mira and Pip go to the big rock. Mira looks behind the rock, but there is only sand. She looks under the bushes, but there are only leaves. “Where did I hide the lamp?” she asks. Pip flies up to the top of the rock. From up there he can see more. Something shines in the long grass! Pip calls out loud: “Kee-ow, kee-ow!” Mira runs over. In the grass there is an old blue box. Mira opens it slowly. Inside is the lamp, wrapped in a soft blanket. It is not broken. Mira hugs the box. “Pip, you are the best treasure hunter!”",
+              "questions": {
+                "normal": [
+                  {
+                    "question": "Where is the box?",
+                    "answers": [
+                      "In the grass",
+                      "In the water",
+                      "On the ship"
+                    ],
+                    "correct": 0
+                  },
+                  {
+                    "question": "What colour is the box?",
+                    "answers": [
+                      "Red",
+                      "Blue",
+                      "Yellow"
+                    ],
+                    "correct": 1
+                  }
+                ],
+                "easier": [
+                  {
+                    "question": "What is in the box?",
+                    "answers": [
+                      "A shell",
+                      "A letter",
+                      "The lamp"
+                    ],
+                    "correct": 2
+                  }
+                ],
+                "harder": [
+                  {
+                    "question": "Why can Pip see the box?",
+                    "answers": [
+                      "He is up on top of the rock",
+                      "He looks under the bushes",
+                      "The captain tells him"
+                    ],
+                    "correct": 0
+                  },
+                  {
+                    "question": "What is the lamp wrapped in?",
+                    "answers": [
+                      "A newspaper",
+                      "A fishing net",
+                      "A soft blanket"
+                    ],
+                    "correct": 2
+                  }
+                ]
+              }
+            },
+            "el": {
+              "title": "Τι γυαλίζει στο γρασίδι;",
+              "text": "Η Μίρα και ο Πιπ ψάχνουν κοντά στον μεγάλο βράχο. Η Μίρα κοιτάζει πίσω από τον βράχο. Τίποτα! Ο Πιπ πετάει πάνω στον βράχο και κοιτάζει κάτω. Κάτι γυαλίζει μέσα στο γρασίδι. Είναι ένα παλιό μπλε κουτί. Η Μίρα το ανοίγει. Μέσα είναι η λάμπα, τυλιγμένη σε μια κουβέρτα. Δεν έχει σπάσει!",
+              "materials": [],
+              "easier": "Η Μίρα και ο Πιπ ψάχνουν στον βράχο. Ο Πιπ βλέπει ένα μπλε κουτί. Η Μίρα ανοίγει το κουτί. Εκεί είναι η λάμπα! Η Μίρα χαίρεται πολύ.",
+              "harder": "Η Μίρα και ο Πιπ πηγαίνουν στον μεγάλο βράχο. Η Μίρα κοιτάζει πίσω από τον βράχο, αλλά εκεί έχει μόνο άμμο. Κοιτάζει κάτω από τους θάμνους, αλλά εκεί έχει μόνο φύλλα. «Πού την έκρυψα τη λάμπα;» ρωτάει. Ο Πιπ πετάει ψηλά πάνω στον βράχο. Από εκεί πάνω βλέπει πιο πολλά. Κάτι γυαλίζει μέσα στο ψηλό γρασίδι! Ο Πιπ φωνάζει δυνατά: «Κιάου, κιάου!» Η Μίρα τρέχει εκεί. Μέσα στο γρασίδι υπάρχει ένα παλιό μπλε κουτί. Η Μίρα το ανοίγει σιγά σιγά. Μέσα είναι η λάμπα, τυλιγμένη σε μια μαλακή κουβέρτα. Δεν έχει σπάσει. Η Μίρα αγκαλιάζει το κουτί. «Πιπ, είσαι ο καλύτερος κυνηγός θησαυρών!»",
+              "questions": {
+                "normal": [
+                  {
+                    "question": "Πού είναι το κουτί;",
+                    "answers": [
+                      "Στο γρασίδι",
+                      "Στο νερό",
+                      "Στο καράβι"
+                    ],
+                    "correct": 0
+                  },
+                  {
+                    "question": "Τι χρώμα έχει το κουτί;",
+                    "answers": [
+                      "Κόκκινο",
+                      "Μπλε",
+                      "Κίτρινο"
+                    ],
+                    "correct": 1
+                  }
+                ],
+                "easier": [
+                  {
+                    "question": "Τι έχει μέσα το κουτί;",
+                    "answers": [
+                      "Ένα κοχύλι",
+                      "Ένα γράμμα",
+                      "Τη λάμπα"
+                    ],
+                    "correct": 2
+                  }
+                ],
+                "harder": [
+                  {
+                    "question": "Γιατί ο Πιπ βλέπει το κουτί;",
+                    "answers": [
+                      "Γιατί είναι ψηλά πάνω στον βράχο",
+                      "Γιατί κοιτάζει κάτω από τους θάμνους",
+                      "Γιατί του το λέει η καπετάνισσα"
+                    ],
+                    "correct": 0
+                  },
+                  {
+                    "question": "Σε τι είναι τυλιγμένη η λάμπα;",
+                    "answers": [
+                      "Σε μια εφημερίδα",
+                      "Σε ένα δίχτυ",
+                      "Σε μια μαλακή κουβέρτα"
+                    ],
+                    "correct": 2
+                  }
+                ]
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "image": "chapter-5.webp",
+      "texts": {
+        "de": {
+          "title": "Die Treppe hoch",
+          "intro": "Die Lampe ist schwer, und die Treppe ist lang. Wir steigen zusammen hoch, Stufe für Stufe.",
+          "outro": "Die Lampe ist oben! Morgen schalten wir sie ein."
+        },
+        "en": {
+          "title": "Up the stairs",
+          "intro": "The lamp is heavy, and the stairs are long. Let's climb them together, step by step.",
+          "outro": "The lamp is at the top! Tomorrow we switch it on."
+        },
+        "el": {
+          "title": "Ανεβαίνουμε τις σκάλες",
+          "intro": "Η λάμπα είναι βαριά και οι σκάλες είναι πολλές. Ας ανέβουμε μαζί, σκαλί σκαλί.",
+          "outro": "Η λάμπα είναι επάνω! Αύριο θα την ανάψουμε."
+        }
+      },
+      "tasks": [
+        {
+          "kind": "draw",
+          "minutes": 15,
+          "texts": {
+            "de": {
+              "title": "Nach oben",
+              "text": "Zeichne dich, wie du die Lampe die Wendeltreppe hochträgst. Pip fliegt neben dir.",
+              "materials": [
+                "Papier",
+                "Buntstifte"
+              ],
+              "easier": "Zeichne die Wendeltreppe in meinem Leuchtturm. Mal nur die Treppe und oben die Lampe.",
+              "harder": "Zeichne dich, wie du die Lampe die Wendeltreppe hochträgst. Pip fliegt neben dir. Mal auch, was man von ganz oben sieht: das Meer, die Insel und vielleicht ein Schiff."
+            },
+            "en": {
+              "title": "Climbing up",
+              "text": "Draw yourself carrying the lamp up the winding stairs, with Pip flying next to you.",
+              "materials": [
+                "Paper",
+                "Coloured pencils"
+              ],
+              "easier": "Draw the winding stairs in my lighthouse. Just the stairs, with the lamp at the top.",
+              "harder": "Draw yourself carrying the lamp up the winding stairs, with Pip flying next to you. Then show the view from the very top: the sea, the island and maybe a ship."
+            },
+            "el": {
+              "title": "Ανεβαίνω",
+              "text": "Ζωγράφισε εσένα να κουβαλάς τη λάμπα πάνω στη στριφογυριστή σκάλα, και τον Πιπ να πετάει δίπλα σου.",
+              "materials": [
+                "Χαρτί",
+                "Ξυλομπογιές"
+              ],
+              "easier": "Ζωγράφισε τη στριφογυριστή σκάλα του φάρου μου. Μόνο τη σκάλα και τη λάμπα επάνω.",
+              "harder": "Ζωγράφισε εσένα να κουβαλάς τη λάμπα πάνω στη στριφογυριστή σκάλα, και τον Πιπ να πετάει δίπλα σου. Δείξε και τη θέα από ψηλά: τη θάλασσα, το νησί και ίσως ένα καράβι."
+            }
+          }
+        },
+        {
+          "kind": "calc",
+          "minutes": 15,
+          "texts": {
+            "de": {
+              "title": "Stufe für Stufe",
+              "text": "Die Lampe ist schwer, und die Wendeltreppe ist lang. Wir zählen uns Stufe für Stufe nach oben. Hol dir Papier und einen Bleistift. Hier sind 4 Aufgaben. Mal Punkte oder Striche, wenn es dir hilft, und tipp dann deine Antwort ein.",
+              "materials": [
+                "Papier",
+                "Bleistift"
+              ],
+              "easier": "Die Lampe ist schwer, und die Wendeltreppe ist lang. Wir zählen uns Stufe für Stufe nach oben. Hol dir Papier und einen Bleistift. Hier sind 3 kleine Aufgaben. Mal Punkte, die du zählen kannst, und tipp dann deine Antwort ein.",
+              "harder": "Die Lampe ist schwer, und die Wendeltreppe ist lang. Wir zählen uns Stufe für Stufe nach oben. Hol dir Papier und einen Bleistift. Hier sind 5 Aufgaben, und ein paar davon sind knifflig. Schreib deine Rechenschritte auf und tipp dann deine Antwort ein.",
+              "problems": {
+                "easier": [
+                  {
+                    "text": "Die Treppe hat 10 Stufen. Mira ist 4 hochgestiegen. Wie viele Stufen fehlen noch?",
+                    "answer": 6,
+                    "hint": "Mal 10 Stufen. Mach ein Zeichen an die ersten 4. Zähl die Stufen darüber."
+                  },
+                  {
+                    "text": "Mira macht auf der Treppe 2 Pausen, Pip macht 3 Pausen. Wie viele Pausen sind das?",
+                    "answer": 5,
+                    "hint": "Mal 2 Punkte und dann 3 Punkte. Zähl alle Punkte."
+                  },
+                  {
+                    "text": "Mira steigt 4 Stufen hoch. Pip ruft: „Noch einmal so viele!“ Wie viele Stufen ist Mira dann gestiegen?",
+                    "answer": 8,
+                    "hint": "Noch einmal so viele heisst: das Doppelte. Mal 4 Striche und noch 4 Striche und zähl."
+                  }
+                ],
+                "normal": [
+                  {
+                    "text": "Die Treppe bis zum Lampenraum hat 20 Stufen. Mira ist 8 hochgestiegen. Wie viele Stufen fehlen noch?",
+                    "answer": 12,
+                    "hint": "Zähl von 8 weiter bis 20. Oder mal 20 Punkte und streich 8 durch."
+                  },
+                  {
+                    "text": "Pip zählt die Stufen in Zweierschritten: 10, 12, 14, … Welche Zahl kommt als Nächstes?",
+                    "answer": 16,
+                    "hint": "Jede Zahl ist 2 mehr. Zähl von der letzten Zahl zwei weiter."
+                  },
+                  {
+                    "text": "Die Lampe ist schwer. Mira trägt sie 9 Stufen hoch, macht Pause und trägt sie noch 9 Stufen. Wie viele Stufen sind das?",
+                    "answer": 18,
+                    "hint": "Verdopple 9: Denk an 10 und 10 und nimm dann die 2 zu viel wieder weg."
+                  },
+                  {
+                    "text": "An der Treppe sind 3 Fenster. An jedem Fenster macht Mira Pause und zählt 5 Möwen. Wie viele Möwen zählt sie insgesamt?",
+                    "answer": 15,
+                    "hint": "Mal 3 Fenster mit je 5 Punkten. Zähl alle Punkte oder zähl in Fünferschritten."
+                  }
+                ],
+                "harder": [
+                  {
+                    "text": "Die Wendeltreppe hat 60 Stufen. Mira ist schon 38 gestiegen. Wie viele Stufen fehlen noch?",
+                    "answer": 22,
+                    "hint": "Zähl von 38 bis 40, dann in Zehnerschritten bis 60. Rechne deine Sprünge zusammen."
+                  },
+                  {
+                    "text": "Mira steigt vor dem Mittagessen 24 Stufen und nach dem Mittagessen genauso viele. Wie viele Stufen sind das?",
+                    "answer": 48,
+                    "hint": "Verdopple 24: Verdopple die Zehner, verdopple die Einer und rechne beides zusammen."
+                  },
+                  {
+                    "text": "Pip zählt die Stufen in Fünferschritten: 25, 30, 35, … Welche Zahl kommt als Nächstes?",
+                    "answer": 40,
+                    "hint": "Jedes Mal sind es 5 mehr. Zähl von der letzten Zahl fünf weiter."
+                  },
+                  {
+                    "text": "Mira und Pip tragen 40 Kerzen die Treppe hoch. Jeder trägt die Hälfte. Wie viele Kerzen trägt jeder?",
+                    "answer": 20,
+                    "hint": "Die Hälfte von 40: Mal 4 Zehnerstriche und teil sie in zwei gleiche Gruppen."
+                  },
+                  {
+                    "text": "Die Treppe hat 70 Stufen. Mira steigt 25 hoch, macht Pause und steigt dann noch 30. Wie viele Stufen fehlen noch?",
+                    "answer": 15,
+                    "hint": "Rechne zuerst die gestiegenen Stufen zusammen. Zähl dann von dort weiter bis 70."
+                  }
+                ]
+              }
+            },
+            "en": {
+              "title": "Step by step",
+              "text": "The lamp is heavy, and the winding stairs are long. Let's count our way to the top. Get paper and a pencil. Here are 4 problems. Draw dots or lines if it helps, then type your answer.",
+              "materials": [
+                "Paper",
+                "Pencil"
+              ],
+              "easier": "The lamp is heavy, and the winding stairs are long. Let's count our way to the top. Get paper and a pencil. Here are 3 small problems. Draw dots to help you count, then type your answer.",
+              "harder": "The lamp is heavy, and the winding stairs are long. Let's count our way to the top. Get paper and a pencil. Here are 5 problems, and some of them are tricky. Write down your steps, then type your answer.",
+              "problems": {
+                "easier": [
+                  {
+                    "text": "The stairs have 10 steps. Mira has climbed 4. How many steps are still to go?",
+                    "answer": 6,
+                    "hint": "Draw 10 steps. Mark the first 4. Count the steps above them."
+                  },
+                  {
+                    "text": "Mira rests 2 times on the stairs, and Pip rests 3 times. How many rests is that?",
+                    "answer": 5,
+                    "hint": "Draw 2 dots and then 3 dots. Count all the dots."
+                  },
+                  {
+                    "text": "Mira climbs 4 steps. Pip calls: “The same again!” How many steps has Mira climbed then?",
+                    "answer": 8,
+                    "hint": "The same again means double. Draw 4 lines and 4 more lines, then count."
+                  }
+                ],
+                "normal": [
+                  {
+                    "text": "The stairs up to the lamp room have 20 steps. Mira has climbed 8. How many steps are still to go?",
+                    "answer": 12,
+                    "hint": "Count on from 8 up to 20. Or draw 20 dots and cross out 8."
+                  },
+                  {
+                    "text": "Pip counts the steps in twos: 10, 12, 14, … Which number comes next?",
+                    "answer": 16,
+                    "hint": "Each number is 2 more. Count on two from the last number."
+                  },
+                  {
+                    "text": "The lamp is heavy. Mira carries it up 9 steps, rests, and carries it up 9 more. How many steps is that?",
+                    "answer": 18,
+                    "hint": "Double 9: think of 10 and 10, then take away the 2 extra ones."
+                  },
+                  {
+                    "text": "There are 3 windows on the stairs. At each window Mira rests and counts 5 seagulls. How many seagulls does she count in all?",
+                    "answer": 15,
+                    "hint": "Draw 3 windows with 5 dots in each. Count all the dots, or count in fives."
+                  }
+                ],
+                "harder": [
+                  {
+                    "text": "The winding stairs have 60 steps. Mira has climbed 38. How many steps are still to go?",
+                    "answer": 22,
+                    "hint": "Count on from 38 to 40, then jump in tens up to 60. Add up your jumps."
+                  },
+                  {
+                    "text": "Mira climbs 24 steps before lunch and the same number after lunch. How many steps is that?",
+                    "answer": 48,
+                    "hint": "Double 24: double the tens, double the ones, then put them together."
+                  },
+                  {
+                    "text": "Pip counts the steps in fives: 25, 30, 35, … Which number comes next?",
+                    "answer": 40,
+                    "hint": "Each time it is 5 more. Count on five from the last number."
+                  },
+                  {
+                    "text": "Mira and Pip carry 40 candles up the stairs. Each of them carries half. How many candles does each one carry?",
+                    "answer": 20,
+                    "hint": "Half of 40: draw 4 sticks for the tens and split them into two equal groups."
+                  },
+                  {
+                    "text": "The stairs have 70 steps. Mira climbs 25, rests, and then climbs 30 more. How many steps are still to go?",
+                    "answer": 15,
+                    "hint": "First add the steps she has climbed. Then count on from there up to 70."
+                  }
+                ]
+              }
+            },
+            "el": {
+              "title": "Σκαλί σκαλί",
+              "text": "Η λάμπα είναι βαριά και η στριφογυριστή σκάλα είναι ψηλή. Ας μετρήσουμε μέχρι να φτάσουμε πάνω. Πάρε ένα χαρτί και ένα μολύβι. Έχω 4 προβλήματα για σένα. Ζωγράφισε τελείες ή γραμμούλες, αν σε βοηθάει, και μετά γράψε την απάντησή σου στην οθόνη.",
+              "materials": [
+                "Χαρτί",
+                "Μολύβι"
+              ],
+              "easier": "Η λάμπα είναι βαριά και η στριφογυριστή σκάλα είναι ψηλή. Ας μετρήσουμε μέχρι να φτάσουμε πάνω. Πάρε ένα χαρτί και ένα μολύβι. Έχω 3 μικρά προβλήματα για σένα. Ζωγράφισε τελείες για να μετρήσεις και μετά γράψε την απάντησή σου στην οθόνη.",
+              "harder": "Η λάμπα είναι βαριά και η στριφογυριστή σκάλα είναι ψηλή. Ας μετρήσουμε μέχρι να φτάσουμε πάνω. Πάρε ένα χαρτί και ένα μολύβι. Έχω 5 προβλήματα για σένα, και μερικά είναι δύσκολα. Γράψε τα βήματά σου στο χαρτί και μετά γράψε την απάντηση στην οθόνη.",
+              "problems": {
+                "easier": [
+                  {
+                    "text": "Η σκάλα έχει 10 σκαλιά. Η Μίρα έχει ανέβει 4. Πόσα σκαλιά μένουν ακόμα;",
+                    "answer": 6,
+                    "hint": "Ζωγράφισε 10 σκαλιά. Σημάδεψε τα πρώτα 4. Μέτρα τα σκαλιά από πάνω τους."
+                  },
+                  {
+                    "text": "Η Μίρα ξεκουράζεται 2 φορές στη σκάλα και ο Πιπ 3 φορές. Πόσες φορές είναι όλες μαζί;",
+                    "answer": 5,
+                    "hint": "Ζωγράφισε 2 τελείες και μετά 3 τελείες. Μέτρα όλες τις τελείες."
+                  },
+                  {
+                    "text": "Η Μίρα ανεβαίνει 4 σκαλιά. Ο Πιπ φωνάζει: «Άλλα τόσα!» Πόσα σκαλιά έχει ανέβει τότε η Μίρα;",
+                    "answer": 8,
+                    "hint": "Άλλα τόσα σημαίνει το διπλό. Ζωγράφισε 4 γραμμούλες και άλλες 4 και μέτρα."
+                  }
+                ],
+                "normal": [
+                  {
+                    "text": "Η σκάλα ως το δωμάτιο της λάμπας έχει 20 σκαλιά. Η Μίρα έχει ανέβει 8. Πόσα σκαλιά μένουν ακόμα;",
+                    "answer": 12,
+                    "hint": "Μέτρα από το 8 μέχρι το 20. Ή ζωγράφισε 20 τελείες και σβήσε τις 8."
+                  },
+                  {
+                    "text": "Ο Πιπ μετράει τα σκαλιά ανά δύο: 10, 12, 14, … Ποιος αριθμός έρχεται μετά;",
+                    "answer": 16,
+                    "hint": "Κάθε αριθμός είναι 2 περισσότερο. Μέτρα δύο ακόμα από τον τελευταίο αριθμό."
+                  },
+                  {
+                    "text": "Η λάμπα είναι βαριά. Η Μίρα την ανεβάζει 9 σκαλιά, ξεκουράζεται και την ανεβάζει άλλα 9. Πόσα σκαλιά είναι;",
+                    "answer": 18,
+                    "hint": "Διπλασίασε το 9: σκέψου 10 και 10 και μετά βγάλε τα 2 που περισσεύουν."
+                  },
+                  {
+                    "text": "Στη σκάλα υπάρχουν 3 παράθυρα. Σε κάθε παράθυρο η Μίρα ξεκουράζεται και μετράει 5 γλάρους. Πόσους γλάρους μετράει συνολικά;",
+                    "answer": 15,
+                    "hint": "Ζωγράφισε 3 παράθυρα με 5 τελείες στο καθένα. Μέτρα όλες τις τελείες ή μέτρα ανά πέντε."
+                  }
+                ],
+                "harder": [
+                  {
+                    "text": "Η στριφογυριστή σκάλα έχει 60 σκαλιά. Η Μίρα έχει ανέβει 38. Πόσα σκαλιά μένουν ακόμα;",
+                    "answer": 22,
+                    "hint": "Μέτρα από το 38 ως το 40 και μετά με δεκάδες ως το 60. Πρόσθεσε τα πηδήματά σου."
+                  },
+                  {
+                    "text": "Η Μίρα ανεβαίνει 24 σκαλιά πριν από το μεσημεριανό και άλλα τόσα μετά. Πόσα σκαλιά είναι;",
+                    "answer": 48,
+                    "hint": "Διπλασίασε το 24: διπλασίασε τις δεκάδες, διπλασίασε τις μονάδες και πρόσθεσέ τα."
+                  },
+                  {
+                    "text": "Ο Πιπ μετράει τα σκαλιά ανά πέντε: 25, 30, 35, … Ποιος αριθμός έρχεται μετά;",
+                    "answer": 40,
+                    "hint": "Κάθε φορά είναι 5 περισσότερο. Μέτρα πέντε ακόμα από τον τελευταίο αριθμό."
+                  },
+                  {
+                    "text": "Η Μίρα και ο Πιπ ανεβάζουν 40 κεριά στη σκάλα. Ο καθένας κουβαλάει τα μισά. Πόσα κεριά κουβαλάει ο καθένας;",
+                    "answer": 20,
+                    "hint": "Τα μισά του 40: ζωγράφισε 4 γραμμές για τις δεκάδες και χώρισέ τες σε δύο ίσες ομάδες."
+                  },
+                  {
+                    "text": "Η σκάλα έχει 70 σκαλιά. Η Μίρα ανεβαίνει 25, ξεκουράζεται και μετά ανεβαίνει άλλα 30. Πόσα σκαλιά μένουν ακόμα;",
+                    "answer": 15,
+                    "hint": "Πρόσθεσε πρώτα τα σκαλιά που ανέβηκε. Μετά μέτρα από εκεί μέχρι το 70."
+                  }
+                ]
+              }
+            }
+          }
+        },
+        {
+          "kind": "write",
+          "minutes": 15,
+          "texts": {
+            "de": {
+              "title": "Ganz nach oben",
+              "text": "Schreib eine kleine Geschichte darüber, wie die schwere Lampe die Treppe hochgetragen wird. Wie fühlen sich Mira und Pip? Schreib 3 oder 4 Sätze auf dein Papier. Hilfswörter: Treppe, schwer, müde.",
+              "materials": [
+                "Papier",
+                "Bleistift"
+              ],
+              "easier": "Schreib 1 oder 2 kurze Sätze über die Treppe im Leuchtturm. Du kannst diesen Anfang abschreiben: „Die Treppe ist …“ Hilfswörter: lang, hoch, Stufen.",
+              "harder": "Schreib eine Geschichte über den Weg nach oben, mit 5 oder 6 Sätzen. Anfang: Die Lampe steht unten an der Treppe. Mitte: Was passiert auf dem Weg nach oben? Schluss: Was sehen Mira und Pip von ganz oben? Hilfswörter: Treppe, Fenster, Aussicht."
+            },
+            "en": {
+              "title": "Up to the top",
+              "text": "Write a little story about carrying the heavy lamp up the stairs. How do Mira and Pip feel? Write 3 or 4 sentences on your paper. Helping words: stairs, heavy, tired.",
+              "materials": [
+                "Paper",
+                "Pencil"
+              ],
+              "easier": "Write 1 or 2 short sentences about the stairs in the lighthouse. You can copy this start: “The stairs are …” Helping words: long, high, steps.",
+              "harder": "Write a story about the climb, with 5 or 6 sentences. Beginning: the lamp is at the bottom of the stairs. Middle: what happens on the way up? End: what can Mira and Pip see from the top? Helping words: stairs, window, view."
+            },
+            "el": {
+              "title": "Ως την κορυφή",
+              "text": "Γράψε μια μικρή ιστορία για το πώς ανεβάζουν τη βαριά λάμπα στη σκάλα. Πώς νιώθουν η Μίρα και ο Πιπ; Γράψε 3 ή 4 προτάσεις στο χαρτί σου. Λέξεις που βοηθάνε: σκάλα, βαριά, κουρασμένοι.",
+              "materials": [
+                "Χαρτί",
+                "Μολύβι"
+              ],
+              "easier": "Γράψε 1 ή 2 μικρές προτάσεις για τη σκάλα του φάρου. Μπορείς να αντιγράψεις αυτή την αρχή: «Η σκάλα είναι …» Λέξεις που βοηθάνε: μεγάλη, ψηλή, σκαλιά.",
+              "harder": "Γράψε μια ιστορία για το ανέβασμα, με 5 ή 6 προτάσεις. Αρχή: η λάμπα είναι στο κάτω μέρος της σκάλας. Μέση: τι γίνεται στον δρόμο προς τα πάνω; Τέλος: τι βλέπουν η Μίρα και ο Πιπ από την κορυφή; Λέξεις που βοηθάνε: σκάλα, παράθυρο, θέα."
+            }
+          }
+        },
+        {
+          "kind": "read",
+          "minutes": 10,
+          "texts": {
+            "de": {
+              "title": "Pause am Fenster",
+              "text": "Die Lampe ist schwer. Mira trägt sie Stufe für Stufe nach oben. Pip fliegt voraus. In der Mitte der Treppe macht Mira eine Pause. Sie schaut aus einem kleinen runden Fenster. Unten sieht sie den Strand und den grossen Felsen. Dann geht es weiter. Endlich ist sie oben!",
+              "materials": [],
+              "easier": "Die Lampe ist schwer. Mira geht die Treppe hoch. Pip fliegt mit. Mira macht eine Pause. Dann geht sie weiter. Jetzt ist sie oben!",
+              "harder": "Die Lampe ist schwer, und die Wendeltreppe ist lang. Mira trägt die Lampe mit beiden Armen, Stufe für Stufe. Pip fliegt voraus und zählt laut: «Eins, zwei, drei …» In der Mitte der Treppe macht Mira eine Pause. Ihre Arme sind müde. Sie schaut aus einem kleinen runden Fenster. Unten sieht sie den Strand und den grossen Felsen. Ganz weit draussen schaukelt das Schiff der Kapitänin auf den Wellen. «Es wartet auf uns», sagt Mira. Das gibt ihr neue Kraft. Sie steigt weiter, bis ganz nach oben. Geschafft!",
+              "questions": {
+                "normal": [
+                  {
+                    "question": "Was macht Mira in der Mitte der Treppe?",
+                    "answers": [
+                      "Sie singt ein Lied",
+                      "Sie macht eine Pause",
+                      "Sie isst einen Apfel"
+                    ],
+                    "correct": 1
+                  },
+                  {
+                    "question": "Was sieht Mira aus dem Fenster?",
+                    "answers": [
+                      "Den Mond und die Sterne",
+                      "Einen grossen Wal",
+                      "Den Strand und den grossen Felsen"
+                    ],
+                    "correct": 2
+                  }
+                ],
+                "easier": [
+                  {
+                    "question": "Wer fliegt mit?",
+                    "answers": [
+                      "Pip",
+                      "Die Kapitänin",
+                      "Ein Matrose"
+                    ],
+                    "correct": 0
+                  }
+                ],
+                "harder": [
+                  {
+                    "question": "Warum macht Mira eine Pause?",
+                    "answers": [
+                      "Sie hat Hunger",
+                      "Ihre Arme sind müde",
+                      "Es ist zu dunkel"
+                    ],
+                    "correct": 1
+                  },
+                  {
+                    "question": "Was sieht Mira ganz weit draussen?",
+                    "answers": [
+                      "Das Schiff der Kapitänin",
+                      "Einen grossen Wal",
+                      "Eine neue Insel"
+                    ],
+                    "correct": 0
+                  }
+                ]
+              }
+            },
+            "en": {
+              "title": "A rest by the window",
+              "text": "The lamp is heavy. Mira carries it up, step by step. Pip flies ahead. Halfway up, Mira stops for a rest. She looks out of a small round window. Down below she sees the beach and the big rock. Then she keeps going. At last she is at the top!",
+              "materials": [],
+              "easier": "The lamp is heavy. Mira goes up the stairs. Pip flies with her. Mira stops for a rest. Then she goes on. Now she is at the top!",
+              "harder": "The lamp is heavy, and the winding stairs are long. Mira holds the lamp in both arms and climbs, step by step. Pip flies ahead and counts out loud: “One, two, three…” Halfway up, Mira stops for a rest. Her arms are tired. She looks out of a small round window. Down below she sees the beach and the big rock. Far out at sea, the captain's ship is rocking on the waves. “It is waiting for us,” says Mira. That gives her new strength. She climbs on, all the way to the top. She did it!",
+              "questions": {
+                "normal": [
+                  {
+                    "question": "What does Mira do halfway up?",
+                    "answers": [
+                      "She sings a song",
+                      "She stops for a rest",
+                      "She eats an apple"
+                    ],
+                    "correct": 1
+                  },
+                  {
+                    "question": "What does Mira see from the window?",
+                    "answers": [
+                      "The moon and the stars",
+                      "A big whale",
+                      "The beach and the big rock"
+                    ],
+                    "correct": 2
+                  }
+                ],
+                "easier": [
+                  {
+                    "question": "Who flies with Mira?",
+                    "answers": [
+                      "Pip",
+                      "The captain",
+                      "A sailor"
+                    ],
+                    "correct": 0
+                  }
+                ],
+                "harder": [
+                  {
+                    "question": "Why does Mira stop for a rest?",
+                    "answers": [
+                      "She is hungry",
+                      "Her arms are tired",
+                      "It is too dark"
+                    ],
+                    "correct": 1
+                  },
+                  {
+                    "question": "What does Mira see far out at sea?",
+                    "answers": [
+                      "The captain's ship",
+                      "A big whale",
+                      "A new island"
+                    ],
+                    "correct": 0
+                  }
+                ]
+              }
+            },
+            "el": {
+              "title": "Στάση στο παράθυρο",
+              "text": "Η λάμπα είναι βαριά. Η Μίρα την ανεβάζει σκαλί σκαλί. Ο Πιπ πετάει μπροστά. Στη μέση της σκάλας, η Μίρα σταματάει να ξεκουραστεί. Κοιτάζει από ένα μικρό στρογγυλό παράθυρο. Κάτω βλέπει την παραλία και τον μεγάλο βράχο. Μετά συνεχίζει. Επιτέλους φτάνει επάνω!",
+              "materials": [],
+              "easier": "Η λάμπα είναι βαριά. Η Μίρα ανεβαίνει τη σκάλα. Ο Πιπ πετάει μαζί της. Η Μίρα ξεκουράζεται λίγο. Μετά συνεχίζει. Τώρα είναι επάνω!",
+              "harder": "Η λάμπα είναι βαριά και η στριφογυριστή σκάλα είναι μακριά. Η Μίρα κρατάει τη λάμπα με τα δυο της χέρια και ανεβαίνει σκαλί σκαλί. Ο Πιπ πετάει μπροστά και μετράει δυνατά: «Ένα, δύο, τρία…» Στη μέση της σκάλας, η Μίρα σταματάει να ξεκουραστεί. Τα χέρια της είναι κουρασμένα. Κοιτάζει από ένα μικρό στρογγυλό παράθυρο. Κάτω βλέπει την παραλία και τον μεγάλο βράχο. Μακριά στη θάλασσα, το καράβι της καπετάνισσας κουνιέται πάνω στα κύματα. «Μας περιμένει», λέει η Μίρα. Αυτό της δίνει καινούργια δύναμη. Ανεβαίνει ως την κορυφή. Τα κατάφερε!",
+              "questions": {
+                "normal": [
+                  {
+                    "question": "Τι κάνει η Μίρα στη μέση της σκάλας;",
+                    "answers": [
+                      "Τραγουδάει ένα τραγούδι",
+                      "Σταματάει να ξεκουραστεί",
+                      "Τρώει ένα μήλο"
+                    ],
+                    "correct": 1
+                  },
+                  {
+                    "question": "Τι βλέπει η Μίρα από το παράθυρο;",
+                    "answers": [
+                      "Το φεγγάρι και τα αστέρια",
+                      "Μια μεγάλη φάλαινα",
+                      "Την παραλία και τον μεγάλο βράχο"
+                    ],
+                    "correct": 2
+                  }
+                ],
+                "easier": [
+                  {
+                    "question": "Ποιος πετάει μαζί με τη Μίρα;",
+                    "answers": [
+                      "Ο Πιπ",
+                      "Η καπετάνισσα",
+                      "Ένας ναύτης"
+                    ],
+                    "correct": 0
+                  }
+                ],
+                "harder": [
+                  {
+                    "question": "Γιατί σταματάει η Μίρα να ξεκουραστεί;",
+                    "answers": [
+                      "Πεινάει",
+                      "Τα χέρια της είναι κουρασμένα",
+                      "Είναι πολύ σκοτεινά"
+                    ],
+                    "correct": 1
+                  },
+                  {
+                    "question": "Τι βλέπει η Μίρα μακριά στη θάλασσα;",
+                    "answers": [
+                      "Το καράβι της καπετάνισσας",
+                      "Μια μεγάλη φάλαινα",
+                      "Ένα καινούργιο νησί"
+                    ],
+                    "correct": 0
+                  }
+                ]
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "image": "chapter-6.webp",
+      "texts": {
+        "de": {
+          "title": "Licht an!",
+          "intro": "Alles ist bereit. Wenn es heute Abend dunkel wird, leuchtet das Licht wieder.",
+          "outro": "Das Licht leuchtet wieder und alle Schiffe sind sicher. Nächste Woche: ein neues Abenteuer mit Bolt, dem Roboter!"
+        },
+        "en": {
+          "title": "Light on!",
+          "intro": "Everything is ready. When it gets dark tonight, the light will shine again.",
+          "outro": "The light shines again and all the ships are safe. Next week: a new adventure with Bolt the robot!"
+        },
+        "el": {
+          "title": "Άναψε το φως!",
+          "intro": "Όλα είναι έτοιμα. Απόψε, όταν σκοτεινιάσει, το φως θα λάμψει ξανά.",
+          "outro": "Το φως λάμπει ξανά και όλα τα καράβια είναι ασφαλή. Την άλλη εβδομάδα: μια καινούργια περιπέτεια με τον Μπολτ, το ρομπότ!"
+        }
+      },
+      "tasks": [
+        {
+          "kind": "draw",
+          "minutes": 15,
+          "texts": {
+            "de": {
+              "title": "Das Licht in der Nacht",
+              "text": "Zeichne den Leuchtturm in der Nacht, wie sein Licht über das Meer leuchtet und die Schiffe heimkommen.",
+              "materials": [
+                "Papier",
+                "Buntstifte"
+              ],
+              "easier": "Zeichne den Leuchtturm in der Nacht. Mal nur den Turm und sein helles Licht.",
+              "harder": "Zeichne den Leuchtturm in der Nacht, wie sein Licht über das Meer leuchtet und die Schiffe heimkommen. Zähl deine Schiffe und schreib neben jedes einen Namen."
+            },
+            "en": {
+              "title": "The light at night",
+              "text": "Draw the lighthouse at night, with its light shining over the sea and the ships coming home.",
+              "materials": [
+                "Paper",
+                "Coloured pencils"
+              ],
+              "easier": "Draw the lighthouse at night. Just the tower and its bright light.",
+              "harder": "Draw the lighthouse at night, with its light shining over the sea and the ships coming home. Count your ships and write a name next to each one."
+            },
+            "el": {
+              "title": "Το φως μέσα στη νύχτα",
+              "text": "Ζωγράφισε τον φάρο τη νύχτα. Το φως του λάμπει πάνω στη θάλασσα και τα καράβια γυρίζουν σπίτι.",
+              "materials": [
+                "Χαρτί",
+                "Ξυλομπογιές"
+              ],
+              "easier": "Ζωγράφισε τον φάρο τη νύχτα. Μόνο τον φάρο και το λαμπερό του φως.",
+              "harder": "Ζωγράφισε τον φάρο τη νύχτα. Το φως του λάμπει πάνω στη θάλασσα και τα καράβια γυρίζουν σπίτι. Μέτρα τα καράβια σου και γράψε ένα όνομα δίπλα σε καθένα."
+            }
+          }
+        },
+        {
+          "kind": "calc",
+          "minutes": 15,
+          "texts": {
+            "de": {
+              "title": "Schiffe kommen heim",
+              "text": "Heute Nacht leuchtet das Licht wieder, und die Schiffe kommen heim. Zählen wir sie! Hol dir Papier und einen Bleistift. Hier sind 4 Aufgaben. Mal Punkte oder Striche, wenn es dir hilft, und tipp dann deine Antwort ein.",
+              "materials": [
+                "Papier",
+                "Bleistift"
+              ],
+              "easier": "Heute Nacht leuchtet das Licht wieder, und die Schiffe kommen heim. Zählen wir sie! Hol dir Papier und einen Bleistift. Hier sind 3 kleine Aufgaben. Mal Punkte, die du zählen kannst, und tipp dann deine Antwort ein.",
+              "harder": "Heute Nacht leuchtet das Licht wieder, und die Schiffe kommen heim. Zählen wir sie! Hol dir Papier und einen Bleistift. Hier sind 5 Aufgaben, und ein paar davon sind knifflig. Schreib deine Rechenschritte auf und tipp dann deine Antwort ein.",
+              "problems": {
+                "easier": [
+                  {
+                    "text": "2 grosse Schiffe und 3 kleine Boote kommen heim. Wie viele sind das zusammen?",
+                    "answer": 5,
+                    "hint": "Mal 2 grosse Punkte und 3 kleine Punkte. Zähl alle Punkte."
+                  },
+                  {
+                    "text": "7 Schiffe sind auf dem Meer. 4 davon kommen im Hafen an. Wie viele Schiffe sind noch auf dem Meer?",
+                    "answer": 3,
+                    "hint": "Mal 7 Punkte für die Schiffe. Streich die 4 im Hafen durch. Zähl den Rest."
+                  },
+                  {
+                    "text": "Das Licht blinkt 4-mal und dann noch ein paar Mal. Insgesamt blinkt es 10-mal. Wie oft hat es noch geblinkt?",
+                    "answer": 6,
+                    "hint": "Fang bei 4 an und zähl weiter bis 10. Wie viele Zahlen hast du gezählt?"
+                  }
+                ],
+                "normal": [
+                  {
+                    "text": "6 grosse Schiffe und 7 kleine Boote kommen heim. Wie viele sind das zusammen?",
+                    "answer": 13,
+                    "hint": "Denk an das Doppel 6 und 6. Dann zähl noch eins dazu."
+                  },
+                  {
+                    "text": "Heute Nacht sind 18 Schiffe auf dem Meer. 9 sind schon heimgekommen. Wie viele Schiffe sind noch auf dem Meer?",
+                    "answer": 9,
+                    "hint": "Nimm zuerst 8 weg, dann bist du bei 10. Nimm dann noch 1 weg."
+                  },
+                  {
+                    "text": "Am Montagabend sehen 15 Schiffe das Licht, am Dienstagabend 11. Wie viele Schiffe sehen es am Montag mehr?",
+                    "answer": 4,
+                    "hint": "Zähl von 11 weiter bis 15. Wie viele Zahlen hast du gezählt?"
+                  },
+                  {
+                    "text": "Im Hafen sind 9 Boote. 6 kommen noch heim, dann fahren 3 zum Fischen hinaus. Wie viele Boote sind jetzt im Hafen?",
+                    "answer": 12,
+                    "hint": "Zähl zuerst die Boote dazu, die heimkommen. Nimm dann die weg, die hinausfahren."
+                  }
+                ],
+                "harder": [
+                  {
+                    "text": "34 Schiffe und 25 Boote kommen heim. Wie viele sind das zusammen?",
+                    "answer": 59,
+                    "hint": "Rechne Zehner zu Zehnern und Einer zu Einern."
+                  },
+                  {
+                    "text": "Heute Nacht sind 72 Schiffe auf dem Meer. 40 davon sind schon im Hafen. Wie viele sind noch draussen?",
+                    "answer": 32,
+                    "hint": "Nimm 4 Zehner von 7 Zehnern weg. Die Einer bleiben gleich."
+                  },
+                  {
+                    "text": "Das Licht blinkt vor Mitternacht 45-mal und nach Mitternacht genauso oft. Wie oft blinkt es zusammen?",
+                    "answer": 90,
+                    "hint": "Verdopple 45: Verdopple 40, verdopple 5 und rechne beides zusammen."
+                  },
+                  {
+                    "text": "Im Hafen ist Platz für 100 Boote. 65 Boote sind schon drin. Wie viele Boote passen noch hinein?",
+                    "answer": 35,
+                    "hint": "Zähl von 65 bis 70, dann in Zehnerschritten bis 100. Rechne deine Sprünge zusammen."
+                  },
+                  {
+                    "text": "Am Freitag kommen 16 Schiffe in den Hafen und am Samstag noch 16. Am Sonntag fahren 9 davon wieder hinaus. Wie viele dieser Schiffe sind noch im Hafen?",
+                    "answer": 23,
+                    "hint": "Erster Schritt: Verdopple 16. Zweiter Schritt: Nimm die Schiffe weg, die hinausfahren."
+                  }
+                ]
+              }
+            },
+            "en": {
+              "title": "Ships coming home",
+              "text": "Tonight the light shines again, and the ships are coming home. Let's count them! Get paper and a pencil. Here are 4 problems. Draw dots or lines if it helps, then type your answer.",
+              "materials": [
+                "Paper",
+                "Pencil"
+              ],
+              "easier": "Tonight the light shines again, and the ships are coming home. Let's count them! Get paper and a pencil. Here are 3 small problems. Draw dots to help you count, then type your answer.",
+              "harder": "Tonight the light shines again, and the ships are coming home. Let's count them! Get paper and a pencil. Here are 5 problems, and some of them are tricky. Write down your steps, then type your answer.",
+              "problems": {
+                "easier": [
+                  {
+                    "text": "2 big ships and 3 small boats come home. How many is that in all?",
+                    "answer": 5,
+                    "hint": "Draw 2 big dots and 3 small dots. Count all the dots."
+                  },
+                  {
+                    "text": "7 ships are at sea. 4 of them reach the harbour. How many ships are still at sea?",
+                    "answer": 3,
+                    "hint": "Draw 7 dots for the ships. Cross out the 4 in the harbour. Count the rest."
+                  },
+                  {
+                    "text": "The light blinks 4 times, then a few more times. Altogether it blinks 10 times. How many more times did it blink?",
+                    "answer": 6,
+                    "hint": "Start at 4 and count on until you get to 10. How many numbers did you count?"
+                  }
+                ],
+                "normal": [
+                  {
+                    "text": "6 big ships and 7 small boats come home. How many is that in all?",
+                    "answer": 13,
+                    "hint": "Think of the double 6 and 6. Then add one more."
+                  },
+                  {
+                    "text": "18 ships are at sea tonight. 9 have already come home. How many ships are still at sea?",
+                    "answer": 9,
+                    "hint": "Take away 8 first to get to 10. Then take away 1 more."
+                  },
+                  {
+                    "text": "On Monday night 15 ships see the light, and on Tuesday night 11. How many more ships see it on Monday?",
+                    "answer": 4,
+                    "hint": "Count on from 11 up to 15. How many numbers did you count?"
+                  },
+                  {
+                    "text": "9 boats are in the harbour. 6 more come home, and then 3 sail out to fish. How many boats are in the harbour now?",
+                    "answer": 12,
+                    "hint": "First add the boats that come home. Then take away the ones that sail out."
+                  }
+                ],
+                "harder": [
+                  {
+                    "text": "34 ships and 25 boats come home. How many is that in all?",
+                    "answer": 59,
+                    "hint": "Add tens with tens and ones with ones."
+                  },
+                  {
+                    "text": "72 ships are on the sea tonight. 40 of them have already reached the harbour. How many are still out at sea?",
+                    "answer": 32,
+                    "hint": "Take away 4 tens from 7 tens. The ones stay the same."
+                  },
+                  {
+                    "text": "The light flashes 45 times before midnight and the same number of times after midnight. How many flashes is that?",
+                    "answer": 90,
+                    "hint": "Double 45: double 40, double 5, then put them together."
+                  },
+                  {
+                    "text": "The harbour has room for 100 boats. 65 boats are already inside. How many more boats fit in?",
+                    "answer": 35,
+                    "hint": "Count on from 65 to 70, then jump in tens up to 100. Add up your jumps."
+                  },
+                  {
+                    "text": "On Friday 16 ships come into the harbour, and on Saturday 16 more. On Sunday 9 of them sail out again. How many of these ships are still in the harbour?",
+                    "answer": 23,
+                    "hint": "Step one: double 16. Step two: take away the ships that sail out."
+                  }
+                ]
+              }
+            },
+            "el": {
+              "title": "Τα καράβια γυρίζουν",
+              "text": "Απόψε το φως λάμπει ξανά και τα καράβια γυρίζουν στο λιμάνι. Πάμε να τα μετρήσουμε! Πάρε ένα χαρτί και ένα μολύβι. Έχω 4 προβλήματα για σένα. Ζωγράφισε τελείες ή γραμμούλες, αν σε βοηθάει, και μετά γράψε την απάντησή σου στην οθόνη.",
+              "materials": [
+                "Χαρτί",
+                "Μολύβι"
+              ],
+              "easier": "Απόψε το φως λάμπει ξανά και τα καράβια γυρίζουν στο λιμάνι. Πάμε να τα μετρήσουμε! Πάρε ένα χαρτί και ένα μολύβι. Έχω 3 μικρά προβλήματα για σένα. Ζωγράφισε τελείες για να μετρήσεις και μετά γράψε την απάντησή σου στην οθόνη.",
+              "harder": "Απόψε το φως λάμπει ξανά και τα καράβια γυρίζουν στο λιμάνι. Πάμε να τα μετρήσουμε! Πάρε ένα χαρτί και ένα μολύβι. Έχω 5 προβλήματα για σένα, και μερικά είναι δύσκολα. Γράψε τα βήματά σου στο χαρτί και μετά γράψε την απάντηση στην οθόνη.",
+              "problems": {
+                "easier": [
+                  {
+                    "text": "2 μεγάλα καράβια και 3 μικρές βάρκες γυρίζουν στο λιμάνι. Πόσα είναι όλα μαζί;",
+                    "answer": 5,
+                    "hint": "Ζωγράφισε 2 μεγάλες τελείες και 3 μικρές. Μέτρα όλες τις τελείες."
+                  },
+                  {
+                    "text": "7 καράβια είναι στη θάλασσα. Τα 4 φτάνουν στο λιμάνι. Πόσα καράβια είναι ακόμα στη θάλασσα;",
+                    "answer": 3,
+                    "hint": "Ζωγράφισε 7 τελείες για τα καράβια. Σβήσε τις 4 που είναι στο λιμάνι. Μέτρα όσες έμειναν."
+                  },
+                  {
+                    "text": "Το φως αναβοσβήνει 4 φορές και μετά μερικές ακόμα. Συνολικά αναβοσβήνει 10 φορές. Πόσες φορές αναβόσβησε ακόμα;",
+                    "answer": 6,
+                    "hint": "Ξεκίνα από το 4 και μέτρα μέχρι το 10. Πόσους αριθμούς μέτρησες;"
+                  }
+                ],
+                "normal": [
+                  {
+                    "text": "6 μεγάλα καράβια και 7 μικρές βάρκες γυρίζουν στο λιμάνι. Πόσα είναι όλα μαζί;",
+                    "answer": 13,
+                    "hint": "Σκέψου το διπλό: 6 και 6. Μετά πρόσθεσε άλλο ένα."
+                  },
+                  {
+                    "text": "Απόψε 18 καράβια είναι στη θάλασσα. Τα 9 έχουν ήδη γυρίσει. Πόσα καράβια είναι ακόμα στη θάλασσα;",
+                    "answer": 9,
+                    "hint": "Βγάλε πρώτα 8 για να φτάσεις στο 10. Μετά βγάλε άλλο 1."
+                  },
+                  {
+                    "text": "Τη Δευτέρα το βράδυ 15 καράβια βλέπουν το φως και την Τρίτη 11. Πόσα καράβια περισσότερα το βλέπουν τη Δευτέρα;",
+                    "answer": 4,
+                    "hint": "Μέτρα από το 11 μέχρι το 15. Πόσους αριθμούς μέτρησες;"
+                  },
+                  {
+                    "text": "Στο λιμάνι είναι 9 βάρκες. Γυρίζουν άλλες 6 και μετά 3 βγαίνουν για ψάρεμα. Πόσες βάρκες είναι τώρα στο λιμάνι;",
+                    "answer": 12,
+                    "hint": "Πρώτα πρόσθεσε τις βάρκες που γυρίζουν. Μετά βγάλε αυτές που φεύγουν."
+                  }
+                ],
+                "harder": [
+                  {
+                    "text": "34 καράβια και 25 βάρκες γυρίζουν στο λιμάνι. Πόσα είναι όλα μαζί;",
+                    "answer": 59,
+                    "hint": "Πρόσθεσε δεκάδες με δεκάδες και μονάδες με μονάδες."
+                  },
+                  {
+                    "text": "Απόψε 72 καράβια είναι στη θάλασσα. Τα 40 έχουν ήδη φτάσει στο λιμάνι. Πόσα είναι ακόμα στα ανοιχτά;",
+                    "answer": 32,
+                    "hint": "Βγάλε 4 δεκάδες από τις 7 δεκάδες. Οι μονάδες μένουν ίδιες."
+                  },
+                  {
+                    "text": "Το φως αναβοσβήνει 45 φορές πριν από τα μεσάνυχτα και άλλες τόσες μετά. Πόσες φορές είναι όλες μαζί;",
+                    "answer": 90,
+                    "hint": "Διπλασίασε το 45: διπλασίασε το 40, διπλασίασε το 5 και πρόσθεσέ τα."
+                  },
+                  {
+                    "text": "Το λιμάνι χωράει 100 βάρκες. Μέσα είναι ήδη 65. Πόσες βάρκες χωράνε ακόμα;",
+                    "answer": 35,
+                    "hint": "Μέτρα από το 65 ως το 70 και μετά με δεκάδες ως το 100. Πρόσθεσε τα πηδήματά σου."
+                  },
+                  {
+                    "text": "Την Παρασκευή μπαίνουν 16 καράβια στο λιμάνι και το Σάββατο άλλα 16. Την Κυριακή φεύγουν ξανά τα 9. Πόσα από αυτά τα καράβια είναι ακόμα στο λιμάνι;",
+                    "answer": 23,
+                    "hint": "Πρώτο βήμα: διπλασίασε το 16. Δεύτερο βήμα: βγάλε τα καράβια που φεύγουν."
+                  }
+                ]
+              }
+            }
+          }
+        },
+        {
+          "kind": "write",
+          "minutes": 15,
+          "texts": {
+            "de": {
+              "title": "Das Licht ist zurück",
+              "text": "Schreib eine kleine Geschichte über heute Nacht, wenn das Licht wieder leuchtet. Was machen die Schiffe? Schreib 3 oder 4 Sätze auf dein Papier. Hilfswörter: Nacht, Licht, Schiffe.",
+              "materials": [
+                "Papier",
+                "Bleistift"
+              ],
+              "easier": "Schreib 1 oder 2 kurze Sätze über das Licht. Du kannst diesen Anfang abschreiben: „Das Licht ist …“ Hilfswörter: hell, an, Nacht.",
+              "harder": "Schreib eine Geschichte über die grosse Nacht, mit 5 oder 6 Sätzen. Anfang: Auf der Insel wird es dunkel. Mitte: Mira macht das Licht an. Schluss: Was passiert mit den Schiffen und der Kapitänin? Hilfswörter: Klick, Hafen, froh."
+            },
+            "en": {
+              "title": "The light is back",
+              "text": "Write a little story about tonight, when the light shines again. What do the ships do? Write 3 or 4 sentences on your paper. Helping words: night, light, ships.",
+              "materials": [
+                "Paper",
+                "Pencil"
+              ],
+              "easier": "Write 1 or 2 short sentences about the light. You can copy this start: “The light is …” Helping words: bright, on, night.",
+              "harder": "Write a story about the big night, with 5 or 6 sentences. Beginning: it gets dark on the island. Middle: Mira switches the light on. End: what happens to the ships and the captain? Helping words: click, harbour, happy."
+            },
+            "el": {
+              "title": "Το φως γύρισε",
+              "text": "Γράψε μια μικρή ιστορία για απόψε, που το φως λάμπει ξανά. Τι κάνουν τα καράβια; Γράψε 3 ή 4 προτάσεις στο χαρτί σου. Λέξεις που βοηθάνε: νύχτα, φως, καράβια.",
+              "materials": [
+                "Χαρτί",
+                "Μολύβι"
+              ],
+              "easier": "Γράψε 1 ή 2 μικρές προτάσεις για το φως. Μπορείς να αντιγράψεις αυτή την αρχή: «Το φως είναι …» Λέξεις που βοηθάνε: λαμπερό, αναμμένο, νύχτα.",
+              "harder": "Γράψε μια ιστορία για τη μεγάλη νύχτα, με 5 ή 6 προτάσεις. Αρχή: στο νησί πέφτει το σκοτάδι. Μέση: η Μίρα ανάβει το φως. Τέλος: τι γίνεται με τα καράβια και την καπετάνισσα; Λέξεις που βοηθάνε: κλικ, λιμάνι, χαρούμενη."
+            }
+          }
+        },
+        {
+          "kind": "read",
+          "minutes": 10,
+          "texts": {
+            "de": {
+              "title": "Klick!",
+              "text": "Es wird dunkel. Mira drückt auf den grossen Knopf. Klick! Die Lampe leuchtet hell. Das Licht dreht sich über das Meer. Draussen hupt das Schiff der Kapitänin: Tuut, tuut! Ein Schiff nach dem anderen kommt sicher heim. Pip sitzt auf Miras Schulter. «Wir haben es geschafft», sagt Mira.",
+              "materials": [],
+              "easier": "Es wird dunkel. Mira drückt auf den Knopf. Klick! Das Licht ist an. Die Schiffe kommen heim. Pip ist froh und Mira auch.",
+              "harder": "Die Sonne geht unter, und das Meer wird dunkel. Mira und Pip stehen ganz oben im Leuchtturm. Mira legt die Hand auf den grossen roten Knopf. «Bist du bereit, Pip?», fragt sie. Pip nickt. Klick! Die Lampe leuchtet so hell wie ein Stern. Langsam dreht sich das Licht über das Meer, immer im Kreis. Draussen hupt das Schiff der Kapitänin: Tuut, tuut! Dann kommen die anderen Schiffe sicher in den Hafen, eines nach dem anderen. Mira lacht, und Pip schlägt mit den Flügeln. Heute Nacht findet jedes Schiff den Weg nach Hause.",
+              "questions": {
+                "normal": [
+                  {
+                    "question": "Was macht Mira, damit die Lampe leuchtet?",
+                    "answers": [
+                      "Sie drückt auf einen Knopf",
+                      "Sie klatscht in die Hände",
+                      "Sie ruft ganz laut"
+                    ],
+                    "correct": 0
+                  },
+                  {
+                    "question": "Wo sitzt Pip?",
+                    "answers": [
+                      "Auf dem Dach",
+                      "Auf Miras Schulter",
+                      "Auf dem Schiff"
+                    ],
+                    "correct": 1
+                  }
+                ],
+                "easier": [
+                  {
+                    "question": "Wer kommt heim?",
+                    "answers": [
+                      "Die Muscheln",
+                      "Die Krebse",
+                      "Die Schiffe"
+                    ],
+                    "correct": 2
+                  }
+                ],
+                "harder": [
+                  {
+                    "question": "Welche Farbe hat der Knopf?",
+                    "answers": [
+                      "Grün",
+                      "Blau",
+                      "Rot"
+                    ],
+                    "correct": 2
+                  },
+                  {
+                    "question": "Wie hell leuchtet die Lampe?",
+                    "answers": [
+                      "So hell wie ein Stern",
+                      "So hell wie eine Kerze",
+                      "Nur ein bisschen"
+                    ],
+                    "correct": 0
+                  }
+                ]
+              }
+            },
+            "en": {
+              "title": "Click!",
+              "text": "It is getting dark. Mira presses the big button. Click! The lamp shines bright. The light turns over the sea. Out on the water, the captain's ship blows its horn: toot, toot! One ship after another comes safely home. Pip sits on Mira's shoulder. “We did it,” says Mira.",
+              "materials": [],
+              "easier": "It is getting dark. Mira presses the button. Click! The light is on. The ships come home. Pip is happy, and so is Mira.",
+              "harder": "The sun goes down, and the sea gets dark. Mira and Pip are at the very top of the lighthouse. Mira puts her hand on the big red button. “Are you ready, Pip?” she asks. Pip nods. Click! The lamp shines as bright as a star. Slowly the light turns over the sea, round and round. Out on the water, the captain's ship blows its horn: toot, toot! Then the other ships come into the harbour, one after another, safe and sound. Mira laughs, and Pip flaps his wings. Tonight every ship will find its way home.",
+              "questions": {
+                "normal": [
+                  {
+                    "question": "What does Mira do to make the lamp shine?",
+                    "answers": [
+                      "She presses a button",
+                      "She claps her hands",
+                      "She shouts very loud"
+                    ],
+                    "correct": 0
+                  },
+                  {
+                    "question": "Where does Pip sit?",
+                    "answers": [
+                      "On the roof",
+                      "On Mira's shoulder",
+                      "On the ship"
+                    ],
+                    "correct": 1
+                  }
+                ],
+                "easier": [
+                  {
+                    "question": "What comes home?",
+                    "answers": [
+                      "The shells",
+                      "The crabs",
+                      "The ships"
+                    ],
+                    "correct": 2
+                  }
+                ],
+                "harder": [
+                  {
+                    "question": "What colour is the button?",
+                    "answers": [
+                      "Green",
+                      "Blue",
+                      "Red"
+                    ],
+                    "correct": 2
+                  },
+                  {
+                    "question": "How bright does the lamp shine?",
+                    "answers": [
+                      "As bright as a star",
+                      "As bright as a candle",
+                      "Only a little"
+                    ],
+                    "correct": 0
+                  }
+                ]
+              }
+            },
+            "el": {
+              "title": "Κλικ!",
+              "text": "Σκοτεινιάζει. Η Μίρα πατάει το μεγάλο κουμπί. Κλικ! Η λάμπα ανάβει δυνατά. Το φως γυρίζει πάνω από τη θάλασσα. Έξω, το καράβι της καπετάνισσας χτυπάει την κόρνα: του-ουτ, του-ουτ! Τα καράβια γυρίζουν σπίτι, το ένα μετά το άλλο. Ο Πιπ κάθεται στον ώμο της Μίρας. «Τα καταφέραμε», λέει η Μίρα.",
+              "materials": [],
+              "easier": "Σκοτεινιάζει. Η Μίρα πατάει το κουμπί. Κλικ! Το φως ανάβει. Τα καράβια γυρίζουν σπίτι. Ο Πιπ χαίρεται πολύ, και η Μίρα το ίδιο.",
+              "harder": "Ο ήλιος δύει και η θάλασσα σκοτεινιάζει. Η Μίρα και ο Πιπ στέκονται στην κορυφή του φάρου. Η Μίρα βάζει το χέρι της πάνω στο μεγάλο κόκκινο κουμπί. «Είσαι έτοιμος, Πιπ;» ρωτάει. Ο Πιπ κουνάει το κεφάλι. Κλικ! Η λάμπα λάμπει σαν αστέρι. Σιγά σιγά το φως γυρίζει πάνω από τη θάλασσα, γύρω γύρω. Έξω, το καράβι της καπετάνισσας χτυπάει την κόρνα: του-ουτ, του-ουτ! Μετά έρχονται και τα άλλα καράβια στο λιμάνι, το ένα μετά το άλλο. Η Μίρα γελάει και ο Πιπ χτυπάει τα φτερά του. Απόψε κάθε καράβι θα βρει τον δρόμο για το σπίτι.",
+              "questions": {
+                "normal": [
+                  {
+                    "question": "Τι κάνει η Μίρα για να ανάψει η λάμπα;",
+                    "answers": [
+                      "Πατάει ένα κουμπί",
+                      "Χτυπάει παλαμάκια",
+                      "Φωνάζει δυνατά"
+                    ],
+                    "correct": 0
+                  },
+                  {
+                    "question": "Πού κάθεται ο Πιπ;",
+                    "answers": [
+                      "Στη στέγη",
+                      "Στον ώμο της Μίρας",
+                      "Στο καράβι"
+                    ],
+                    "correct": 1
+                  }
+                ],
+                "easier": [
+                  {
+                    "question": "Τι γυρίζει σπίτι;",
+                    "answers": [
+                      "Τα κοχύλια",
+                      "Τα καβουράκια",
+                      "Τα καράβια"
+                    ],
+                    "correct": 2
+                  }
+                ],
+                "harder": [
+                  {
+                    "question": "Τι χρώμα έχει το κουμπί;",
+                    "answers": [
+                      "Πράσινο",
+                      "Μπλε",
+                      "Κόκκινο"
+                    ],
+                    "correct": 2
+                  },
+                  {
+                    "question": "Πόσο λάμπει η λάμπα;",
+                    "answers": [
+                      "Σαν αστέρι",
+                      "Σαν ένα κεράκι",
+                      "Μόνο λίγο"
+                    ],
+                    "correct": 0
+                  }
+                ]
+              }
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,39 @@
+name: server
+
+on:
+  pull_request:
+    paths: ["server/**", "openapi.json", ".github/workflows/server.yml"]
+  push:
+    branches: [main]
+    paths: ["server/**", "openapi.json", ".github/workflows/server.yml"]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: server-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: server
+    steps:
+      - uses: actions/checkout@v7
+      - name: ffmpeg (media and thumbnail tests, SPEC §6.4)
+        run: sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg
+      - uses: astral-sh/setup-uv@v7
+        with:
+          python-version: "3.12"
+      - name: Install
+        # Not --locked: when a PR changes dependencies, the "sync generated files"
+        # workflow commits the new uv.lock right after this job has started.
+        run: uv sync
+      - name: Lint
+        run: uv run ruff check . && uv run ruff format --check .
+      - name: Type check
+        run: uv run mypy
+      - name: Test (incl. openapi.json drift check)
+        run: uv run pytest

@@ -1,0 +1,14 @@
+# Installed to /opt/kidsmedia/docker-compose.yml by deploy/install.sh.
+# The app is only published on localhost; the host nginx is the public entry
+# point (see deploy/nginx/kidsmedia.conf and SPEC §4.1).
+services:
+  kidsmedia:
+    image: ${KIDSMEDIA_IMAGE:-ghcr.io/docdru/kidsmedia}:${KIDSMEDIA_TAG:-latest}
+    container_name: kidsmedia
+    restart: unless-stopped
+    env_file: .env
+    user: "${KM_UID:-10001}:${KM_GID:-10001}"
+    ports:
+      - "127.0.0.1:${KM_PORT:-8080}:8080"
+    volumes:
+      - ./data:/data

@@ -1,0 +1,90 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024">
+  <!-- Chapter 2: The storm. Wind and big waves; Mira's shells blow away over the beach. -->
+  <!-- sky -->
+  <rect width="1024" height="1024" fill="#FBE3C8"/>
+  <!-- storm clouds -->
+  <g fill="#9AA3BA" stroke="#1B2440" stroke-width="10" stroke-linejoin="round">
+    <path d="M60 250 Q40 180 120 170 Q150 100 240 120 Q300 70 370 120 Q450 110 450 190 Q500 230 440 260 Z"/>
+    <path d="M600 210 Q590 140 670 140 Q710 80 790 110 Q860 80 900 140 Q980 150 960 220 Q990 260 930 270 L620 270 Q570 250 600 210 Z"/>
+  </g>
+  <!-- rain -->
+  <g stroke="#7FB2DD" stroke-width="10" stroke-linecap="round">
+    <path d="M140 300 l-20 44"/>
+    <path d="M230 300 l-20 44"/>
+    <path d="M320 300 l-20 44"/>
+    <path d="M410 300 l-20 44"/>
+    <path d="M680 310 l-20 44"/>
+    <path d="M770 310 l-20 44"/>
+    <path d="M860 310 l-20 44"/>
+  </g>
+  <!-- wind swirls -->
+  <g fill="none" stroke="#B8BFD0" stroke-width="10" stroke-linecap="round">
+    <path d="M90 440 q110 -24 200 4 q40 16 20 44 q-24 20 -40 -6"/>
+  </g>
+  <!-- wild sea -->
+  <path d="M0 620 Q60 540 130 600 Q200 520 270 600 Q340 520 410 600 Q480 520 550 600 Q620 520 690 600 Q760 520 830 600 Q900 520 970 600 Q1000 570 1024 580 L1024 1024 L0 1024 Z" fill="#2E6FA8" stroke="#1B2440" stroke-width="10" stroke-linejoin="round"/>
+  <g fill="none" stroke="#7FB2DD" stroke-width="12" stroke-linecap="round">
+    <path d="M60 690 q40 -40 80 0"/>
+    <path d="M240 720 q40 -40 80 0"/>
+    <path d="M740 700 q40 -40 80 0"/>
+    <path d="M900 740 q40 -40 80 0"/>
+  </g>
+  <!-- small lighthouse on its rock, still standing -->
+  <path d="M760 640 Q840 560 950 640 Z" fill="#E9C27A" stroke="#1B2440" stroke-width="10" stroke-linejoin="round"/>
+  <g transform="translate(855,612) scale(0.42) translate(-512,-640)">
+    <polygon points="430,640 594,640 566,300 458,300" fill="#FFFFFF" stroke="#1B2440" stroke-width="22" stroke-linejoin="round"/>
+    <polygon points="440,520 584,520 576,430 448,430" fill="#D2452E"/>
+    <polygon points="451,390 573,390 568,330 456,330" fill="#D2452E"/>
+    <rect x="436" y="276" width="152" height="26" rx="6" fill="#1B2440"/>
+    <rect x="466" y="196" width="92" height="80" fill="#5B6683" stroke="#1B2440" stroke-width="22"/>
+    <polygon points="452,196 572,196 512,128" fill="#D2452E" stroke="#1B2440" stroke-width="22" stroke-linejoin="round"/>
+  </g>
+  <!-- beach in front -->
+  <path d="M0 790 Q300 740 600 830 Q740 880 800 1024 L0 1024 Z" fill="#E9C27A" stroke="#1B2440" stroke-width="10" stroke-linejoin="round"/>
+  <!-- Mira, holding on in the wind -->
+  <g transform="translate(250,900) scale(1.4)">
+    <g stroke="#1B2440" stroke-width="7" stroke-linejoin="round" stroke-linecap="round">
+      <path d="M24 -64 L56 -40" fill="none"/>
+      <path d="M-24 -64 L-56 -40" fill="none"/>
+      <circle cx="59" cy="-37" r="9" fill="#F2C9A0"/>
+      <circle cx="-59" cy="-37" r="9" fill="#F2C9A0"/>
+      <path d="M-45 0 L-27 -80 L27 -80 L45 0 Z" fill="#4552C7"/>
+      <circle cx="0" cy="-120" r="44" fill="#F2C9A0"/>
+      <path d="M-45 -125 Q-45 -175 0 -174 Q47 -175 45 -125 Q27 -150 0 -148 Q-27 -150 -45 -125 Z" fill="#7A3E1D"/>
+      <path d="M40 -150 q22 -6 34 -24" fill="none"/>
+      <path d="M44 -136 q24 0 40 -14" fill="none"/>
+    </g>
+    <circle cx="-15" cy="-118" r="6" fill="#1B2440"/>
+    <circle cx="15" cy="-118" r="6" fill="#1B2440"/>
+    <circle cx="0" cy="-95" r="7" fill="none" stroke="#1B2440" stroke-width="5"/>
+  </g>
+  <!-- shells blowing away -->
+  <g stroke="#1B2440" stroke-width="7" stroke-linejoin="round" stroke-linecap="round">
+    <g transform="translate(370,560) rotate(20) scale(1.4)">
+      <path d="M0 0 L-28 -32 Q0 -58 28 -32 Z" fill="#F7C6B5"/>
+      <path d="M0 0 L0 -44" fill="none"/>
+    </g>
+    <g transform="translate(690,530) rotate(-15) scale(1.4)">
+      <path d="M0 0 L-28 -32 Q0 -58 28 -32 Z" fill="#FFFFFF"/>
+      <path d="M0 0 L0 -44" fill="none"/>
+    </g>
+    <g transform="translate(560,640) rotate(35) scale(1.4)">
+      <path d="M0 0 L-28 -32 Q0 -58 28 -32 Z" fill="#FFD34D"/>
+      <path d="M0 0 L0 -44" fill="none"/>
+    </g>
+    <g transform="translate(430,470) rotate(10) scale(1.4)">
+      <path d="M0 0 L-28 -32 Q0 -58 28 -32 Z" fill="#F7C6B5"/>
+      <path d="M0 0 L0 -44" fill="none"/>
+    </g>
+  </g>
+  <!-- Pip, blown about -->
+  <g transform="translate(560,370) rotate(-14) scale(1.2)">
+    <g stroke="#1B2440" stroke-width="8" stroke-linejoin="round" stroke-linecap="round">
+      <path d="M-80 -12 q40 -60 80 0" fill="none"/>
+      <path d="M0 -12 q40 -60 80 0" fill="none"/>
+      <ellipse cx="0" cy="0" rx="30" ry="20" fill="#FFFFFF"/>
+    </g>
+    <polygon points="26,-4 50,2 26,8" fill="#F2A23A"/>
+    <circle cx="12" cy="-6" r="4" fill="#1B2440"/>
+  </g>
+</svg>

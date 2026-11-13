@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Themed (monochrome) app icon, Android 13+: the four tiles in one colour, play cut out. The system tints it.
+     Same shapes as ic_launcher_foreground (the home screen's group tiles, one with a play button). -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <path
+        android:fillColor="#FF000000"
+        android:fillType="evenOdd"
+        android:pathData="M35,28h10a7,7 0,0 1 7,7v10a7,7 0,0 1 -7,7h-10a7,7 0,0 1 -7,-7v-10a7,7 0,0 1 7,-7zM63,28h10a7,7 0,0 1 7,7v10a7,7 0,0 1 -7,7h-10a7,7 0,0 1 -7,-7v-10a7,7 0,0 1 7,-7zM35,56h10a7,7 0,0 1 7,7v10a7,7 0,0 1 -7,7h-10a7,7 0,0 1 -7,-7v-10a7,7 0,0 1 7,-7zM63,56h10a7,7 0,0 1 7,7v10a7,7 0,0 1 -7,7h-10a7,7 0,0 1 -7,-7v-10a7,7 0,0 1 7,-7zM64,62.5L74,68L64,73.5Z" />
+</vector>

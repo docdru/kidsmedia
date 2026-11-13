@@ -1,0 +1,131 @@
+name: e2e
+
+# A real deployment, end to end (SPEC §10.2): the image is built, installed with
+# deploy/install.sh into /opt/kidsmedia, and served by the runner's own nginx with TLS
+# and the shipped snippet (deploy/nginx/kidsmedia.conf), just like on the server.
+# server/e2e/ then talks HTTPS to it: login + CSRF, uploads through nginx, pairing,
+# Range streaming and thumbnails via X-Accel-Redirect, time-independent rules, revoking.
+on:
+  schedule:
+    - cron: "17 3 * * *" # nightly, 03:17 UTC
+  workflow_dispatch:
+  pull_request:
+    types: [opened, synchronize, reopened, labeled]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: e2e-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  e2e:
+    # On pull requests only with the "e2e" label; nightly and manual runs always.
+    if: github.event_name != 'pull_request' || contains(github.event.pull_request.labels.*.name, 'e2e')
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      E2E_HOST: kidsmedia.test
+      E2E_DIR: /tmp/e2e
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: docker/setup-buildx-action@v4
+      - name: Build the image
+        uses: docker/build-push-action@v7
+        with:
+          context: .
+          load: true
+          # :latest is what a fresh .env from install.sh asks for; compose finds it
+          # locally, so nothing is pulled from GHCR.
+          tags: |
+            ghcr.io/${{ github.repository }}:latest
+            ghcr.io/${{ github.repository }}:e2e
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Host packages (nginx, ffmpeg for the fixtures)
+        run: sudo apt-get update -qq && sudo apt-get install -y -qq nginx ffmpeg
+
+      - name: TLS certificate for kidsmedia.test (own CA)
+        run: |
+          mkdir -p "$E2E_DIR/tls" && cd "$E2E_DIR/tls"
+          openssl req -x509 -newkey rsa:2048 -nodes -days 2 -subj "/CN=kidsmedia e2e CA" \
+            -keyout ca.key -out ca.pem \
+            -addext "basicConstraints=critical,CA:TRUE" -addext "keyUsage=critical,keyCertSign,cRLSign"
+          openssl req -newkey rsa:2048 -nodes -subj "/CN=$E2E_HOST" -keyout server.key -out server.csr
+          printf '%s\n' "subjectAltName=DNS:$E2E_HOST" "extendedKeyUsage=serverAuth" \
+            "subjectKeyIdentifier=hash" "authorityKeyIdentifier=keyid,issuer" > ext.cnf
+          openssl x509 -req -in server.csr -CA ca.pem -CAkey ca.key -CAcreateserial -days 2 \
+            -extfile ext.cnf -out server.pem
+          echo "127.0.0.1 $E2E_HOST" | sudo tee -a /etc/hosts
+
+      - name: Install to /opt/kidsmedia with deploy/install.sh
+        run: |
+          # As the install output suggests: let nginx (www-data) read the data folder.
+          sudo groupadd --system --gid 10001 kidsmedia
+          sudo usermod -aG kidsmedia www-data
+          sudo KM_SKIP_PULL=1 ./deploy/install.sh
+          test -f /etc/nginx/snippets/kidsmedia.conf
+          password="$(sudo sed -n 's/^ADMIN_PASSWORD=//p' /opt/kidsmedia/.env)"
+          echo "::add-mask::$password"
+          echo "KM_E2E_PASSWORD=$password" >> "$GITHUB_ENV"
+
+      - name: nginx site with the shipped snippet
+        run: |
+          sudo tee /etc/nginx/sites-available/kidsmedia > /dev/null <<EOF
+          server {
+              listen 443 ssl;
+              server_name $E2E_HOST;
+              ssl_certificate     $E2E_DIR/tls/server.pem;
+              ssl_certificate_key $E2E_DIR/tls/server.key;
+              include /etc/nginx/snippets/kidsmedia.conf;
+          }
+          server {
+              listen 80;
+              server_name $E2E_HOST;
+              location / { return 301 https://\$host\$request_uri; }
+          }
+          EOF
+          sudo ln -s /etc/nginx/sites-available/kidsmedia /etc/nginx/sites-enabled/kidsmedia
+          sudo nginx -t
+          sudo systemctl restart nginx # picks up the new group of www-data
+
+      - name: Wait for the app behind nginx
+        run: |
+          for i in $(seq 1 60); do
+            if curl -fsS --cacert "$E2E_DIR/tls/ca.pem" "https://$E2E_HOST/healthz"; then echo; exit 0; fi
+            sleep 2
+          done
+          exit 1
+
+      - name: Media fixtures
+        run: |
+          mkdir -p "$E2E_DIR/fixtures" && cd "$E2E_DIR/fixtures"
+          ffmpeg -loglevel error -f lavfi -i "sine=frequency=440:duration=5" -c:a libmp3lame song1.mp3
+          ffmpeg -loglevel error -f lavfi -i "sine=frequency=660:duration=5" -c:a libmp3lame song2.mp3
+          ffmpeg -loglevel error -f lavfi -i "testsrc=duration=6:size=640x360:rate=25" \
+            -f lavfi -i "sine=frequency=550:duration=6" \
+            -c:v libx264 -pix_fmt yuv420p -c:a aac -shortest -movflags +faststart clip.mp4
+
+      - uses: astral-sh/setup-uv@v7
+        with:
+          python-version: "3.12"
+      - name: Run the e2e tests
+        working-directory: server
+        env:
+          KM_E2E_URL: https://kidsmedia.test
+          KM_E2E_CA: /tmp/e2e/tls/ca.pem
+          KM_E2E_FIXTURES: /tmp/e2e/fixtures
+        run: |
+          test -n "$KM_E2E_PASSWORD" # never let the suite skip itself here
+          uv sync
+          uv run pytest e2e -v -p no:cacheprovider
+
+      - name: Logs
+        if: failure()
+        run: |
+          docker logs kidsmedia 2>&1 | tail -200 || true
+          sudo tail -n 100 /var/log/nginx/error.log || true
+          sudo ls -la /opt/kidsmedia /opt/kidsmedia/data /opt/kidsmedia/data/media || true
