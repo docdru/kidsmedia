@@ -4,7 +4,7 @@ A self-hosted media server for a child's Android tablet. A parent uploads music,
 
 **Status:** working and in use; the milestones are in SPEC §11.
 
-Uploading kids-media-parent-guide-narrated.mp4…
+https://github.com/user-attachments/assets/1760d130-9d04-4cbd-84f5-a14e1a8372d7
 
 ## Documents
 
