@@ -1,6 +1,8 @@
 package app.kidsmedia.ui
 
+import androidx.activity.compose.BackHandler
 import androidx.annotation.OptIn
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -52,12 +54,15 @@ import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -439,6 +444,28 @@ fun PlayerScreen(
         }
     }
     val accent = groupColor(now.group.color)
+    // Full-screen video (SPEC §8.3): one big button on the video, one to leave; back leaves too.
+    var fullscreen by rememberSaveable { mutableStateOf(false) }
+    if (fullscreen && now.group.isVideo && player != null) {
+        BackHandler { fullscreen = false }
+        Box(Modifier.fillMaxSize().background(Color.Black)) {
+            VideoSurface(player, Modifier.fillMaxSize())
+            if (buffering) BufferingSpinner(Modifier.align(Alignment.Center))
+            FullscreenButton(
+                exit = true,
+                onClick = { fullscreen = false },
+                modifier = Modifier.align(Alignment.TopStart).padding(20.dp)
+            )
+            Row(
+                Modifier.align(Alignment.TopEnd).padding(20.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                gems?.let { GemCounter(it, Modifier.padding(end = 20.dp)) }
+                remainingText(context, now.remainingSeconds, now.grace)?.let { RemainingPill(it) }
+            }
+        }
+        return
+    }
     Column(Modifier.fillMaxSize().background(Ground).padding(horizontal = 40.dp, vertical = 28.dp)) {
         Row(
             Modifier.fillMaxWidth(),
@@ -448,17 +475,7 @@ fun PlayerScreen(
             BackButton(onBack)
             Spacer(Modifier.weight(1f))
             gems?.let { GemCounter(it, Modifier.padding(end = 20.dp)) }
-            remainingText(context, now.remainingSeconds, now.grace)?.let {
-                Text(
-                    it,
-                    fontSize = 20.sp,
-                    fontWeight = FontWeight.ExtraBold,
-                    color = Ink,
-                    modifier = Modifier.clip(
-                        RoundedCornerShape(22.dp)
-                    ).background(Color.White).padding(horizontal = 20.dp, vertical = 10.dp)
-                )
-            }
+            remainingText(context, now.remainingSeconds, now.grace)?.let { RemainingPill(it) }
         }
         Row(
             Modifier.fillMaxSize(),
@@ -474,10 +491,11 @@ fun PlayerScreen(
                 contentAlignment = Alignment.Center
             ) {
                 if (now.group.isVideo && player != null) {
-                    AndroidView(
-                        factory = { ctx -> PlayerView(ctx).apply { useController = true } },
-                        update = { it.player = player },
-                        modifier = Modifier.fillMaxSize()
+                    VideoSurface(player, Modifier.fillMaxSize())
+                    FullscreenButton(
+                        exit = false,
+                        onClick = { fullscreen = true },
+                        modifier = Modifier.align(Alignment.TopEnd).padding(16.dp)
                     )
                 } else {
                     AsyncImage(
@@ -487,16 +505,7 @@ fun PlayerScreen(
                         modifier = Modifier.fillMaxSize()
                     )
                 }
-                if (buffering) {
-                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        CircularProgressIndicator(
-                            color = Color.White,
-                            strokeWidth = 6.dp,
-                            modifier = Modifier.size(64.dp)
-                        )
-                        Text(stringResource(R.string.player_loading), color = Color.White, fontWeight = FontWeight.Bold)
-                    }
-                }
+                if (buffering) BufferingSpinner()
             }
             Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(20.dp)) {
                 Text(now.group.name, fontSize = 20.sp, fontWeight = FontWeight.ExtraBold, color = Muted)
@@ -547,6 +556,80 @@ fun PlayerScreen(
                         }
                     }
                     SkipButton("+30", stringResource(R.string.player_fwd30)) { onSeek(30_000) }
+                }
+            }
+        }
+    }
+}
+
+@OptIn(UnstableApi::class)
+@Composable
+private fun VideoSurface(player: Player, modifier: Modifier = Modifier) {
+    AndroidView(
+        factory = { ctx -> PlayerView(ctx).apply { useController = true } },
+        update = { it.player = player },
+        // Entering or leaving full screen swaps the view; the old one lets go of the player.
+        // The view is only a surface: the player, its position, the session and the rule ticker
+        // live in PlaybackService (SPEC §4.3), so the swap changes nothing for them.
+        onRelease = { it.player = null },
+        modifier = modifier
+    )
+}
+
+@Composable
+private fun BufferingSpinner(modifier: Modifier = Modifier) {
+    Column(modifier, horizontalAlignment = Alignment.CenterHorizontally) {
+        CircularProgressIndicator(
+            color = Color.White,
+            strokeWidth = 6.dp,
+            modifier = Modifier.size(64.dp)
+        )
+        Text(stringResource(R.string.player_loading), color = Color.White, fontWeight = FontWeight.Bold)
+    }
+}
+
+@Composable
+private fun RemainingPill(text: String) {
+    Text(
+        text,
+        fontSize = 20.sp,
+        fontWeight = FontWeight.ExtraBold,
+        color = Ink,
+        modifier = Modifier.clip(
+            RoundedCornerShape(22.dp)
+        ).background(Color.White).padding(horizontal = 20.dp, vertical = 10.dp)
+    )
+}
+
+/** Round 72 dp button with four corner brackets: outward to enter full screen, inward to leave. */
+@Composable
+private fun FullscreenButton(exit: Boolean, onClick: () -> Unit, modifier: Modifier = Modifier) {
+    val description = stringResource(if (exit) R.string.player_fullscreen_exit else R.string.player_fullscreen)
+    Surface(
+        onClick = onClick,
+        shape = CircleShape,
+        color = Color.Black.copy(alpha = 0.55f),
+        modifier = modifier.size(72.dp).semantics { contentDescription = description }
+    ) {
+        Box(contentAlignment = Alignment.Center) {
+            Canvas(Modifier.size(36.dp)) {
+                val w = size.width
+                val arm = w * 0.36f
+                val stroke = w * 0.13f
+                // Each corner: the corner point and the directions of its two arms.
+                val corners = listOf(
+                    Offset(0f, 0f) to Offset(1f, 1f),
+                    Offset(w, 0f) to Offset(-1f, 1f),
+                    Offset(0f, w) to Offset(1f, -1f),
+                    Offset(w, w) to Offset(-1f, -1f)
+                )
+                for ((corner, dir) in corners) {
+                    // Leaving: the bracket's corner sits inward, its arms point outward.
+                    val c = if (exit) Offset(corner.x + dir.x * arm, corner.y + dir.y * arm) else corner
+                    val sx = if (exit) -dir.x else dir.x
+                    val sy = if (exit) -dir.y else dir.y
+                    drawLine(Color.White, c, Offset(c.x + sx * arm, c.y), stroke, StrokeCap.Round)
+                    drawLine(Color.White, c, Offset(c.x, c.y + sy * arm), stroke, StrokeCap.Round)
                 }
             }
         }

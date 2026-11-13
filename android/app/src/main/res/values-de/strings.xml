@@ -48,6 +48,8 @@
     <string name="player_back15">15 Sekunden zurück</string>
     <string name="player_fwd30">30 Sekunden vor</string>
     <string name="player_loading">Lädt…</string>
+    <string name="player_fullscreen">Vollbild</string>
+    <string name="player_fullscreen_exit">Vollbild verlassen</string>
     <string name="player_finishing">Das hier noch zu Ende</string>
     <string name="player_less_than_minute">Weniger als eine Minute</string>
     <string name="player_minutes_left">Noch %1$d Min.</string>
