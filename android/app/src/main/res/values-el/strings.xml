@@ -48,6 +48,8 @@
     <string name="player_back15">15 δευτερόλεπτα πίσω</string>
     <string name="player_fwd30">30 δευτερόλεπτα μπροστά</string>
     <string name="player_loading">Φορτώνει…</string>
+    <string name="player_fullscreen">Πλήρης οθόνη</string>
+    <string name="player_fullscreen_exit">Έξοδος από πλήρη οθόνη</string>
     <string name="player_finishing">Αυτό μέχρι το τέλος</string>
     <string name="player_less_than_minute">Λιγότερο από ένα λεπτό</string>
     <string name="player_minutes_left">Ακόμα %1$d λεπ.</string>

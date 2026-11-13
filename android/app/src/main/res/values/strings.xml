@@ -52,6 +52,8 @@
     <string name="player_back15">Back 15 seconds</string>
     <string name="player_fwd30">Forward 30 seconds</string>
     <string name="player_loading">Loading…</string>
+    <string name="player_fullscreen">Full screen</string>
+    <string name="player_fullscreen_exit">Leave full screen</string>
     <string name="player_finishing">Finishing this one</string>
     <string name="player_less_than_minute">Less than a minute left</string>
     <string name="player_minutes_left">%1$d min left</string>
