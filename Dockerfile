@@ -14,7 +14,7 @@ COPY openapi.json /openapi.json
 RUN pnpm build
 
 # ---- Python dependencies ---------------------------------------------------
-FROM python:3.12-slim AS builder
+FROM python:3.15-slim AS builder
 COPY --from=ghcr.io/astral-sh/uv:latest /uv /usr/local/bin/uv
 ENV UV_COMPILE_BYTECODE=1 UV_LINK_MODE=copy UV_PYTHON_DOWNLOADS=never
 WORKDIR /app
@@ -28,13 +28,13 @@ RUN if [ -f uv.lock ]; then uv sync --frozen --no-dev; else uv sync --no-dev; fi
 # for every platform, so they are fetched once on the build host (no emulation).
 # JOY (Greek) is not bundled: its licence is non-commercial. The family image adds it
 # to /app/voices/, or a parent puts it into data/voices/.
-FROM --platform=$BUILDPLATFORM python:3.12-slim AS voices
+FROM --platform=$BUILDPLATFORM python:3.15-slim AS voices
 WORKDIR /build
 COPY server/src/kidsmedia/voices.json server/scripts/fetch_voices.py ./
 RUN python fetch_voices.py voices.json /voices
 
 # ---- Runtime ---------------------------------------------------------------
-FROM python:3.12-slim
+FROM python:3.15-slim
 RUN apt-get update \
     && apt-get install -y --no-install-recommends ffmpeg tzdata \
     && rm -rf /var/lib/apt/lists/*
