@@ -4,6 +4,8 @@ A self-hosted media server for a child's Android tablet. A parent uploads music,
 
 **Status:** working and in use; the milestones are in SPEC §11.
 
+Uploading kids-media-parent-guide-narrated.mp4…
+
 ## Documents
 
 - [docs/SPEC.md](docs/SPEC.md): product and technical specification (rules model, API, data model, thumbnails, Android app, admin, deployment, CI, milestones)
