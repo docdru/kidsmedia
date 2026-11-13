@@ -1,5 +1,13 @@
 # kidsmedia
 
+[![server](https://github.com/docdru/kidsmedia/actions/workflows/server.yml/badge.svg?branch=main)](https://github.com/docdru/kidsmedia/actions/workflows/server.yml)
+[![admin](https://github.com/docdru/kidsmedia/actions/workflows/admin.yml/badge.svg?branch=main)](https://github.com/docdru/kidsmedia/actions/workflows/admin.yml)
+[![android](https://github.com/docdru/kidsmedia/actions/workflows/android.yml/badge.svg?branch=main)](https://github.com/docdru/kidsmedia/actions/workflows/android.yml)
+[![docker](https://github.com/docdru/kidsmedia/actions/workflows/docker.yml/badge.svg?branch=main)](https://github.com/docdru/kidsmedia/actions/workflows/docker.yml)
+[![e2e](https://github.com/docdru/kidsmedia/actions/workflows/e2e.yml/badge.svg?branch=main)](https://github.com/docdru/kidsmedia/actions/workflows/e2e.yml)
+[![Release](https://img.shields.io/github/v/release/docdru/kidsmedia)](https://github.com/docdru/kidsmedia/releases)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+
 A self-hosted media server for a child's Android tablet. A parent uploads music, audiobooks and videos to a Docker web app, sorts them into groups and sets usage rules: for example *one audiobook file per day from two series, weekends only*, *90 minutes of music*, or *bedtime from 19:30*. A dedicated Android app streams the media and enforces the rules.
 
 **Status:** working and in use; the milestones are in SPEC §11.
