@@ -31,7 +31,7 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
@@ -255,12 +255,13 @@ private fun StickerTile(base: String, page: AlbumPage, slot: StickerSlot) {
 
 @Composable
 private fun swapLabel(swap: Swap): String {
-    val context = LocalContext.current
+    // LocalResources (not LocalContext) so the text follows a configuration change.
+    val resources = LocalResources.current
     return RewardLogic.swapLabel(
         swap,
-        items = { context.resources.getQuantityString(R.plurals.reward_swap_items, it, it) },
-        minutes = { context.resources.getQuantityString(R.plurals.reward_swap_minutes, it, it) },
-        join = { amount, groups -> context.getString(R.string.reward_swap_label, amount, groups) }
+        items = { resources.getQuantityString(R.plurals.reward_swap_items, it, it) },
+        minutes = { resources.getQuantityString(R.plurals.reward_swap_minutes, it, it) },
+        join = { amount, groups -> resources.getString(R.string.reward_swap_label, amount, groups) }
     ) ?: swap.groups.joinToString(", ")
 }
 
