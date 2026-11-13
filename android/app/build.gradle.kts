@@ -2,7 +2,6 @@ import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
     alias(libs.plugins.android.application)
-    alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.ktlint)
@@ -10,11 +9,16 @@ plugins {
 
 android {
     namespace = "app.kidsmedia"
-    compileSdk = 35
+    // AGP 9 compiles Kotlin itself (built-in Kotlin, no kotlin-android plugin); the Kotlin
+    // version comes from the compose/serialization plugins in libs.versions.toml.
+    // compileSdk 37: required by Compose 1.12, okhttp 5 and coil 3.6.
+    compileSdk = 37
 
     defaultConfig {
         applicationId = "app.kidsmedia"
         minSdk = 26
+        // Stays at 35 on purpose: a higher target changes runtime behaviour (edge-to-edge,
+        // background limits) on the tablets and needs its own test round.
         targetSdk = 35
         // Release builds get both from the tag (release.yml): -PversionName=1.2.3 -PversionCode=10203
         versionCode = (project.findProperty("versionCode") as String?)?.toInt() ?: 1
