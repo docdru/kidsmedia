@@ -257,3 +257,35 @@ def test_revoked_tablet_is_locked_out(admin: httpx.Client) -> None:
     with tablet() as t:
         assert t.get("/api/library").status_code == 401
         assert t.get(f"/api/media/{S.song1}/stream").status_code == 401
+
+
+# ---- request limits (SPEC §7). Last in the file: they use up the pairing limit. ----------
+
+
+def test_large_json_body_is_refused_by_nginx(anon: httpx.Client) -> None:
+    body = b'{"code":"' + b"1" * (3 * 1024 * 1024) + b'"}'
+    try:
+        r = anon.post("/api/pair", content=body, headers={"content-type": "application/json"})
+    except httpx.HTTPError:
+        return  # nginx may close the connection while the body is still being sent
+    assert r.status_code == 413
+
+
+def test_upload_paths_take_larger_bodies(admin: httpx.Client) -> None:
+    """The nested upload locations still reach the app, with the login: 3 MB that is not
+    a picture gets the app's own answer, not nginx's 413."""
+    r = admin.put(f"/api/admin/groups/{S.music}/cover", content=b"x" * (3 * 1024 * 1024))
+    assert r.status_code == 422, r.text
+    assert r.json()["reason"] == "bad_image"
+
+
+def test_forged_forwarded_for_does_not_lift_the_pairing_limit(anon: httpx.Client) -> None:
+    """5 attempts a minute per address, whatever X-Forwarded-For the client sends itself."""
+    codes = [
+        anon.post(
+            "/api/pair", json={"code": "000000"}, headers={"X-Forwarded-For": f"10.9.8.{i}"}
+        ).status_code
+        for i in range(8)
+    ]
+    assert codes[-1] == 429, codes
+    assert set(codes) <= {400, 429}, codes

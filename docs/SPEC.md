@@ -222,15 +222,21 @@ The admin rule editor shows windows over midnight with "(until next morning)". I
 - **nginx site** (shipped as `deploy/nginx/kidsmedia.conf`, added into the existing server block or as its own `server_name`):
 
   ```nginx
-  client_max_body_size 4g;
+  client_max_body_size 2m;             # default; only the upload paths take more (§7)
 
   location / {
       proxy_pass http://127.0.0.1:8080;
       proxy_set_header Host $host;
-      proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+      proxy_set_header X-Forwarded-For $remote_addr;   # never the client's own value (§7)
       proxy_set_header X-Forwarded-Proto $scheme;
       proxy_request_buffering off;      # stream uploads straight through
       proxy_read_timeout 3600s;
+
+      location ~ ^/api/admin/groups/[0-9]+/upload$ {   # media files
+          client_max_body_size 4g;
+          proxy_pass http://127.0.0.1:8080;
+      }
+      # … the APK, story packs and pictures likewise: see the shipped snippet
   }
 
   location /_media/ {                  # only reachable via X-Accel-Redirect
@@ -444,7 +450,9 @@ Audio art keeps its aspect ratio, usually square. Video frames keep 16:9. The ta
 - Device tokens: 256-bit random, stored as SHA-256 hashes, revocable, `last_seen_at` tracked.
 - Admin: argon2id password hash, login rate limit, session expiry 30 days, CSRF protection.
 - Uploads: filenames never reach the filesystem path (UUID names). Size limit. MIME type is sniffed, not trusted.
-- Brute force: `/api/pair` is limited to 5 attempts per minute per IP, and pairing codes are single-use.
+- Brute force: `/api/pair` is limited to 5 attempts per minute per IP, and pairing codes are single-use. Wrong codes are also counted across all addresses: after 20 in a minute, every pairing attempt gets `429 rate_limited` until the minute has passed, even with the right code. That leaves at most 300 guesses in a code's 15 minutes (0.03 % of the codes), whatever addresses they come from.
+- Client address: the limits count by the address in `X-Forwarded-For`, so it must not be the client's own text. nginx sends only `$remote_addr`, and the server believes the header only from a proxy on its host or in a private network (`FORWARDED_ALLOW_IPS`), taking the last address that is not such a proxy. It is never set to `*`.
+- Request size: bodies over 2 MB are refused with `413 body_too_large`, before login and before the body is read, by nginx and by the server. Only the upload routes take more, each with its own limit; they check the login first and stream the body. The container has a memory limit (`KM_MEM_LIMIT`, default 2 GB).
 
 ---
 

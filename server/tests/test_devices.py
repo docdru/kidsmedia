@@ -1,9 +1,11 @@
+from fastapi import FastAPI
 from fastapi.testclient import TestClient
 from sqlalchemy import select
 
 from kidsmedia.clock import FixedClock
 from kidsmedia.config import Settings
 from kidsmedia.db import devices, make_engine
+from kidsmedia.security import RateLimiter
 
 
 def bearer(token: str) -> dict[str, str]:
@@ -103,3 +105,21 @@ def test_volume_cap_is_validated(admin: TestClient, device_token: str) -> None:
     for bad in (0, 4, 101):
         r = admin.patch(f"/api/admin/devices/{device_id}", json={"max_volume_percent": bad})
         assert r.status_code == 422, bad
+
+
+def test_wrong_codes_from_many_addresses_stop_pairing(admin: TestClient, app: FastAPI) -> None:
+    """SPEC §7: wrong codes are also counted across all addresses, so guessing from many
+    addresses (or with a forged one) doesn't get more tries. While the limit is reached,
+    even the right code is refused; it works again afterwards."""
+    code = admin.post("/api/admin/devices", json={}).json()["pairing"]["code"]
+    wrong = "000000" if code != "000000" else "111111"
+    for i in range(20):
+        app.state.pair_limiter = RateLimiter(limit=5, window=60)  # a new address each time
+        assert admin.post("/api/pair", json={"code": wrong}).status_code == 400, i
+    app.state.pair_limiter = RateLimiter(limit=5, window=60)
+    assert admin.post("/api/pair", json={"code": wrong}).status_code == 429
+    r = admin.post("/api/pair", json={"code": code})
+    assert r.status_code == 429 and r.json()["reason"] == "rate_limited"
+
+    app.state.pair_failure_limiter = RateLimiter(limit=20, window=60)  # a minute later
+    assert admin.post("/api/pair", json={"code": code}).status_code == 200
