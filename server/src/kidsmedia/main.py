@@ -13,6 +13,7 @@ from kidsmedia.clock import Clock
 from kidsmedia.config import Settings, get_settings
 from kidsmedia.db import make_engine, migrate
 from kidsmedia.errors import install_error_handler
+from kidsmedia.limits import BodyLimitMiddleware
 from kidsmedia.routes import (
     activities,
     activities_admin,
@@ -82,7 +83,11 @@ def create_app(settings: Settings | None = None, clock: Clock | None = None) -> 
     app.state.engine = engine
     app.state.login_limiter = RateLimiter(limit=5, window=60)
     app.state.pair_limiter = RateLimiter(limit=5, window=60)
+    # Wrong pairing codes from all addresses together (SPEC §7): a 6-digit code must not
+    # depend on per-address limits alone. 20 a minute is 300 guesses in a code's 15 minutes.
+    app.state.pair_failure_limiter = RateLimiter(limit=20, window=60)
     install_error_handler(app)
+    app.add_middleware(BodyLimitMiddleware)
 
     app.include_router(router)
     for module in (

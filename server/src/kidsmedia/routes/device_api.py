@@ -116,7 +116,10 @@ def pair(
 ) -> PairOut:
     """Exchange a single-use 6-digit code for a device token (SPEC §5.1, §7)."""
     ip = request.client.host if request.client else "unknown"
-    if not _pair_limiter(request).hit(f"pair:{ip}"):
+    failures: RateLimiter = request.app.state.pair_failure_limiter
+    # Per address, and wrong codes from everywhere together: while those are at their
+    # limit nobody can pair, not even with the right code, so guessing doesn't pay.
+    if not _pair_limiter(request).hit(f"pair:{ip}") or failures.full("pair"):
         raise ApiError(429, "rate_limited")
     now = to_db(clock.now())
     code = conn.execute(
@@ -125,6 +128,7 @@ def pair(
         )
     ).first()
     if code is None:
+        failures.hit("pair")
         raise ApiError(400, "invalid_pairing_code")
     device = conn.execute(select(devices).where(devices.c.id == code.device_id)).one()
     token = new_token()
