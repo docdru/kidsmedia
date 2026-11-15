@@ -8,9 +8,9 @@ import app.kidsmedia.data.DoneRequest
 import app.kidsmedia.data.ProblemAudio
 import app.kidsmedia.data.ReadQuestion
 import app.kidsmedia.data.StoryChapter
+import app.kidsmedia.data.StoryTask
 import app.kidsmedia.data.StoryWorld
 import app.kidsmedia.data.ThumbRef
-import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.ZoneId
@@ -22,101 +22,98 @@ import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class ActivityLogicTest {
-    // Thu 5 Nov 2026; chapters on Mon 2, Tue 3, Thu 5, Sat 7, Sun 8, Mon 9 Nov (SPEC §13.2).
-    private val thursday = LocalDate.of(2026, 11, 5)
-    private val dates = listOf("2026-11-02", "2026-11-03", "2026-11-05", "2026-11-07", "2026-11-08", "2026-11-09")
+    // Sat 7 Nov 2026 (SPEC §13.2): six chapters of four tasks, two ideas open the next chapter.
+    private val saturday = LocalDate.of(2026, 11, 7)
+    private val serverTime = "2026-11-07T14:20:00+01:00"
+    private val tasks = ActivityLogic.KINDS.map { StoryTask(it) }
 
-    private fun world(done: Map<Int, List<String>> = emptyMap(), unlockedUpTo: Int = 0) = StoryWorld(
+    private fun world(done: Map<Int, List<String>> = emptyMap(), unlockedUpTo: Int = 1) = StoryWorld(
         id = 1,
-        chapters = dates.mapIndexed { i, d ->
+        chapters = (1..6).map { p ->
             StoryChapter(
-                position = i + 1,
-                date = d,
-                unlocked = i + 1 <= unlockedUpTo,
-                doneKinds = done[i + 1].orEmpty()
+                position = p,
+                unlocked = p <= unlockedUpTo,
+                doneKinds = done[p].orEmpty(),
+                needed = 2,
+                tasks = tasks
             )
         }
     )
 
+    private fun data(world: StoryWorld, limit: Int? = null, openedToday: Int = 0) =
+        Activities(serverTime = serverTime, world = world, maxNewPerDay = limit, openedToday = openedToday)
+
     private fun at(date: LocalDate, hour: Int, minute: Int = 0): LocalDateTime = date.atTime(hour, minute)
 
-    // ---- unlocking ----
+    private fun unlocked(a: Activities) = a.world!!.chapters.map { it.unlocked }
+
+    // ---- unlocking offline (SPEC §13.2, §13.3) ----
 
     @Test
-    fun pastChaptersAreUnlockedOffline() {
-        val c = StoryChapter(position = 1, date = "2026-11-02")
-        assertTrue(ActivityLogic.unlocked(c, at(thursday, 6), "07:00"))
+    fun aChapterIsFinishedWithEnoughIdeas() {
+        val c = StoryChapter(position = 1, needed = 2, tasks = tasks)
+        assertFalse(ActivityLogic.finished(c.copy(doneKinds = listOf("draw"))))
+        assertTrue(ActivityLogic.finished(c.copy(doneKinds = listOf("draw", "calc"))))
+        assertEquals(1, ActivityLogic.left(c.copy(doneKinds = listOf("draw"))))
+        // At most all of a chapter's tasks; an older server sends no `needed`: one idea.
+        assertEquals(1, ActivityLogic.needed(c.copy(needed = 3, tasks = tasks.take(1))))
+        assertEquals(1, ActivityLogic.needed(StoryChapter(position = 1)))
     }
 
     @Test
-    fun todaysChapterUnlocksAtTheUnlockTime() {
-        val c = StoryChapter(position = 3, date = "2026-11-05")
-        assertFalse(ActivityLogic.unlocked(c, at(thursday, 6, 59), "07:00"))
-        assertTrue(ActivityLogic.unlocked(c, at(thursday, 7, 0), "07:00"))
-        assertFalse(ActivityLogic.unlocked(c, at(thursday, 8), "08:30"))
+    fun theSecondIdeaOpensTheNextChapterOffline() {
+        val pending = listOf(DoneRequest(1, 1, "calc"))
+        val a = ActivityLogic.applyLocal(data(world(mapOf(1 to listOf("draw")))), pending, at(saturday, 16))
+        assertEquals(listOf(true, true, false, false, false, false), unlocked(a))
+        // One idea isn't enough.
+        val one = ActivityLogic.applyLocal(data(world()), pending, at(saturday, 16))
+        assertEquals(listOf(true, false, false, false, false, false), unlocked(one))
     }
 
     @Test
-    fun futureAndUndatedChaptersStayLocked() {
-        assertFalse(ActivityLogic.unlocked(StoryChapter(position = 4, date = "2026-11-07"), at(thursday, 12), "07:00"))
-        assertFalse(ActivityLogic.unlocked(StoryChapter(position = 7, date = null), at(thursday, 12), "07:00"))
+    fun severalChaptersInOneGoWithoutALimit() {
+        val done = mapOf(1 to listOf("draw", "calc"), 2 to listOf("draw"))
+        val a = ActivityLogic.applyLocal(data(world(done, 2)), listOf(DoneRequest(1, 2, "read")), at(saturday, 16))
+        assertEquals(listOf(true, true, true, false, false, false), unlocked(a))
     }
 
     @Test
-    fun theServersUnlockCounts() {
-        assertTrue(ActivityLogic.unlocked(StoryChapter(position = 1, unlocked = true), at(thursday, 1), "07:00"))
+    fun theDailyLimitCountsTheServersOpensOfToday() {
+        val done = mapOf(1 to listOf("draw", "calc"), 2 to listOf("draw", "calc"))
+        val w = world(done, unlockedUpTo = 2)
+        // The server already opened chapter 2 today: with a limit of 1, chapter 3 waits.
+        val today = ActivityLogic.applyLocal(data(w, limit = 1, openedToday = 1), emptyList(), at(saturday, 16))
+        assertEquals(listOf(true, true, false, false, false, false), unlocked(today))
+        assertEquals(ActivityBadge.Tomorrow, ActivityLogic.badge(today.world!!))
+        // Sunday, still offline: a new day, chapter 3 opens.
+        val sunday = ActivityLogic.applyLocal(
+            data(w, limit = 1, openedToday = 1),
+            emptyList(),
+            at(saturday.plusDays(1), 9)
+        )
+        assertEquals(listOf(true, true, true, false, false, false), unlocked(sunday))
     }
 
     @Test
-    fun aBrokenUnlockTimeFallsBackToSeven() {
-        val c = StoryChapter(position = 3, date = "2026-11-05")
-        assertFalse(ActivityLogic.unlocked(c, at(thursday, 6), "soon"))
-        assertTrue(ActivityLogic.unlocked(c, at(thursday, 7), "soon"))
+    fun theServersUnlockCountsAndNothingSkipsAChapter() {
+        // Chapter 2 isn't finished, so chapter 3 stays locked even though chapter 3 has ideas done.
+        val done = mapOf(1 to listOf("draw", "calc"), 2 to listOf("draw"), 3 to listOf("draw", "calc"))
+        val a = ActivityLogic.applyLocal(data(world(done, 2)), emptyList(), at(saturday, 16))
+        assertEquals(listOf(true, true, false, false, false, false), unlocked(a))
     }
 
     // ---- badge ----
 
     @Test
-    fun todaysChapterReady() {
-        val w = world(done = mapOf(1 to listOf("draw"), 2 to listOf("calc")), unlockedUpTo = 3)
-        assertEquals(ActivityBadge.Ready(3), ActivityLogic.badge(w, thursday))
-    }
-
-    @Test
-    fun severalReadyCountsOpenChapters() {
-        val w = world(done = mapOf(1 to listOf("draw")), unlockedUpTo = 3)
-        assertEquals(ActivityBadge.SeveralReady(2), ActivityLogic.badge(w, thursday))
-    }
-
-    @Test
-    fun oneOldChapterIsACatchUp() {
-        // Wednesday isn't an activity day: chapter 2 (Tuesday) is still open.
-        val wednesday = LocalDate.of(2026, 11, 4)
-        val w = world(done = mapOf(1 to listOf("draw")), unlockedUpTo = 2)
-        assertEquals(ActivityBadge.CatchUp, ActivityLogic.badge(w, wednesday))
-    }
-
-    @Test
-    fun doneForTodayAndNextOn() {
-        val done = mapOf(1 to listOf("draw"), 2 to listOf("calc"), 3 to listOf("write"))
-        assertEquals(ActivityBadge.DoneToday, ActivityLogic.badge(world(done, unlockedUpTo = 3), thursday))
-        // Friday: no chapter today, the next one is Saturday.
-        val friday = LocalDate.of(2026, 11, 6)
-        assertEquals(ActivityBadge.NextOn(LocalDate.of(2026, 11, 7)), ActivityLogic.badge(world(done, 3), friday))
-    }
-
-    @Test
-    fun beforeTheUnlockTimeTheNextChapterIsToday() {
-        val done = mapOf(1 to listOf("draw"), 2 to listOf("calc"))
-        assertEquals(ActivityBadge.NextOn(thursday), ActivityLogic.badge(world(done, unlockedUpTo = 2), thursday))
-    }
-
-    @Test
-    fun allDoneAndWaiting() {
-        val all = (1..6).associateWith { listOf("draw") }
-        assertEquals(ActivityBadge.AllDone, ActivityLogic.badge(world(all, unlockedUpTo = 6), thursday))
-        val undated = StoryWorld(id = 2, chapters = listOf(StoryChapter(position = 1, date = null)))
-        assertEquals(ActivityBadge.Waiting, ActivityLogic.badge(undated, thursday))
+    fun readyMoreToGoAndAllDone() {
+        assertEquals(ActivityBadge.Ready(1), ActivityLogic.badge(world()))
+        assertEquals(ActivityBadge.MoreToGo(1, 1, false), ActivityLogic.badge(world(mapOf(1 to listOf("draw")))))
+        val five = (1..5).associateWith { listOf("draw", "calc") }
+        assertEquals(ActivityBadge.Ready(6), ActivityLogic.badge(world(five, 6)))
+        assertEquals(ActivityBadge.MoreToGo(6, 1, true), ActivityLogic.badge(world(five + (6 to listOf("read")), 6)))
+        val all = (1..6).associateWith { listOf("draw", "calc") }
+        assertEquals(ActivityBadge.AllDone, ActivityLogic.badge(world(all, 6)))
+        assertEquals(ActivityBadge.Waiting, ActivityLogic.badge(StoryWorld(id = 2)))
     }
 
     // ---- language ----
@@ -232,28 +229,24 @@ class ActivityLogicTest {
     }
 
     @Test
-    fun pendingTapsShowAsDoneAndUnlocksAreRecomputed() {
-        val data = Activities(unlockTime = "07:00", world = world(done = mapOf(1 to listOf("draw"))))
-        val pending = listOf(DoneRequest(1, 2, "calc"), DoneRequest(1, 2, "calc"), DoneRequest(99, 3, "draw"))
-        val view = ActivityLogic.view(data, pending, at(thursday, 9))
+    fun pendingTapsShowAsDoneAndOpenTheNextChapter() {
+        val data = data(world(done = mapOf(1 to listOf("draw"))))
+        val pending = listOf(DoneRequest(1, 1, "calc"), DoneRequest(1, 1, "calc"), DoneRequest(99, 2, "draw"))
+        val view = ActivityLogic.view(data, pending, at(saturday, 16))
         val chapters = view.world!!.chapters
-        assertEquals(listOf("calc"), chapters[1].doneKinds)
-        assertTrue(chapters[2].doneKinds.isEmpty()) // another world's tap doesn't count
-        assertEquals(listOf(true, true, true, false, false, false), chapters.map { it.unlocked })
-        assertEquals(ActivityBadge.Ready(3), view.badge)
+        assertEquals(listOf("draw", "calc"), chapters[0].doneKinds)
+        assertTrue(chapters[1].doneKinds.isEmpty()) // another world's tap doesn't count
+        assertEquals(listOf(true, true, false, false, false, false), chapters.map { it.unlocked })
+        assertEquals(ActivityBadge.Ready(2), view.badge)
     }
 
     @Test
-    fun firstOpenChapterAndWeekdayLabels() {
-        val w = ActivityLogic.applyLocal(
-            Activities(world = world(done = mapOf(1 to listOf("draw")))),
-            emptyList(),
-            at(thursday, 9)
-        ).world!!
-        assertEquals(2, ActivityLogic.firstOpen(w))
-        assertEquals(ChapterDay.Weekday(DayOfWeek.SATURDAY), ActivityLogic.chapterDay(w.chapters[3], thursday))
-        assertEquals(ChapterDay.Weekday(DayOfWeek.SUNDAY), ActivityLogic.chapterDay(w.chapters[4], thursday))
-        assertEquals(ChapterDay.NextWeek, ActivityLogic.chapterDay(w.chapters[5], thursday))
+    fun theStoryOpensOnTheChapterToDoNow() {
+        val done = mapOf(1 to listOf("draw", "calc"), 2 to listOf("draw"))
+        assertEquals(2, ActivityLogic.firstOpen(world(done, unlockedUpTo = 2)))
+        // Everything open is finished: the last open chapter.
+        val finished = mapOf(1 to listOf("draw", "calc"), 2 to listOf("draw", "calc"))
+        assertEquals(2, ActivityLogic.firstOpen(world(finished, unlockedUpTo = 2)))
     }
 
     // ---- pictures (SPEC §13.5) ----
@@ -273,8 +266,9 @@ class ActivityLogicTest {
 
     @Test
     fun prefetchesTheCoverAndTheCurrentAndNextChapter() {
-        // Chapters 1–2 done, 3 open: the story opens on 3, so 3 and 4 are fetched ahead.
-        val base = world(done = mapOf(1 to listOf("draw"), 2 to listOf("calc")), unlockedUpTo = 3)
+        // Chapters 1–2 finished, 3 open: the story opens on 3, so 3 and 4 are fetched ahead.
+        val finished = listOf("draw", "calc")
+        val base = world(done = mapOf(1 to finished, 2 to finished), unlockedUpTo = 3)
         val chapters = base.chapters.map { it.copy(image = ThumbRef("/api/thumbs/w1c${it.position}-x.webp")) }
         val w = base.copy(cover = cover, chapters = chapters)
         assertEquals(
@@ -292,18 +286,20 @@ class ActivityLogicTest {
     fun parsesTheServerAnswerAndToleratesMissingFields() {
         val json =
             """
-            {"server_time":"2026-11-05T14:20:00+01:00","unlock_time":"07:00","today_is_activity_day":true,
-             "next_unlock_at":null,"extra":"ignored",
+            {"server_time":"2026-11-05T14:20:00+01:00","unlock_time":"00:00","today_is_activity_day":true,
+             "next_unlock_at":null,"max_new_per_day":1,"opened_today":1,"story_done":false,"extra":"ignored",
              "world":{"id":1,"slug":"lighthouse-island","color":"#B84A12","cover":null,
                "texts":{"de":{"name":"Leuchtturm-Insel","guide":"mit Mira"}},
-               "chapters":[{"position":1,"date":"2026-11-02","unlocked":true,"done_kinds":["draw"],
+               "chapters":[{"position":1,"date":"2026-11-02","unlocked":true,"done_kinds":["draw"],"needed":2,
                  "image":{"url":"/api/thumbs/w1c1-9e4f20.webp","aspect":1.0},
                  "texts":{"en":{"title":"Mira's lighthouse","intro":"Hi","outro":"Bye"}},
                  "tasks":[{"kind":"draw","minutes":15,
                    "texts":{"en":{"title":"Draw","text":"Draw it","materials":["Paper"]}}}]}]}}
             """.trimIndent()
         val a = ApiJson.decodeFromString(Activities.serializer(), json)
-        assertTrue(a.todayIsActivityDay)
+        assertEquals(1, a.maxNewPerDay)
+        assertEquals(1, a.openedToday)
+        assertEquals(2, a.world!!.chapters[0].needed)
         assertEquals("Leuchtturm-Insel", a.world!!.texts["de"]!!.name)
         assertEquals(listOf("Paper"), a.world!!.chapters[0].tasks[0].texts["en"]!!.materials)
         assertEquals(ThumbRef("/api/thumbs/w1c1-9e4f20.webp", 1.0), a.world!!.chapters[0].image)

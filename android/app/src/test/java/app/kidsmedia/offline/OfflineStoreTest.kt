@@ -3,12 +3,15 @@ package app.kidsmedia.offline
 import app.kidsmedia.activities.ActivityLogic
 import app.kidsmedia.activities.OpenLogic
 import app.kidsmedia.activities.OpenState
+import app.kidsmedia.data.Activities
 import app.kidsmedia.data.OfflineEvent
 import app.kidsmedia.data.OpenWindow
 import app.kidsmedia.data.SnapshotLockout
 import app.kidsmedia.data.SnapshotRule
 import app.kidsmedia.data.SnapshotUsage
 import app.kidsmedia.data.StoryChapter
+import app.kidsmedia.data.StoryTask
+import app.kidsmedia.data.StoryWorld
 import app.kidsmedia.rules.Reason
 import app.kidsmedia.rules.RulesEngine
 import java.time.LocalDate
@@ -144,11 +147,23 @@ class OfflineStoreTest {
         assertTrue(
             OpenLogic.openState(windows, trusted.atZoneSameInstant(tablet).toLocalDateTime()) is OpenState.Closed
         )
-        // Wed 4 Nov 00:30 in Berlin is still Tue 18:30 in New York: Wednesday's chapter is open.
+        // Wed 4 Nov 00:30 in Berlin is still Tue 18:30 in New York. Tuesday's limit of one new chapter
+        // was used, so only in the server's zone is it a new day that opens the next chapter (SPEC §13.2).
         val night = OffsetDateTime.of(2026, 11, 3, 18, 30, 0, 0, ZoneOffset.ofHours(-5)).atZoneSameInstant(zone)
-        val chapter = StoryChapter(position = 3, date = "2026-11-04")
-        assertTrue(ActivityLogic.unlocked(chapter, night.toLocalDateTime(), "00:00"))
-        assertFalse(ActivityLogic.unlocked(chapter, night.withZoneSameInstant(tablet).toLocalDateTime(), "00:00"))
+        val kinds = listOf(StoryTask("draw"), StoryTask("calc"))
+        val chapters = listOf(
+            StoryChapter(position = 1, unlocked = true, doneKinds = listOf("draw", "calc"), needed = 2, tasks = kinds),
+            StoryChapter(position = 2, needed = 2, tasks = kinds)
+        )
+        val data = Activities(
+            serverTime = "2026-11-03T16:00:00+01:00",
+            maxNewPerDay = 1,
+            openedToday = 1,
+            world = StoryWorld(id = 1, chapters = chapters)
+        )
+        fun opened(at: LocalDateTime) = ActivityLogic.applyLocal(data, emptyList(), at).world!!.chapters[1].unlocked
+        assertTrue(opened(night.toLocalDateTime()))
+        assertFalse(opened(night.withZoneSameInstant(tablet).toLocalDateTime()))
         // The tap's time is sent in the server's zone.
         assertEquals("2026-11-04T00:30:00+01:00", ActivityLogic.doneAt(night))
     }

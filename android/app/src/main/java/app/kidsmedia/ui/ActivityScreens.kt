@@ -62,6 +62,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
@@ -76,7 +77,6 @@ import app.kidsmedia.activities.ActivityLogic
 import app.kidsmedia.activities.CalcLogic
 import app.kidsmedia.activities.CalcProgress
 import app.kidsmedia.activities.CalcStep
-import app.kidsmedia.activities.ChapterDay
 import app.kidsmedia.activities.Clip
 import app.kidsmedia.activities.OpenState
 import app.kidsmedia.activities.ReadLogic
@@ -281,23 +281,17 @@ private fun SpeakingBars(color: Color, height: Int) {
 // ---- home tile (SPEC §13.7) ---------------------------------------------------------
 
 @Composable
-fun activityBadgeText(badge: ActivityBadge, unlockTime: String, today: LocalDate): String {
-    val locale = LocalConfiguration.current.locales[0]
-    return when (badge) {
-        is ActivityBadge.Ready -> stringResource(R.string.activity_badge_ready, badge.position)
-        is ActivityBadge.SeveralReady -> stringResource(R.string.activity_badge_several, badge.count)
-        ActivityBadge.CatchUp -> stringResource(R.string.activity_badge_catch_up)
-        ActivityBadge.DoneToday -> stringResource(R.string.activity_badge_done_today)
-        ActivityBadge.AllDone -> stringResource(R.string.activity_badge_all_done)
-        ActivityBadge.Waiting -> stringResource(R.string.activity_badge_waiting)
-        is ActivityBadge.NextOn ->
-            if (badge.date == today) {
-                stringResource(R.string.activity_badge_next_today, unlockTime)
-            } else {
-                val day = badge.date.dayOfWeek.getDisplayName(TextStyle.FULL, locale)
-                stringResource(R.string.activity_badge_next_on, day)
-            }
-    }
+fun activityBadgeText(badge: ActivityBadge): String = when (badge) {
+    is ActivityBadge.Ready -> stringResource(R.string.activity_badge_ready, badge.position)
+    is ActivityBadge.MoreToGo ->
+        if (badge.last) {
+            pluralStringResource(R.plurals.activity_badge_more_last, badge.left, badge.left)
+        } else {
+            pluralStringResource(R.plurals.activity_badge_more, badge.left, badge.left, badge.position + 1)
+        }
+    ActivityBadge.Tomorrow -> stringResource(R.string.activity_badge_tomorrow)
+    ActivityBadge.AllDone -> stringResource(R.string.activity_badge_all_done)
+    ActivityBadge.Waiting -> stringResource(R.string.activity_badge_waiting)
 }
 
 /** The world tile's badge while Ideas are closed (SPEC §14.4a): "Ideas open at 15:00" / "… on Monday". */
@@ -360,11 +354,11 @@ fun WorldTile(base: String, view: ActivitiesView, onTap: () -> Unit, stars: Int?
     val name = worldTexts(world).name
     val closed = view.open as? OpenState.Closed
     val badge = when (closed) {
-        null -> activityBadgeText(view.badge, view.data.unlockTime, view.today)
+        null -> activityBadgeText(view.badge)
         else -> ideasBadgeText(closed, view.today)
     }
-    val calm = closed == null && (view.badge == ActivityBadge.DoneToday || view.badge == ActivityBadge.AllDone)
-    val label = stringResource(R.string.activity_this_week)
+    val calm = closed == null && (view.badge == ActivityBadge.Tomorrow || view.badge == ActivityBadge.AllDone)
+    val label = stringResource(R.string.activity_tile_label)
     Surface(
         shape = RoundedCornerShape(28.dp),
         shadowElevation = 4.dp,
@@ -442,19 +436,15 @@ private fun InfoChip(text: String, ground: Color = ChipGround, color: Color = Co
 // ---- story world (SPEC §13.7) -------------------------------------------------------
 
 @Composable
-private fun ChapterButton(chapter: StoryChapter, today: LocalDate, selected: Boolean, onClick: () -> Unit) {
-    val locale = LocalConfiguration.current.locales[0]
-    val done = chapter.doneKinds.isNotEmpty()
+private fun ChapterButton(chapter: StoryChapter, selected: Boolean, onClick: () -> Unit) {
+    val done = ActivityLogic.finished(chapter)
     val locked = !chapter.unlocked
-    val day = when (val d = ActivityLogic.chapterDay(chapter, today)) {
-        is ChapterDay.Weekday -> d.day.getDisplayName(TextStyle.SHORT, locale)
-        ChapterDay.NextWeek -> stringResource(R.string.activity_next_week)
-        ChapterDay.Unknown -> ""
-    }
+    // Above the number: how many of the needed ideas are done, e.g. "1/2" (SPEC §13.2).
+    val progress = if (locked || done) "" else "${chapter.doneKinds.size}/${ActivityLogic.needed(chapter)}"
     val state = when {
         done -> stringResource(R.string.activity_state_done)
         locked -> stringResource(R.string.activity_state_locked)
-        else -> day
+        else -> stringResource(R.string.activity_state_progress, chapter.doneKinds.size, ActivityLogic.needed(chapter))
     }
     val description = stringResource(R.string.activity_chapter_a11y, chapter.position, state)
     val fg = if (done) Color.White else Ink
@@ -474,7 +464,7 @@ private fun ChapterButton(chapter: StoryChapter, today: LocalDate, selected: Boo
             .semantics { contentDescription = description }
     ) {
         Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
-            Text(day, fontSize = 14.sp, fontWeight = FontWeight.Black, color = fg, maxLines = 1)
+            Text(progress, fontSize = 14.sp, fontWeight = FontWeight.Black, color = fg, maxLines = 1)
             when {
                 done -> Icon(Icons.Filled.Check, contentDescription = null, tint = fg, modifier = Modifier.size(28.dp))
                 locked -> Icon(Icons.Filled.Lock, contentDescription = null, tint = fg, modifier = Modifier.size(24.dp))
@@ -582,16 +572,25 @@ fun StoryScreen(
 ) {
     val world = view.world ?: return
     val chapter = world.chapters.firstOrNull { it.position == position } ?: world.chapters.firstOrNull() ?: return
-    val locale = LocalConfiguration.current.locales[0]
     val wt = worldTexts(world)
     val (lang, ct) = chapterTexts(world, chapter)
-    val fullDay = ActivityLogic.dateOf(chapter)?.dayOfWeek?.getDisplayName(TextStyle.FULL, locale)
-    val day = fullDay?.uppercase(locale)
+    val before = world.chapters.lastOrNull { it.position < chapter.position }
+    val finished = ActivityLogic.finished(chapter)
+    val last = chapter == world.chapters.last()
     val choose = when {
-        !chapter.unlocked ->
-            fullDay?.let { stringResource(R.string.activity_locked_on, it) }
-                ?: stringResource(R.string.activity_locked_later)
-        chapter.doneKinds.isNotEmpty() -> stringResource(R.string.activity_choose_extra)
+        !chapter.unlocked && before != null && before.unlocked && ActivityLogic.finished(before) ->
+            stringResource(R.string.activity_locked_tomorrow)
+        !chapter.unlocked && before != null -> ActivityLogic.left(before).let { left ->
+            pluralStringResource(R.plurals.activity_locked_needs, left, left, before.position)
+        }
+        !chapter.unlocked -> stringResource(R.string.activity_locked_later)
+        finished -> stringResource(R.string.activity_choose_extra)
+        chapter.doneKinds.isNotEmpty() && last -> ActivityLogic.left(chapter).let { left ->
+            pluralStringResource(R.plurals.activity_choose_more_last, left, left)
+        }
+        chapter.doneKinds.isNotEmpty() -> ActivityLogic.left(chapter).let { left ->
+            pluralStringResource(R.plurals.activity_choose_more, left, left)
+        }
         else -> stringResource(R.string.activity_choose)
     }
     val key = introKey(world, chapter.position)
@@ -601,7 +600,7 @@ fun StoryScreen(
     fun Card(task: StoryTask, modifier: Modifier, compact: Boolean) {
         val chip = when {
             task.kind in chapter.doneKinds -> stringResource(R.string.activity_chip_done)
-            chapter.doneKinds.isNotEmpty() -> stringResource(R.string.activity_chip_extra)
+            finished -> stringResource(R.string.activity_chip_extra)
             else -> null
         }
         KindCard(world, task, chip, modifier.alpha(if (chapter.unlocked) 1f else 0.5f), compact) { onTask(task.kind) }
@@ -611,7 +610,7 @@ fun StoryScreen(
     fun Chapters(modifier: Modifier = Modifier) {
         Row(modifier, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
             world.chapters.forEach { c ->
-                ChapterButton(c, view.today, c.position == chapter.position) { onSelect(c.position) }
+                ChapterButton(c, c.position == chapter.position) { onSelect(c.position) }
             }
         }
     }
@@ -629,7 +628,7 @@ fun StoryScreen(
     @Composable
     fun Heading() {
         Text(
-            stringResource(R.string.activity_chapter_label, chapter.position, day ?: ""),
+            stringResource(R.string.activity_chapter_label, chapter.position),
             fontSize = 16.sp,
             fontWeight = FontWeight.Black,
             color = Ember
@@ -889,6 +888,19 @@ fun TaskDoneScreen(base: String, view: ActivitiesView, position: Int, onBack: ()
     val chapter = world.chapters.firstOrNull { it.position == position } ?: return
     val ct = chapterTexts(world, chapter).second
     val picture = ActivityLogic.picture(world, chapter)
+    // The outro only once the chapter is finished; before that, how many ideas are left (SPEC §13.2).
+    val finished = ActivityLogic.finished(chapter)
+    val left = ActivityLogic.left(chapter)
+    val title = if (finished) {
+        stringResource(R.string.activity_done_title, position)
+    } else {
+        stringResource(R.string.activity_done_great)
+    }
+    val text = when {
+        finished -> ct.outro
+        chapter == world.chapters.last() -> pluralStringResource(R.plurals.activity_choose_more_last, left, left)
+        else -> pluralStringResource(R.plurals.activity_choose_more, left, left)
+    }
     Column(
         Modifier.fillMaxSize().background(Ember).padding(56.dp),
         verticalArrangement = Arrangement.spacedBy(26.dp, Alignment.CenterVertically),
@@ -935,12 +947,12 @@ fun TaskDoneScreen(base: String, view: ActivitiesView, position: Int, onBack: ()
             }
         }
         Text(
-            stringResource(R.string.activity_done_title, position),
+            title,
             fontSize = 54.sp,
             fontWeight = FontWeight.Black,
             color = Color.White
         )
-        Text(ct.outro, fontSize = 28.sp, fontWeight = FontWeight.Bold, color = Color.White, lineHeight = 38.sp)
+        Text(text, fontSize = 28.sp, fontWeight = FontWeight.Bold, color = Color.White, lineHeight = 38.sp)
         Surface(onClick = onBack, shape = RoundedCornerShape(46.dp), color = Color.White) {
             Box(Modifier.height(92.dp).padding(horizontal = 40.dp), contentAlignment = Alignment.Center) {
                 Text(

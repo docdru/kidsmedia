@@ -448,7 +448,7 @@ def test_the_tablet_gets_the_audio_of_its_level(
     render(settings, "en", "Do it")
     admin.put(
         "/api/admin/activities/settings",
-        json={"days": [0, 1, 2, 3, 4, 5], "unlock_time": "07:00", "level": "easier"},
+        json={"level": "easier"},
     )
     world = admin.get("/api/activities", headers=bearer(device_token)).json()["world"]
     draw = world["chapters"][0]["tasks"][0]["texts"]["en"]

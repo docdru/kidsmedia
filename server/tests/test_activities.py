@@ -1,10 +1,10 @@
-"""The activities schedule, pack format and opening times, pure (SPEC §13.2, §13.5, §14.1-§14.4a,
-§15.2, §15.5).
+"""How the story moves on, pack format and opening times, pure (SPEC §13.2, §13.5,
+§14.1-§14.4a, §15.2, §15.5).
 
-The §13.2 example table doubles as these tests: queue_start is Mon 2 Nov 2026.
+The §13.2 example table doubles as these tests: Saturday 7 Nov 2026, 2 ideas of 4 needed.
 """
 
-from datetime import date, datetime, time
+from datetime import date, datetime
 from typing import Any
 
 import pytest
@@ -12,138 +12,190 @@ from pydantic import ValidationError
 
 from kidsmedia.activities import (
     SIMPLE_MATERIALS,
-    DayOff,
     Pack,
+    PlannedWorld,
+    Progress,
+    Schedule,
     TaskTexts,
     Window,
-    activity_days,
     done_allowed,
-    format_days,
     is_complete,
     is_simple_material,
     load_langs,
     merge_langs,
     open_state,
     pack_warnings,
-    parse_days,
-    queue_start_after_change,
     schedule,
     story_lang,
 )
 from tests.conftest import BERLIN
 
-START = date(2026, 11, 2)  # a Monday
-MON_SAT = frozenset(range(6))
-MON_TUE_THU_SAT_SUN = frozenset({0, 1, 3, 5, 6})
+SAT = date(2026, 11, 7)
+SUN = date(2026, 11, 8)
 
 
 def at(day: int, hh: int = 14, mm: int = 20) -> datetime:
     return datetime(2026, 11, day, hh, mm, tzinfo=BERLIN)
 
 
-def nov(*days: int) -> list[date | None]:
-    return [date(2026, 11, d) for d in days]
+def world(world_id: int, chapters: int = 4, tasks: int = 4) -> PlannedWorld:
+    return PlannedWorld(world_id, (tasks,) * chapters)
 
 
-@pytest.mark.parametrize(
-    ("days", "days_off", "expected"),
-    [
-        (MON_SAT, [], nov(2, 3, 4, 5, 6, 7)),
-        (MON_TUE_THU_SAT_SUN, [], nov(2, 3, 5, 7, 8, 9)),
-        (
-            MON_TUE_THU_SAT_SUN,
-            [DayOff(date(2026, 11, 7), date(2026, 11, 8))],
-            nov(2, 3, 5, 9, 10, 12),
-        ),
-    ],
-)
-def test_chapters_fall_on_activity_days(
-    days: frozenset[int], days_off: list[DayOff], expected: list[date | None]
-) -> None:
-    s = schedule([(1, 6)], days, days_off, START, at(2))
-    assert [c.date for c in s.chapters] == expected
+def started(world_id: int, *opened: date) -> Progress:
+    return Progress(world_id, opened or (SAT,))
 
 
-def test_next_world_starts_the_day_after() -> None:
-    s = schedule([(1, 6), (2, 6)], MON_SAT, [], START, at(5))
-    assert s.spans[1].first == date(2026, 11, 9)
+def ideas(day: date, count: int = 2) -> list[date]:
+    """`count` done ideas (distinct kinds) of one chapter, all on `day`."""
+    return [day] * count
+
+
+def unlocked(s: Schedule) -> list[bool]:
+    return [c.unlocked for c in s.chapters]
+
+
+# The §13.2 example table: needed 2 of 4, Saturday 7 Nov 2026.
+
+
+def test_a_new_first_world_opens_chapter_one_now() -> None:
+    s = schedule([world(1)], Progress(), {}, 2, None, at(7))
     assert s.current == 1
+    assert unlocked(s) == [True, False, False, False]
+    assert s.chapters[0].opened_on == SAT
+    assert s.progress == Progress(1, (SAT,), {})  # chapter 1 doesn't count for the limit
+    assert s.next_unlock_at is None
+    assert not s.story_done
 
 
-def test_todays_chapter_unlocks_at_the_unlock_time() -> None:
-    s = schedule([(1, 6)], MON_SAT, [], START, at(5, 6, 59))
-    assert [c.unlocked for c in s.chapters] == [True, True, True, False, False, False]
-    assert s.next_unlock_at == at(5, 7, 0)
-    s = schedule([(1, 6)], MON_SAT, [], START, at(5, 7, 0))
-    assert [c.unlocked for c in s.chapters][:4] == [True, True, True, True]
-    assert s.next_unlock_at == at(6, 7, 0)
+def test_one_idea_is_not_enough() -> None:
+    s = schedule([world(1)], started(1), {1: {1: ideas(SAT, 1)}}, 2, None, at(7))
+    assert unlocked(s) == [True, False, False, False]
 
 
-def test_custom_unlock_time() -> None:
-    s = schedule([(1, 6)], MON_SAT, [], START, at(2, 8, 59), unlock_time=time(9, 0))
-    assert not s.chapters[0].unlocked
-    assert s.next_unlock_at == at(2, 9, 0)
+def test_two_ideas_open_the_next_chapter_the_same_day() -> None:
+    s = schedule([world(1)], started(1), {1: {1: ideas(SAT)}}, 2, None, at(7))
+    assert unlocked(s) == [True, True, False, False]
+    assert s.chapters[1].opened_on == SAT
+    assert s.opened_today == 1
 
 
-def test_a_day_without_activities_waits_for_the_next() -> None:
-    s = schedule([(1, 6)], frozenset({0, 1, 3}), [], START, at(4))
-    assert not s.today_is_activity_day
-    assert [c.unlocked for c in s.chapters] == [True, True, False, False, False, False]
-    assert s.next_unlock_at == at(5, 7, 0)
+def test_the_setting_decides_how_many() -> None:
+    done = {1: {1: ideas(SAT, 3)}}
+    assert unlocked(schedule([world(1)], started(1), done, 4, None, at(7)))[1] is False
+    assert unlocked(schedule([world(1)], started(1), done, 3, None, at(7)))[1] is True
+    assert unlocked(schedule([world(1)], started(1), done, 1, None, at(7)))[1] is True
 
 
-def test_housekeeping_drops_finished_worlds() -> None:
-    s = schedule([(1, 6), (2, 6)], MON_SAT, [], START, at(10))
-    assert s.current == 2
-    assert s.queue == (2,)
-    assert s.queue_start == date(2026, 11, 9)
-    assert [c.unlocked for c in s.chapters] == [True, True, False, False, False, False]
-    # Changing the days later doesn't move the finished world back in.
-    again = schedule([(2, 6)], frozenset({0}), [], s.queue_start, at(10))
-    assert again.current == 2
-    assert [c.date for c in again.chapters][:2] == nov(9, 16)
+def test_a_chapter_with_fewer_tasks_needs_at_most_all_of_them() -> None:
+    small = PlannedWorld(1, (1, 4))
+    s = schedule([small], started(1), {1: {1: ideas(SAT, 1)}}, 2, None, at(7))
+    assert [c.needed for c in s.chapters] == [1, 2]
+    assert unlocked(s) == [True, True]
 
 
-def test_no_activity_days_means_nothing_scheduled() -> None:
-    s = schedule([(1, 6)], frozenset(), [], START, at(5))
-    assert s.current is None
-    assert s.chapters == ()
+def test_several_chapters_in_one_afternoon_without_a_limit() -> None:
+    done = {1: {1: ideas(SAT), 2: ideas(SAT), 3: ideas(SAT)}}
+    s = schedule([world(1)], started(1), done, 2, None, at(7))
+    assert unlocked(s) == [True, True, True, True]
+    assert s.opened_today == 3
+
+
+def test_the_daily_limit_holds_the_next_chapter_until_tomorrow() -> None:
+    done = {1: {1: ideas(SAT), 2: ideas(SAT)}}
+    s = schedule([world(1)], started(1), done, 2, 1, at(7))
+    assert unlocked(s) == [True, True, False, False]
+    assert s.next_unlock_at == datetime(2026, 11, 8, 0, 0, tzinfo=BERLIN)
+    # Sunday: chapter 3 opens, dated Sunday.
+    s = schedule([world(1)], s.progress, done, 2, 1, at(8, 9, 0))
+    assert unlocked(s) == [True, True, True, False]
+    assert s.chapters[2].opened_on == SUN
     assert s.next_unlock_at is None
 
 
+def test_finishing_the_last_chapter_starts_the_next_world() -> None:
+    done = {1: {1: ideas(SAT), 2: ideas(SAT)}}
+    s = schedule([world(1, chapters=2), world(2)], started(1), done, 2, None, at(7))
+    assert s.current == 2
+    assert s.queue == (2,)  # housekeeping drops the finished world
+    assert unlocked(s) == [True, False, False, False]
+    assert s.progress.opened == (SAT,)
+    assert s.opened_today == 2  # its chapter 1 counts: it opened by finishing
+
+
+def test_the_next_world_waits_for_the_daily_limit_too() -> None:
+    done = {1: {1: ideas(SAT), 2: ideas(SAT)}}
+    s = schedule([world(1, chapters=2), world(2)], started(1), done, 2, 1, at(7))
+    assert s.current == 1
+    assert s.next_unlock_at == datetime(2026, 11, 8, 0, 0, tzinfo=BERLIN)
+    assert schedule([world(1, chapters=2), world(2)], s.progress, done, 2, 1, at(8)).current == 2
+
+
+def test_the_last_story_done_and_nothing_queued() -> None:
+    done = {1: {1: ideas(SAT), 2: ideas(SAT)}}
+    s = schedule([world(1, chapters=2)], started(1), done, 2, None, at(7))
+    assert s.current == 1
+    assert s.story_done
+    assert unlocked(s) == [True, True]
+    # The parent queues the next story: it starts at once.
+    s = schedule([world(1, chapters=2), world(2)], s.progress, done, 2, None, at(9))
+    assert s.current == 2
+    assert not s.story_done
+
+
+def test_open_chapters_stay_open_when_an_idea_is_opened_again() -> None:
+    s = schedule([world(1)], started(1, SAT, SAT), {1: {1: ideas(SAT, 1)}}, 2, None, at(7))
+    assert unlocked(s) == [True, True, False, False]
+
+
+def test_a_new_first_world_starts_fresh_and_reordering_later_ones_keeps_the_progress() -> None:
+    progress = started(1, SAT, SAT)
+    kept = schedule([world(1), world(3), world(2)], progress, {}, 2, None, at(9))
+    assert kept.progress.opened == (SAT, SAT)
+    fresh = schedule([world(2), world(1)], progress, {}, 2, None, at(9))
+    assert fresh.current == 2
+    assert fresh.progress.opened == (date(2026, 11, 9),)
+
+
+def test_ideas_done_before_a_world_started_open_its_chapters_from_its_start() -> None:
+    """A world queued again: earlier done rows count, from the day it started again."""
+    done = {1: {1: ideas(date(2026, 10, 1))}}
+    s = schedule([world(1)], Progress(), done, 2, None, at(7))
+    assert unlocked(s) == [True, True, False, False]
+    assert s.chapters[1].opened_on == SAT
+
+
+def test_at_an_earlier_moment_a_later_chapter_is_still_locked() -> None:
+    """A queued tap is judged at its moment (§14.4a) with the progress as of now."""
+    s = schedule([world(1)], started(1, SAT, SUN), {}, 2, None, at(7, 18, 0))
+    assert unlocked(s) == [True, False, False, False]
+
+
 def test_empty_queue() -> None:
-    s = schedule([], MON_SAT, [], None, at(5))
+    s = schedule([], started(1), {}, 2, None, at(7))
     assert s.current is None
-    assert s.queue == ()
-    assert s.today_is_activity_day
+    assert s.chapters == ()
+    assert s.progress == Progress()
 
 
-def test_a_world_that_starts_later_is_not_shown_yet() -> None:
-    s = schedule([(1, 6)], MON_SAT, [], date(2026, 11, 9), at(5))
-    assert s.current is None
-    assert s.spans[0].first == date(2026, 11, 9)
+def test_old_counts_are_dropped() -> None:
+    progress = Progress(1, (SAT,), {date(2026, 10, 1): 3, SAT: 1})
+    assert schedule([world(1)], progress, {}, 2, None, at(7)).progress.opens == {SAT: 1}
 
 
-def test_days_off_are_inclusive_and_may_be_one_day() -> None:
-    offs = [
-        DayOff(date(2026, 11, 3), date(2026, 11, 3)),
-        DayOff(date(2026, 11, 5), date(2026, 11, 6)),
-    ]
-    assert activity_days(START, 4, MON_SAT, offs) == nov(2, 4, 7, 9)
+@pytest.mark.parametrize("raw", [None, [], {"opened": ["x"]}, {"opens": {"2026-11-07": "a"}}, 5])
+def test_unreadable_progress_is_a_fresh_start(raw: object) -> None:
+    assert Progress.from_json(raw) == Progress()
 
 
-def test_chapters_past_the_horizon_have_no_date() -> None:
-    s = schedule([(1, 3)], frozenset({0}), [DayOff(START, date(2027, 12, 31))], START, at(2))
-    assert s.spans[0].dates == (None, None, None)
-    assert s.current is None
-
-
-def test_queue_change_rule_7() -> None:
-    today = date(2026, 11, 5)
-    assert queue_start_after_change([1, 2], [1, 3, 2], START, today) == START
-    assert queue_start_after_change([1, 2], [2, 1], START, today) == today
-    assert queue_start_after_change([], [1], None, today) == today
-    assert queue_start_after_change([1], [], START, today) is None
+def test_progress_round_trip() -> None:
+    progress = Progress(4, (SAT, SUN), {SUN: 2})
+    assert Progress.from_json(progress.to_json()) == progress
+    assert progress.to_json() == {
+        "world": 4,
+        "opened": ["2026-11-07", "2026-11-08"],
+        "opens": {"2026-11-08": 2},
+    }
 
 
 # ---- story language (§14.7) -------------------------------------------------------------
@@ -169,11 +221,6 @@ def test_langs_load_and_merge() -> None:
     assert load_langs(None) == {}
     # A change updates; a world leaving the queue loses its entry; JSON keys are strings.
     assert merge_langs({1: "el", 2: "de"}, {3: "en"}, [2, 3]) == {"2": "de", "3": "en"}
-
-
-def test_days_round_trip() -> None:
-    assert parse_days("0136") == frozenset({0, 1, 3, 6})
-    assert format_days([6, 0, 3, 3]) == "036"
 
 
 # ---- pack format ------------------------------------------------------------------------

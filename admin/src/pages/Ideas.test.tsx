@@ -8,9 +8,10 @@ import type { PackWarning, WorldFull } from "../api/client";
 import Ideas from "./Ideas";
 
 const STATE = {
-  settings: { days: [0, 1, 3, 5, 6], unlock_time: "07:00", level: "normal", windows: [] as unknown[] },
-  days_off: [{ id: 4, from: "2026-11-21", to: "2026-11-22", note: "at grandma's" }],
-  queue: [{ world_id: 1, first_date: "2026-11-02", last_date: "2026-11-09", status: "running", lang: "de", langs: ["de", "en"] }],
+  settings: { level: "normal", windows: [] as unknown[], chapter_needed: 2, max_new_per_day: null as number | null },
+  queue: [
+    { world_id: 1, status: "running", chapters: 6, chapters_open: 3, story_done: false, lang: "de", langs: ["de", "en"] },
+  ],
   worlds: [
     {
       id: 1,
@@ -166,12 +167,10 @@ beforeEach(async () => {
       if (url === "/api/admin/activities") return new Response(JSON.stringify(STATE));
       if (url === "/api/admin/speech") return new Response(JSON.stringify(SPEECH));
       if (url === "/api/admin/activities/settings") {
-        const body = JSON.parse(String(init?.body)) as typeof STATE.settings;
-        return new Response(JSON.stringify({ ...STATE, settings: body }));
+        const body = JSON.parse(String(init?.body)) as Partial<typeof STATE.settings>;
+        return new Response(JSON.stringify({ ...STATE, settings: { ...STATE.settings, ...body } }));
       }
       if (url === "/api/admin/activities/queue") return new Response(JSON.stringify(STATE));
-      if (url === "/api/admin/activities/days-off" && method === "POST")
-        return new Response(JSON.stringify({ id: 5, from: "2026-12-24", to: "2026-12-24", note: "" }), { status: 201 });
       if (url.startsWith("/api/admin/worlds/import")) return new Response(JSON.stringify(REPORT));
       if (url === "/api/admin/worlds/1") return new Response(JSON.stringify(WORLD));
       if (url === "/api/admin/worlds/1/chapters/2/image" && method === "PUT")
@@ -230,23 +229,42 @@ it("v0.13: removing a chapter picture DELETEs it", async () => {
   expect(await screen.findByText("No picture: the tablet shows the cover.")).toBeInTheDocument();
 });
 
-it("shows the schedule, the queue and the example worlds", async () => {
+it("shows how the story moves on, the queue and the example worlds", async () => {
   renderPage();
-  expect(await screen.findByText("When there are activities")).toBeInTheDocument();
-  expect(screen.getByRole("button", { name: "Mon" })).toHaveAttribute("aria-pressed", "true");
-  expect(screen.getByRole("button", { name: "Wed" })).toHaveAttribute("aria-pressed", "false");
+  expect(await screen.findByText("How the story moves on")).toBeInTheDocument();
+  const needed = screen.getByRole("group", { name: "Ideas to open the next chapter" });
+  expect(within(needed).getByRole("button", { name: "2" })).toHaveAttribute("aria-pressed", "true");
+  expect(screen.getByRole("combobox", { name: "New chapters per day" })).toHaveValue("");
   expect(screen.getByText("Running now")).toBeInTheDocument();
+  expect(screen.getByText("Chapter 3 of 6 open")).toBeInTheDocument();
   expect(screen.getAllByText("Lighthouse Island").length).toBeGreaterThan(0);
-  expect(screen.getByText(/at grandma's/)).toBeInTheDocument();
   expect(screen.getByText("Rocket Kiwi")).toBeInTheDocument();
 });
 
-it("toggling a weekday saves the activity days", async () => {
+it("v0.22: choosing the ideas per chapter PUTs only that", async () => {
   renderPage();
-  fireEvent.click(await screen.findByRole("button", { name: "Wed" }));
+  const needed = await screen.findByRole("group", { name: "Ideas to open the next chapter" });
+  fireEvent.click(within(needed).getByRole("button", { name: "3" }));
   await waitFor(() => {
     const put = sent("/api/admin/activities/settings", "PUT");
-    expect(JSON.parse(String(put?.init?.body))).toEqual({ days: [0, 1, 2, 3, 5, 6], unlock_time: "07:00" });
+    expect(JSON.parse(String(put?.init?.body))).toEqual({ chapter_needed: 3 });
+  });
+  expect(await screen.findByText(/3 done ideas in a chapter open the next chapter/)).toBeInTheDocument();
+});
+
+it("v0.22: a daily limit of new chapters, and back to no limit", async () => {
+  renderPage();
+  const perDay = await screen.findByRole("combobox", { name: "New chapters per day" });
+  fireEvent.change(perDay, { target: { value: "1" } });
+  await waitFor(() => {
+    const put = sent("/api/admin/activities/settings", "PUT");
+    expect(JSON.parse(String(put?.init?.body))).toEqual({ max_new_per_day: 1 });
+  });
+  expect(await screen.findByText(/At most one new chapter per day/)).toBeInTheDocument();
+  fireEvent.change(screen.getByRole("combobox", { name: "New chapters per day" }), { target: { value: "" } });
+  await waitFor(() => {
+    const puts = calls.filter((c) => c.url === "/api/admin/activities/settings");
+    expect(JSON.parse(String(puts.at(-1)?.init?.body))).toEqual({ max_new_per_day: null });
   });
 });
 
@@ -257,7 +275,7 @@ it("v0.14: choosing a level PUTs the settings with the level", async () => {
   fireEvent.click(within(picker).getByRole("button", { name: "Harder" }));
   await waitFor(() => {
     const put = sent("/api/admin/activities/settings", "PUT");
-    expect(JSON.parse(String(put?.init?.body))).toEqual({ days: [0, 1, 3, 5, 6], unlock_time: "07:00", level: "harder" });
+    expect(JSON.parse(String(put?.init?.body))).toEqual({ level: "harder" });
   });
 });
 
@@ -272,8 +290,6 @@ it("v0.14: no windows means always open; adding one PUTs the windows", async () 
   await waitFor(() => {
     const put = sent("/api/admin/activities/settings", "PUT");
     expect(JSON.parse(String(put?.init?.body))).toEqual({
-      days: [0, 1, 3, 5, 6],
-      unlock_time: "07:00",
       windows: [{ days: [0, 1, 2, 3, 4, 5], from: "15:00", to: "18:00" }],
     });
   });
@@ -371,17 +387,6 @@ it("v0.14: the log shows the reading attempts", async () => {
   expect(screen.getByRole("columnheader", { name: "Tries" })).toBeInTheDocument();
 });
 
-it("adds days off", async () => {
-  renderPage();
-  fireEvent.change(await screen.findByLabelText("From"), { target: { value: "2026-12-24" } });
-  fireEvent.change(screen.getByLabelText("Note"), { target: { value: " Christmas " } });
-  fireEvent.click(screen.getByRole("button", { name: "Add days off" }));
-  await waitFor(() => {
-    const post = sent("/api/admin/activities/days-off", "POST");
-    expect(JSON.parse(String(post?.init?.body))).toEqual({ from: "2026-12-24", to: null, note: "Christmas" });
-  });
-});
-
 it("checks a story pack before importing it", async () => {
   renderPage();
   const input = await screen.findByLabelText("Choose file…");
@@ -459,13 +464,12 @@ it("Greek (v0.12): texts fall back English → German → Greek, and el is edite
   expect(Object.keys(pack.chapters[0].texts)).toEqual(["el"]);
 });
 
-it("shows the page and its dates in Greek", async () => {
+it("shows the page and its progress in Greek", async () => {
   await i18n.changeLanguage("el");
   renderPage();
   expect(await screen.findByText("Σε εξέλιξη")).toBeInTheDocument();
-  const day = (d: string) =>
-    new Date(`${d}T12:00:00`).toLocaleDateString("el", { weekday: "short", day: "numeric", month: "short" });
-  expect(screen.getByText(`${day("2026-11-02")} – ${day("2026-11-09")}`)).toBeInTheDocument();
+  expect(screen.getByText("Ανοιχτό το κεφάλαιο 3 από 6")).toBeInTheDocument();
+  expect(screen.getByText("Πώς προχωρά η ιστορία")).toBeInTheDocument();
   const t = i18n.t.bind(i18n) as unknown as (key: string, options?: Record<string, unknown>) => string;
   expect(warningText({ code: "missing_translation", chapter: 2, kind: null, lang: "el" }, t)).toBe(
     "Κεφάλαιο 2: λείπει η ιστορία στα Ελληνικά",

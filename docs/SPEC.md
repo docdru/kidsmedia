@@ -1,6 +1,6 @@
 # Kids Media — Specification
 
-Status: draft v0.21 · 2026-11-14 (v0.21: full-screen button for video, §8 · v0.20: public code, family image with JOY, the story packs and the signed APK, §18 · v0.19: Done activities in the admin: bonus star per task, open again, §17 · v0.18: one language button, Home header on narrow screens, gems screen · v0.17: gems 💎, rules that unlock by gems instead of time, §16 · v0.16: no accidental done, photos of drawings and stories, maths problem sets, simple materials, §15 · v0.15: story language set per queued story, language flags for the child, §14.7 · v0.14: levels, reading, read aloud on the server, rewards, §14 · v0.13: pictures in story packs · v0.12: Greek as a third language, Greek mystery world · v0.11: activities, §13 · v0.10: volume cap per tablet · v0.9: covers without a MIME type · v0.8: release images carry their APK, silent self-update · v0.7: a session belongs to the day it started · v0.6: grace at the midnight rollover, grace per rule, final heartbeat · v0.5: #2/#3 decided · v0.2: open questions resolved, §12 · v0.3: thumbnails, §6.4 · v0.4: review fixes: grace on stream, evening-anchored lockouts, resume per group, cumulative heartbeats, cover fallback)
+Status: draft v0.22 · 2026-11-15 (v0.22: chapters open by doing ideas, not by date, §13.2 · v0.21: full-screen button for video, §8 · v0.20: public code, family image with JOY, the story packs and the signed APK, §18 · v0.19: Done activities in the admin: bonus star per task, open again, §17 · v0.18: one language button, Home header on narrow screens, gems screen · v0.17: gems 💎, rules that unlock by gems instead of time, §16 · v0.16: no accidental done, photos of drawings and stories, maths problem sets, simple materials, §15 · v0.15: story language set per queued story, language flags for the child, §14.7 · v0.14: levels, reading, read aloud on the server, rewards, §14 · v0.13: pictures in story packs · v0.12: Greek as a third language, Greek mystery world · v0.11: activities, §13 · v0.10: volume cap per tablet · v0.9: covers without a MIME type · v0.8: release images carry their APK, silent self-update · v0.7: a session belongs to the day it started · v0.6: grace at the midnight rollover, grace per rule, final heartbeat · v0.5: #2/#3 decided · v0.2: open questions resolved, §12 · v0.3: thumbnails, §6.4 · v0.4: review fixes: grace on stream, evening-anchored lockouts, resume per group, cumulative heartbeats, cover fallback)
 
 A self-hosted media server for a child's Android tablet. A parent uploads music, audiobooks and videos to a Docker web app on a public Linux server, puts them into groups, and sets usage rules. A dedicated Android app on the tablet streams the media and enforces the rules.
 
@@ -575,35 +575,39 @@ Story-driven ideas for things to do away from the screen: draw, calculate, write
 | **World** | A story with a guide character, e.g. *Lighthouse Island* with Mira and Pip. Has an age band (`6-7` now; `4-5`, `8-9` later), a colour, an optional cover, and 1–12 chapters. |
 | **Chapter** | A story moment: `title`, `intro` (read before choosing), `outro` (shown when done). Offers 1–3 tasks, at most one per kind. |
 | **Task** | `kind` (`draw` \| `calc` \| `write`), `minutes`, and per language `title`, `text` (the read-aloud prompt), `materials` (list of short words), `easier`, `harder` (parent hints, admin only). |
-| **Activity days** | Per profile: the weekdays with activities (default Mon–Sat), plus one-off **days off** (date ranges with a note). |
+| **Progress** | Per profile: how many ideas a chapter needs before the next one opens (default 2), an optional limit of new chapters per day, and how far the child is in the current world. |
 | **Queue** | Per profile: the ordered list of worlds to run. |
 
 All texts exist per language: `texts: {"de": {...}, "en": {...}, "el": {...}}`. The story is told in the language the parent picked for it in the queue (`world.lang`, §14.7), not in the app's language. On the tablet a missing language falls back to English, then German, then Greek. Text-to-speech uses the language of the text it reads.
 
-### 13.2 Schedule
+### 13.2 How the story moves on
 
-The story moves on **activity days only**. With `days` the weekday set, `days_off` the date ranges and `queue_start` the date counting starts from:
+v0.22. The story moves on **by doing ideas**, not by date: there are no activity days, no days off and no unlock time, so the story simply waits while the child is away. With `needed` the ideas per chapter (`chapter_needed`, 1–4, default 2) and `per_day` the limit of new chapters per day (`max_new_per_day`, 1–12, or none, the default):
 
-1. The activity days are the dates `≥ queue_start` whose weekday is in `days` and that aren't in a days-off range (inclusive).
-2. Chapters are laid out over the activity days in queue order: chapter 1 of `queue[0]` on the first activity day, and so on; each world's chapters directly follow the previous world's. A world with *n* chapters takes *n* activity days, so with fewer activity days a week it runs into the next week.
-3. The **current world** is the last queued world whose first chapter date is `≤ today`. Only the current world is shown on the tablet. If the first world starts later, nothing is shown yet.
-4. A chapter is **unlocked** when its date is before today, or it is today and the local time is `≥ unlock_time` (default `07:00`). Missed chapters of the current world can be caught up; chapters of past worlds expire.
-5. **Housekeeping** (on every read): when the current world isn't `queue[0]`, the worlds before it are removed and `queue_start` becomes the current world's first chapter date. Past worlds therefore never shift when days change later.
-6. Changing `days` or `days_off` recomputes the dates of the current and later worlds from `queue_start`. Done tasks stay done.
-7. Setting a queue whose first world differs from the current one starts it fresh: `queue_start = today`. Adding to an empty queue does the same. Reordering only later entries keeps `queue_start`.
-8. No activity days at all → nothing scheduled, the tablet hides the tile.
+1. **Chapter 1** of the first queued world opens as soon as that world is first in the queue: adding a world to an empty queue, or putting another world first, starts it fresh today. Reordering only later entries keeps the progress.
+2. A chapter needs `min(needed, its number of tasks)` done ideas (distinct kinds). When the last of them is done, the **next chapter opens** that day.
+3. **Daily limit:** with `per_day` set, at most that many chapters open by finishing per local day (chapter 1 of a world the parent started doesn't count). When the limit is reached, the next chapter opens at 00:00 the next day (`next_unlock_at`). Opening times (§14.4a) still decide when Ideas can be used.
+4. **Next world:** finishing the last chapter starts the next queued world the same way (its chapter 1 counts for the limit), and housekeeping removes the finished world from the queue. With nothing queued after it, the world stays shown as done (`story_done`), and the next world the parent queues starts at once.
+5. **Open chapters stay open**, also when a done idea is opened again (§17.3) or the setting changes. A change of `needed` or `per_day` applies from the next idea on.
+6. A world queued again counts its earlier done ideas, from the day it starts again.
+7. The progress is stored per profile (`activity_settings.progress`: the current world, the day each open chapter opened, and the chapters opened by finishing per day, kept 8 days). Every read brings it up to date.
 
-Implemented as a pure function `schedule(...)` in `server/src/kidsmedia/activities.py` (no I/O), with table-driven tests and a frozen clock. Examples (they double as tests), with `queue_start` = Mon 2 Nov 2026 and a 6-chapter world first:
+Implemented as a pure function `schedule(...)` in `server/src/kidsmedia/activities.py` (no I/O), with table-driven tests and a frozen clock. Examples (they double as tests), on Sat 7 Nov 2026 with `needed` 2 and chapters of four tasks:
 
 | Setup | Result |
 |---|---|
-| days Mon–Sat, no days off | Chapters on 2–7 Nov. Next world starts Mon 9 Nov. |
-| days Mon, Tue, Thu, Sat, Sun | Chapters on Mon 2, Tue 3, Thu 5, Sat 7, Sun 8, Mon 9 Nov. |
-| same, days off 7–8 Nov | Chapters on Mon 2, Tue 3, Thu 5, Mon 9, Tue 10, Thu 12 Nov. |
-| Thu 5 Nov 06:59, days Mon–Sat | Chapters 1–3 unlocked; chapter 4 (Thu 5 Nov) unlocks at 07:00, `next_unlock_at` = 5 Nov 07:00. |
-| Wed 4 Nov, days Mon, Tue, Thu | Today isn't an activity day; chapters 1–2 unlocked; next unlock Thu 5 Nov 07:00. |
-| Tue 10 Nov, days Mon–Sat, 2 worlds | Current = world 2 (chapter 1 on Mon 9 Nov); housekeeping drops world 1, `queue_start` = 9 Nov. |
-| `days` empty | Nothing scheduled, `world: null`. |
+| A world is queued | Chapter 1 open (opened 7 Nov), the rest locked. |
+| 1 idea done in chapter 1 | Chapter 2 stays locked. |
+| 2 ideas done in chapter 1 | Chapter 2 opens on 7 Nov. |
+| `needed` 3, 3 ideas done / `needed` 4, 3 ideas done | Chapter 2 open / locked. |
+| `needed` 2, chapter 1 has one task, it is done | Chapter 2 open. |
+| Chapters 1–3 each 2 ideas, no limit | Chapters 1–4 open, `opened_today` 3. |
+| Limit 1, chapters 1 and 2 each 2 ideas | Chapters 1–2 open; chapter 3 waits, `next_unlock_at` = 8 Nov 00:00; on Sun 8 Nov it opens. |
+| 2-chapter world, both chapters 2 ideas, a second world queued | The second world is current, chapter 1 open; the first leaves the queue. |
+| Same with limit 1 | The first world stays until 8 Nov 00:00. |
+| Same with nothing queued after it | `story_done`; queuing a world starts it at once. |
+| Chapter 2 open, an idea of chapter 1 opened again | Chapter 2 stays open. |
+| A tap judged at an earlier moment (§14.4a) | A chapter that opened later counts as locked. |
 
 ### 13.3 Device API
 
@@ -611,15 +615,16 @@ Implemented as a pure function `schedule(...)` in `server/src/kidsmedia/activiti
 ```json
 {
   "server_time": "2026-11-05T14:20:00+01:00",
-  "unlock_time": "07:00",
-  "today_is_activity_day": true,
-  "next_unlock_at": "2026-11-07T07:00:00+01:00",
+  "next_unlock_at": null,
+  "max_new_per_day": null,
+  "opened_today": 1,
+  "story_done": false,
   "world": {
     "id": 1, "slug": "lighthouse-island", "age_band": "6-7", "color": "#B84A12", "lang": "de",
     "cover": {"url": "/api/thumbs/w1-ab12cd.webp", "aspect": 1.0},
     "texts": {"de": {"name": "Leuchtturm-Insel", "guide": "mit Mira und der Möwe Pip"}, "en": {"name": "Lighthouse Island", "guide": "with Mira and Pip the seagull"}},
     "chapters": [{
-      "position": 1, "date": "2026-11-02", "unlocked": true, "done_kinds": ["draw"],
+      "position": 1, "date": "2026-11-02", "unlocked": true, "done_kinds": ["draw"], "needed": 2,
       "image": {"url": "/api/thumbs/w1c1-9e4f20.webp", "aspect": 1.0},
       "texts": {"de": {"title": "…", "intro": "…", "outro": "…"}, "en": {"title": "…", "intro": "…", "outro": "…"}},
       "tasks": [{"kind": "draw", "minutes": 15,
@@ -629,21 +634,22 @@ Implemented as a pure function `schedule(...)` in `server/src/kidsmedia/activiti
 }
 ```
 - `world` is `null` when nothing is scheduled. `cover` is `null` without a cover (the app draws the colour with a kind icon).
-- All chapters of the current world are included, locked ones too (`date` may be `null` past the horizon), so the app can unlock offline at `date` + `unlock_time`.
+- All chapters of the current world are included, locked ones too. `date` is the day a chapter opened, `null` while it is locked; `needed` is the ideas it needs (§13.2).
+- **Offline** the tablet applies rules 2 and 3 itself to its queued taps: a finished chapter opens the next one unless `max_new_per_day` is reached, counting from `opened_today` on the day of `server_time` and from 0 on a later day. A new world needs the server and starts on the next refresh. The server books queued taps in order, so the chapters they opened open there too.
+- `unlock_time` (`"00:00"`) and `today_is_activity_day` (`true`) are still sent for apps before v0.22.
 - `easier` and `harder` are **not** sent to the tablet.
-- `next_unlock_at`: when the next locked chapter of the current world unlocks, or `null`.
+- `next_unlock_at`: when the daily limit lets the next chapter open (00:00 the next day), or `null`.
 
-`POST /api/activities/done` `{world_id, position, kind}` → the same body as `GET`. Idempotent. 404 `{"reason":"unknown_task"}` if the world, chapter or kind doesn't exist; 409 `{"reason":"activity_locked"}` if the chapter isn't unlocked (or the world isn't current). The done row's `day` is the local date. One task finishes the chapter; the others stay open as extras. An optional `done_at` (the moment of the tap) is judged as in §14.4a.
+`POST /api/activities/done` `{world_id, position, kind}` → the same body as `GET`. Idempotent. 404 `{"reason":"unknown_task"}` if the world, chapter or kind doesn't exist; 409 `{"reason":"activity_locked"}` if the chapter isn't unlocked (or the world isn't current). The done row's `day` is the local date. Enough done tasks finish the chapter and open the next one (§13.2); the others stay open as extras. An optional `done_at` (the moment of the tap) is judged as in §14.4a.
 
 The app caches the last `GET` (like the library) and queues `done` taps made offline, sending them on the next successful refresh. Activities don't use playback rules or minutes.
 
 ### 13.4 Admin API
 
-- `GET /api/admin/activities` → `{settings: {days: [0,1,3,5,6], unlock_time: "07:00"}, days_off: [{id, from, to, note}], queue: [{world_id, first_date, last_date, status: "running"|"upcoming"}], worlds: [WorldSummary], log: [{date, world_id, position, kinds: ["draw"], done_at}], examples: [{slug, texts: {de: {name}, en: {name}}, imported: bool}]}`.
+- `GET /api/admin/activities` → `{settings: {level, windows, chapter_needed: 2, max_new_per_day: null}, queue: [{world_id, status: "running"|"upcoming", chapters, chapters_open, story_done, lang, langs}], worlds: [WorldSummary], log: [{date, world_id, position, kinds: ["draw"], done_at}], examples: [{slug, texts: {de: {name}, en: {name}}, imported: bool}]}`.
   - `WorldSummary`: `{id, slug, age_band, color, cover, texts, chapters, tasks, complete, warnings}`; `complete` = every chapter has all three kinds and every text block exists in all three languages; `warnings` = `[{code: "missing_translation"|"missing_kind", chapter, kind?, lang?}]`.
   - `log`: the done tasks of the last 14 days, newest first, one row per chapter and day.
-- `PUT /api/admin/activities/settings` `{days, unlock_time}` (`days` ⊆ 0–6, `HH:MM`).
-- `POST /api/admin/activities/days-off` `{from, to?, note?}` → the row; `DELETE /api/admin/activities/days-off/{id}`.
+- `PUT /api/admin/activities/settings` `{level?, windows?, chapter_needed?, max_new_per_day?}`: omitted = kept; `chapter_needed` 1–4, `max_new_per_day` 1–12 or `null` (no limit). The days-off endpoints are gone (v0.22).
 - `PUT /api/admin/activities/queue` `{world_ids, langs?}` (each at most once; `langs` = `{"<world id>": "de"|"en"|"el"}`, the story language per queued world, §14.7) → the same as `GET` (rule 13.2/7). Queue entries in `GET` carry `lang` (the language the tablet tells the story in) and `langs` (the languages the world has).
 - `GET /api/admin/worlds/{id}` → the full world in pack format (§13.5) plus `id` and `cover`; easier/harder included.
 - `PUT /api/admin/worlds/{id}` (pack JSON without `cover`) → saves texts and chapters; slug can't change.
@@ -686,10 +692,12 @@ Validation: `format` 1; `slug` `[a-z0-9-]{1,40}`; `age_band` one of `4-5`, `6-7`
 worlds(id, slug UNIQUE, age_band, color, cover_key NULL, cover_aspect NULL, content JSON, created_at, updated_at)
        -- content chapters carry image_key / image_aspect (server-side only) for chapter pictures
        -- content = the pack's texts + chapters (validated)
-activity_settings(profile_id PK → profiles, days TEXT '012345', unlock_time TEXT '07:00',
-                  queue JSON [world ids], queue_start DATE NULL,
+activity_settings(profile_id PK → profiles, queue JSON [world ids],
+                  chapter_needed INT DEFAULT 2, max_new_per_day INT NULL,   -- §13.2
+                  progress JSON {world, opened: [dates], opens: {date: n}} DEFAULT '{}',
                   langs JSON {world id: lang} DEFAULT '{}')   -- §14.7, story language per queued world
-activity_days_off(id, profile_id → profiles, from_day DATE, to_day DATE, note, created_at)
+                  -- v0.22 (migration 0018) dropped days, unlock_time, queue_start and activity_days_off;
+                  -- the chapters open by date then stay open
 activity_done(id, profile_id → profiles, world_id → worlds ON DELETE CASCADE, position, kind,
               day DATE, done_at, device_id → devices ON DELETE SET NULL)
               UNIQUE(profile_id, world_id, position, kind)
@@ -697,19 +705,19 @@ activity_done(id, profile_id → profiles, world_id → worlds ON DELETE CASCADE
 
 ### 13.7 Screens
 
-- **Tablet, Home:** the current world is the first tile (cover or colour, "THIS WEEK" label, world name, badge: "Chapter 3 is ready", "2 chapters ready", "1 chapter to catch up", "Done for today", "Next chapter on Thursday"). Hidden when `world` is null.
-- **Tablet, World:** back, world name and guide, one button per chapter labelled with its weekday (done ✓, locked 🔒, "Next wk" past this week), the selected chapter's picture and story with **Listen**, and three big cards Draw / Calculate / Write (chip "Done" or "Extra").
+- **Tablet, Home:** the current world is the first tile (cover or colour, "YOUR STORY" label, world name, badge: "Chapter 3 is ready", "1 more idea opens chapter 4", "1 more idea finishes the story", "Next chapter tomorrow", "All chapters done!"). Hidden when `world` is null.
+- **Tablet, World:** back, world name and guide, one button per chapter (finished ✓, locked 🔒, otherwise the ideas done of those needed, e.g. "1/2"), the selected chapter's picture and story with **Listen**, and the task cards (chip "Done", or "Extra" once the chapter is finished). A locked chapter says what opens it: "Do 1 more idea in chapter 2 to open this one" or "This chapter opens tomorrow".
 - **Tablet, Task:** kind chip, chapter, title, the text in large type, **Listen**, materials and minutes chips, big "I'm done!".
-- **Tablet, Done:** star, "Chapter N done!", the outro, "Back to the story".
+- **Tablet, Done:** star, then "Chapter N done!" and the outro once the chapter is finished, otherwise "Well done!" and "1 more idea opens the next chapter"; "Back to the story".
 - **Listen** uses Android `TextToSpeech` in the text's language, offline; no recordings.
-- **Admin, Activities:** activity days (weekday toggles), days off (add/remove), story queue with computed dates and a language per story (reorder, add with a language, change the language, remove), worlds list (with "complete"/warnings), world editor (chapter tabs, de/en switch, chapter and task texts, save), import pack (dry run report, then import), example packs to add, and this week's log.
+- **Admin, Activities:** how the story moves on (ideas per chapter 1–4, new chapters per day: no limit or 1–12), story queue with each story's progress ("Chapter 3 of 6 open", "Starts when the story before is done", "Finished: add the next story") and a language per story (reorder, add with a language, change the language, remove), worlds list (with "complete"/warnings), world editor (chapter tabs, de/en switch, chapter and task texts, save), import pack (dry run report, then import), example packs to add, and this week's log.
 
 ### 13.8 Decisions
 
 | # | Question | Decision |
 |---|---|---|
-| 26 | Fixed weekly worlds or a queue? | A queue over configurable activity days (§13.2), because the child isn't home every day. |
-| 27 | One task per chapter or a choice? | A choice of draw, calculate, write. One finishes the chapter; the others stay open as extras. |
+| 26 | Fixed weekly worlds or a queue? | A queue over configurable activity days (§13.2), because the child isn't home every day. Replaced in v0.22 by decision 53. |
+| 27 | One task per chapter or a choice? | A choice of draw, calculate, write. One finishes the chapter; the others stay open as extras. Since v0.22 the number is set in the admin (decision 53). |
 | 28 | Read aloud how? | The tablet's `TextToSpeech`, so no recordings and it works offline. |
 | 29 | Rewards, photos? | Not yet. `activity_done` is the hook for them later. |
 | 30 | Greek? | A third language everywhere (decision 4): `el` catalogs in admin and app, `el` in packs, `rules.message_el`, `DEFAULT_LOCALE=el` allowed. |
@@ -927,7 +935,7 @@ v0.19. Replaces the **Pictures** section of §15.3 (the photo storage, the uploa
 
 ### 17.1 What a chapter's state is (for reference)
 
-A chapter never closes: it unlocks on its date (§13.2) and gets ✓ once **one** of its tasks is done; its other tasks stay "Extra" and can still be done, each earning its own star. A done task can be opened again by the child, but earns nothing new. Ideas close only by the opening times (§14.4a), and a world ends when the next one starts.
+A chapter never closes: it opens when enough ideas of the chapter before are done (§13.2) and gets ✓ once `needed` of its tasks are done; its other tasks stay "Extra" and can still be done, each earning its own star. A done task can be opened again by the child, but earns nothing new. Ideas close only by the opening times (§14.4a), and a world ends when its last chapter is finished and the next one starts. "Open again" never closes a chapter that is open.
 
 ### 17.2 The list
 
@@ -967,3 +975,11 @@ v0.20. The code is public under the MIT licence; what can't or shouldn't be publ
 | 50 | Public or private? | Public code (MIT) for free CI and sharing; JOY (CC BY-NC 4.0) and the family's story packs stay private, in a family image built on the public one. |
 | 51 | Which example pack is public? | `lighthouse-island`, the one the tests already use. The other four move to the family repository and keep their place in the example order (decision 31). |
 | 52 | Where is the APK signed? | In the family repository, from the public tag; the public release has no APK. |
+
+## 19. Decisions since v0.22
+
+| # | Question | Decision |
+|---|---|---|
+| 53 | Chapters by date or by doing? | By doing (§13.2): a chapter opens the next one once `chapter_needed` of its ideas are done (default 2, set in the admin). Unlocking by day made the story feel like a calendar; doing ideas is what should move it on. Activity days, days off and the unlock time are gone. |
+| 54 | How fast may it go? | An optional "new chapters per day" limit in the admin (default: none). A limit holds the next chapter until 00:00. |
+| 55 | When does the next story start? | When the last chapter is finished; the finished story leaves the queue. |

@@ -85,30 +85,46 @@
     <string name="update_failed">Das Update hat nicht geklappt.</string>
     <string name="update_failed_checksum">Der Download war beschädigt. Bitte nochmal versuchen.</string>
     <!-- Aktivitäten (SPEC §13) -->
-    <string name="activity_this_week">DIESE WOCHE</string>
     <string name="activity_badge_ready">Kapitel %1$d ist bereit</string>
-    <string name="activity_badge_several">%1$d Kapitel bereit</string>
-    <string name="activity_badge_catch_up">1 Kapitel zum Nachholen</string>
-    <string name="activity_badge_done_today">Für heute geschafft</string>
-    <string name="activity_badge_next_on">Nächstes Kapitel am %1$s</string>
-    <string name="activity_badge_next_today">Nächstes Kapitel um %1$s</string>
     <string name="activity_badge_all_done">Alle Kapitel geschafft!</string>
     <string name="activity_badge_waiting">Kommt bald</string>
+    <string name="activity_tile_label">DEINE GESCHICHTE</string>
+    <string name="activity_badge_tomorrow">Nächstes Kapitel morgen</string>
+    <plurals name="activity_badge_more">
+        <item quantity="one">Noch %1$d Idee öffnet Kapitel %2$d</item>
+        <item quantity="other">Noch %1$d Ideen öffnen Kapitel %2$d</item>
+    </plurals>
+    <plurals name="activity_badge_more_last">
+        <item quantity="one">Noch %1$d Idee, dann ist die Geschichte fertig</item>
+        <item quantity="other">Noch %1$d Ideen, dann ist die Geschichte fertig</item>
+    </plurals>
     <string name="ideas_open_at">Ideen öffnen um %1$s</string>
     <string name="ideas_open_on">Ideen öffnen am %1$s um %2$s</string>
     <string name="ideas_closed">Die Ideen ruhen sich aus</string>
     <string name="reason_ideas_resting">Die Ideen ruhen sich bis %1$s aus</string>
     <string name="reason_ideas_resting_on">Die Ideen ruhen sich bis %1$s um %2$s aus</string>
     <string name="reason_ideas_resting_now">Die Ideen ruhen sich gerade aus</string>
-    <string name="activity_chapter_label">KAPITEL %1$d · %2$s</string>
+    <string name="activity_chapter_label">KAPITEL %1$d</string>
     <string name="activity_chapter_short">Kapitel %1$d · %2$s</string>
     <string name="activity_chapter_a11y">Kapitel %1$d, %2$s</string>
     <string name="activity_state_done">geschafft</string>
     <string name="activity_state_locked">gesperrt</string>
-    <string name="activity_next_week">Nächste Wo.</string>
+    <string name="activity_state_progress">%1$d von %2$d Ideen erledigt</string>
+    <string name="activity_locked_tomorrow">Dieses Kapitel öffnet sich morgen</string>
+    <plurals name="activity_locked_needs">
+        <item quantity="one">Mach noch %1$d Idee in Kapitel %2$d, dann öffnet sich dieses</item>
+        <item quantity="other">Mach noch %1$d Ideen in Kapitel %2$d, dann öffnet sich dieses</item>
+    </plurals>
+    <plurals name="activity_choose_more">
+        <item quantity="one">Super! Noch %1$d Idee öffnet das nächste Kapitel.</item>
+        <item quantity="other">Super! Noch %1$d Ideen öffnen das nächste Kapitel.</item>
+    </plurals>
+    <plurals name="activity_choose_more_last">
+        <item quantity="one">Super! Noch %1$d Idee, dann ist die Geschichte fertig.</item>
+        <item quantity="other">Super! Noch %1$d Ideen, dann ist die Geschichte fertig.</item>
+    </plurals>
     <string name="activity_choose">Was möchtest du machen?</string>
     <string name="activity_choose_extra">Kapitel geschafft! Noch etwas extra?</string>
-    <string name="activity_locked_on">Dieses Kapitel öffnet am %1$s</string>
     <string name="activity_locked_later">Dieses Kapitel öffnet bald</string>
     <string name="activity_kind_draw">Zeichnen</string>
     <string name="activity_kind_calc">Rechnen</string>
@@ -121,6 +137,7 @@
     <string name="activity_stop">Stopp</string>
     <string name="activity_done_button">Fertig!</string>
     <string name="activity_done_title">Kapitel %1$d geschafft!</string>
+    <string name="activity_done_great">Gut gemacht!</string>
     <string name="activity_back_to_story">Zurück zur Geschichte</string>
     <!-- Lesen (SPEC §14.2) -->
     <string name="read_done_reading">Ich hab\'s gelesen</string>

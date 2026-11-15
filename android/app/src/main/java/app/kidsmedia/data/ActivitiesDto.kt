@@ -74,10 +74,12 @@ data class StoryTask(val kind: String, val minutes: Int = 10, val texts: Map<Str
 @Serializable
 data class StoryChapter(
     val position: Int,
-    /** Local date (`YYYY-MM-DD`) the chapter falls on; null past the server's horizon. */
+    /** Local date (`YYYY-MM-DD`) the chapter opened; null while it is locked. */
     val date: String? = null,
     val unlocked: Boolean = false,
     @SerialName("done_kinds") val doneKinds: List<String> = emptyList(),
+    /** Ideas to do here to open the next chapter (SPEC §13.2); servers before v0.22: one. */
+    val needed: Int = 1,
     /** Chapter picture (SPEC §13.5); null falls back to the world cover. */
     val image: ThumbRef? = null,
     val texts: Map<String, ChapterTexts> = emptyMap(),
@@ -106,9 +108,14 @@ data class Activities(
     @SerialName("server_time") val serverTime: String = "",
     /** The child's level, `easier` | `normal` | `harder` (SPEC §14.1); older servers don't send it. */
     val level: String = "normal",
-    @SerialName("unlock_time") val unlockTime: String = "07:00",
-    @SerialName("today_is_activity_day") val todayIsActivityDay: Boolean = false,
+    /** The next chapter waits for the daily limit until then (SPEC §13.2); null otherwise. */
     @SerialName("next_unlock_at") val nextUnlockAt: String? = null,
+    /** Most chapters opened by finishing per day (SPEC §13.2); null = no limit. */
+    @SerialName("max_new_per_day") val maxNewPerDay: Int? = null,
+    /** Chapters opened by finishing on the server's day of [serverTime]. */
+    @SerialName("opened_today") val openedToday: Int = 0,
+    /** The last chapter is done and no story is queued after it. */
+    @SerialName("story_done") val storyDone: Boolean = false,
     val world: StoryWorld? = null,
     /**
      * Opening times (SPEC §14.4a); empty = always open, which is also what older servers mean.

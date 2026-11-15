@@ -1,7 +1,7 @@
 """Activities over HTTP: device and admin (SPEC §13.3, §13.4, §14, §15.2).
 
-The fixed clock starts on Saturday 2026-11-07 14:20 Europe/Berlin; default activity days
-are Mon-Sat, so a world queued now has chapters on Sat 7, Mon 9 ... Fri 13 Nov.
+The fixed clock starts on Saturday 2026-11-07 14:20 Europe/Berlin. A world queued now opens
+chapter 1 at once; each further chapter opens when 2 ideas of the one before are done.
 """
 
 import io
@@ -144,6 +144,21 @@ def thumb_files(settings: Settings) -> set[str]:
     return {p.name for p in d.iterdir()} if d.is_dir() else set()
 
 
+def do(admin: TestClient, token: str, world_id: int, position: int, *kinds: str) -> Any:
+    """Mark `kinds` of a chapter done; returns the last answer."""
+    r = None
+    for kind in kinds:
+        body = {"world_id": world_id, "position": position, "kind": kind}
+        r = admin.post("/api/activities/done", json=body, headers=bearer(token))
+        assert r.status_code == 200, r.text
+    assert r is not None
+    return r.json()
+
+
+def opened(body: dict[str, Any]) -> list[bool]:
+    return [c["unlocked"] for c in body["world"]["chapters"]]
+
+
 def done_count(settings: Settings) -> int:
     with make_engine(settings.db_path).connect() as conn:
         n: int = conn.execute(select(func.count()).select_from(activity_done)).scalar_one()
@@ -158,8 +173,12 @@ def test_nothing_without_a_queue(admin: TestClient, device_token: str) -> None:
     assert r.status_code == 200, r.text
     body = r.json()
     assert body["world"] is None
-    assert body["unlock_time"] == "07:00"
-    assert body["today_is_activity_day"] is True  # Saturday is in Mon-Sat
+    assert body["max_new_per_day"] is None
+    assert body["opened_today"] == 0
+    assert body["story_done"] is False
+    # Kept for older apps, which unlocked by date.
+    assert body["unlock_time"] == "00:00"
+    assert body["today_is_activity_day"] is True
 
 
 def test_requires_a_device(client: TestClient) -> None:
@@ -174,16 +193,10 @@ def test_the_queued_world_with_its_chapters(admin: TestClient, device_token: str
     assert world["texts"]["de"]["guide"] == "mit Mira"
     assert world["cover"] is None
     chapters = world["chapters"]
-    assert [c["date"] for c in chapters] == [
-        "2026-11-07",
-        "2026-11-09",
-        "2026-11-10",
-        "2026-11-11",
-        "2026-11-12",
-        "2026-11-13",
-    ]
+    assert [c["date"] for c in chapters] == ["2026-11-07", None, None, None, None, None]
     assert [c["unlocked"] for c in chapters] == [True, False, False, False, False, False]
-    assert body["next_unlock_at"].startswith("2026-11-09T07:00:00")
+    assert [c["needed"] for c in chapters] == [2] * 6
+    assert body["next_unlock_at"] is None
     task_texts = chapters[0]["tasks"][0]["texts"]["en"]
     # The normal level only: no easier/harder, no spoken forms (§14.1, §14.3); no audio
     # without a voice.
@@ -208,9 +221,6 @@ def test_done_is_idempotent_and_locked_chapters_refuse(
     assert r.json()["world"]["chapters"][0]["done_kinds"] == ["draw"]
     admin.post("/api/activities/done", json=done, headers=auth)
     assert done_count(settings) == 1
-    r = admin.post("/api/activities/done", json=done | {"kind": "write"}, headers=auth)
-    assert r.json()["world"]["chapters"][0]["done_kinds"] == ["draw", "write"]
-
     r = admin.post("/api/activities/done", json=done | {"position": 2}, headers=auth)
     assert r.status_code == 409
     assert r.json()["reason"] == "activity_locked"
@@ -233,127 +243,165 @@ def test_a_chapter_missing_a_kind_refuses_it(admin: TestClient, device_token: st
     assert r.status_code == 404
 
 
-def test_chapters_unlock_at_seven(admin: TestClient, device_token: str, clock: FixedClock) -> None:
-    queued_world(admin)
-    auth = bearer(device_token)
-    clock.set(datetime(2026, 11, 9, 6, 59, tzinfo=BERLIN))
-    assert not admin.get("/api/activities", headers=auth).json()["world"]["chapters"][1]["unlocked"]
-    clock.set(datetime(2026, 11, 9, 7, 0, tzinfo=BERLIN))
-    assert admin.get("/api/activities", headers=auth).json()["world"]["chapters"][1]["unlocked"]
+def test_two_ideas_open_the_next_chapter(admin: TestClient, device_token: str) -> None:
+    world_id = queued_world(admin)
+    body = do(admin, device_token, world_id, 1, "draw")
+    assert opened(body)[:3] == [True, False, False]
+    body = do(admin, device_token, world_id, 1, "write")
+    assert body["world"]["chapters"][0]["done_kinds"] == ["draw", "write"]
+    assert opened(body)[:3] == [True, True, False]
+    assert body["world"]["chapters"][1]["date"] == "2026-11-07"
+    assert body["opened_today"] == 1
+    do(admin, device_token, world_id, 2, "calc")  # chapter 2 can be done now
+
+
+def test_the_daily_limit_holds_the_next_chapter(
+    admin: TestClient, device_token: str, clock: FixedClock
+) -> None:
+    world_id = queued_world(admin)
+    admin.put("/api/admin/activities/settings", json={"max_new_per_day": 1})
+    do(admin, device_token, world_id, 1, "draw", "write")
+    body = do(admin, device_token, world_id, 2, "draw", "write")
+    assert opened(body)[:3] == [True, True, False]
+    assert body["max_new_per_day"] == 1
+    assert body["next_unlock_at"].startswith("2026-11-08T00:00:00")
+    clock.set(datetime(2026, 11, 8, 9, 0, tzinfo=BERLIN))
+    body = admin.get("/api/activities", headers=bearer(device_token)).json()
+    assert opened(body)[:4] == [True, True, True, False]
+    assert body["opened_today"] == 1
+
+
+def test_more_ideas_per_chapter(admin: TestClient, device_token: str) -> None:
+    world_id = queued_world(admin)
+    admin.put("/api/admin/activities/settings", json={"chapter_needed": 3})
+    body = do(admin, device_token, world_id, 1, "draw", "write")
+    assert opened(body)[:2] == [True, False]
+    assert body["world"]["chapters"][0]["needed"] == 3
+    assert opened(do(admin, device_token, world_id, 1, "calc"))[:2] == [True, True]
 
 
 def test_the_next_world_follows_and_the_old_one_is_dropped(
-    admin: TestClient, device_token: str, clock: FixedClock
+    admin: TestClient, device_token: str
 ) -> None:
-    first = import_json(admin, pack("first")).json()["world_id"]
+    short = pack("first", chapters=2)
+    first = import_json(admin, short).json()["world_id"]
     second = import_json(admin, pack("second")).json()["world_id"]
     admin.put("/api/admin/activities/queue", json={"world_ids": [first, second]})
-    clock.set(datetime(2026, 11, 14, 9, 0, tzinfo=BERLIN))  # Sat: chapter 1 of the second
-    body = admin.get("/api/activities", headers=bearer(device_token)).json()
+    do(admin, device_token, first, 1, "draw", "write")
+    body = do(admin, device_token, first, 2, "draw")
+    assert body["world"]["id"] == first
+    body = do(admin, device_token, first, 2, "write")
     assert body["world"]["id"] == second
+    assert opened(body)[:2] == [True, False]
     queue = admin.get("/api/admin/activities").json()["queue"]
     assert [q["world_id"] for q in queue] == [second]
-    assert queue[0]["first_date"] == "2026-11-14"
     assert queue[0]["status"] == "running"
+    assert queue[0]["chapters_open"] == 1
+    # The finished world's tasks are no longer current.
+    r = admin.post(
+        "/api/activities/done",
+        json={"world_id": first, "position": 1, "kind": "calc"},
+        headers=bearer(device_token),
+    )
+    assert r.status_code == 409
 
 
-# ---- admin: settings, days off, queue -------------------------------------------------------
+def test_the_last_story_done(admin: TestClient, device_token: str) -> None:
+    world_id = import_json(admin, pack("only", chapters=1)).json()["world_id"]
+    admin.put("/api/admin/activities/queue", json={"world_ids": [world_id]})
+    body = do(admin, device_token, world_id, 1, "draw", "write")
+    assert body["story_done"] is True
+    assert body["world"]["id"] == world_id
+    queue = admin.get("/api/admin/activities").json()["queue"]
+    assert queue[0]["story_done"] is True
+    # Queuing the next story starts it.
+    other = import_json(admin, pack("other")).json()["world_id"]
+    body = admin.put("/api/admin/activities/queue", json={"world_ids": [world_id, other]}).json()
+    assert [q["world_id"] for q in body["queue"]] == [other]
+    assert admin.get("/api/activities", headers=bearer(device_token)).json()["story_done"] is False
+
+
+def test_an_idea_opened_again_keeps_the_next_chapter_open(
+    admin: TestClient, device_token: str
+) -> None:
+    world_id = queued_world(admin)
+    do(admin, device_token, world_id, 1, "draw", "write")
+    done_id = admin.get("/api/admin/activities/done").json()["entries"][0]["id"]
+    assert admin.delete(f"/api/admin/activities/done/{done_id}").status_code == 204
+    body = admin.get("/api/activities", headers=bearer(device_token)).json()
+    assert opened(body)[:2] == [True, True]
+
+
+# ---- admin: settings, queue -------------------------------------------------------
 
 
 def test_admin_state_defaults(admin: TestClient) -> None:
     body = admin.get("/api/admin/activities").json()
     assert body["settings"] == {
-        "days": [0, 1, 2, 3, 4, 5],
-        "unlock_time": "07:00",
         "level": "normal",
         "windows": [],
+        "chapter_needed": 2,
+        "max_new_per_day": None,
     }
     assert body["queue"] == []
-    assert body["days_off"] == []
+    assert "days_off" not in body
 
 
-def test_settings_move_the_dates(admin: TestClient) -> None:
-    queued_world(admin)
-    settings = {"days": [5, 0, 3], "unlock_time": "08:30"}
-    r = admin.put("/api/admin/activities/settings", json=settings)
+def test_settings_round_trip(admin: TestClient) -> None:
+    r = admin.put(
+        "/api/admin/activities/settings", json={"chapter_needed": 3, "max_new_per_day": 2}
+    )
     assert r.status_code == 200, r.text
-    body = r.json()
-    assert body["settings"] == {
-        "days": [0, 3, 5],
-        "unlock_time": "08:30",
-        "level": "normal",
-        "windows": [],
-    }
-    assert body["queue"][0]["first_date"] == "2026-11-07"
-    assert body["queue"][0]["last_date"] == "2026-11-19"  # Sat 7, Mon 9, Thu 12 ... Thu 19
+    assert r.json()["settings"]["chapter_needed"] == 3
+    assert r.json()["settings"]["max_new_per_day"] == 2
+    # Omitted = kept; null = no limit.
+    r = admin.put("/api/admin/activities/settings", json={"level": "harder"})
+    assert (r.json()["settings"]["chapter_needed"], r.json()["settings"]["max_new_per_day"]) == (
+        3,
+        2,
+    )
+    r = admin.put("/api/admin/activities/settings", json={"max_new_per_day": None})
+    assert r.json()["settings"]["max_new_per_day"] is None
+    assert r.json()["settings"]["chapter_needed"] == 3
 
 
 @pytest.mark.parametrize(
     "body",
     [
-        {"days": [7], "unlock_time": "07:00"},
-        {"days": [0], "unlock_time": "7:00"},
-        {"days": [0], "unlock_time": "24:00"},
-        {"days": [0], "unlock_time": "07:00", "level": "hard"},
-        {"days": [0], "unlock_time": "07:00", "windows": [{"days": [1], "from": "18:30"}]},
-        {
-            "days": [0],
-            "unlock_time": "07:00",
-            "windows": [{"days": [1], "from": "18:30", "to": "18:30"}],
-        },
-        {
-            "days": [0],
-            "unlock_time": "07:00",
-            "windows": [{"days": [1], "from": "15:00", "to": "24:00"}],
-        },
-        {
-            "days": [0],
-            "unlock_time": "07:00",
-            "windows": [{"days": [7], "from": "15:00", "to": "18:30"}],
-        },
-        {
-            "days": [0],
-            "unlock_time": "07:00",
-            "windows": [{"days": [1], "from": "15:00", "to": "16:00"}] * 15,
-        },
+        {"chapter_needed": 0},
+        {"chapter_needed": 5},
+        {"max_new_per_day": 0},
+        {"max_new_per_day": 13},
+        {"level": "hard"},
+        {"windows": [{"days": [1], "from": "18:30"}]},
+        {"windows": [{"days": [1], "from": "18:30", "to": "18:30"}]},
+        {"windows": [{"days": [1], "from": "15:00", "to": "24:00"}]},
+        {"windows": [{"days": [7], "from": "15:00", "to": "18:30"}]},
+        {"windows": [{"days": [1], "from": "15:00", "to": "16:00"}] * 15},
     ],
 )
 def test_invalid_settings(admin: TestClient, body: dict[str, Any]) -> None:
     assert admin.put("/api/admin/activities/settings", json=body).status_code == 422
 
 
-def test_days_off(admin: TestClient) -> None:
-    queued_world(admin)
-    r = admin.post(
-        "/api/admin/activities/days-off",
-        json={"from": "2026-11-09", "to": "2026-11-10", "note": "at grandma's"},
-    )
-    assert r.status_code == 201, r.text
-    off = r.json()
-    assert off["from"] == "2026-11-09"
-    assert off["to"] == "2026-11-10"
-    body = admin.get("/api/admin/activities").json()
-    assert body["days_off"] == [off]
-    assert body["queue"][0]["last_date"] == "2026-11-16"  # Sat 7, Wed 11 ... Sat 14, Mon 16
-    one = admin.post("/api/admin/activities/days-off", json={"from": "2026-12-24"}).json()
-    assert one["to"] == "2026-12-24"
-    assert admin.delete(f"/api/admin/activities/days-off/{off['id']}").status_code == 204
-    assert admin.delete(f"/api/admin/activities/days-off/{off['id']}").status_code == 404
-    bad = {"from": "2026-11-10", "to": "2026-11-09"}
-    assert admin.post("/api/admin/activities/days-off", json=bad).status_code == 422
+def test_days_off_are_gone(admin: TestClient) -> None:
+    r = admin.post("/api/admin/activities/days-off", json={"from": "2026-11-09"})
+    assert r.status_code in (404, 405)
 
 
-def test_queue_rule_7(admin: TestClient, clock: FixedClock) -> None:
+def test_queue_changes(admin: TestClient, device_token: str, clock: FixedClock) -> None:
     a = import_json(admin, pack("a")).json()["world_id"]
     b = import_json(admin, pack("b")).json()["world_id"]
     c = import_json(admin, pack("c")).json()["world_id"]
     admin.put("/api/admin/activities/queue", json={"world_ids": [a, b]})
+    do(admin, device_token, a, 1, "draw", "write")
     clock.set(datetime(2026, 11, 10, 12, 0, tzinfo=BERLIN))
     body = admin.put("/api/admin/activities/queue", json={"world_ids": [a, c, b]}).json()
     assert [q["world_id"] for q in body["queue"]] == [a, c, b]
-    assert body["queue"][0]["first_date"] == "2026-11-07"  # the running world keeps its dates
+    assert body["queue"][0]["chapters_open"] == 2  # the running world keeps its progress
+    assert [q["status"] for q in body["queue"]] == ["running", "upcoming", "upcoming"]
     body = admin.put("/api/admin/activities/queue", json={"world_ids": [b, a]}).json()
-    assert body["queue"][0]["first_date"] == "2026-11-10"  # a new first world starts today
+    assert body["queue"][0]["chapters_open"] == 1  # a new first world starts fresh
     dup = admin.put("/api/admin/activities/queue", json={"world_ids": [a, a]})
     assert dup.status_code == 422
     assert dup.json()["reason"] == "queue_duplicate"
@@ -377,7 +425,7 @@ def test_story_language_per_queued_world(admin: TestClient, device_token: str) -
         "/api/admin/activities/queue", json={"world_ids": [a, b], "langs": {str(a): "el"}}
     ).json()
     assert body["queue"][0]["lang"] == "el"
-    assert body["queue"][0]["first_date"] == "2026-11-07"  # the dates stay
+    assert body["queue"][0]["status"] == "running"  # the story keeps running
     world = admin.get("/api/activities", headers=bearer(device_token)).json()["world"]
     assert world["lang"] == "el"
     assert set(world["texts"]) == {"de", "en", "el"}  # all texts still travel, for fallback
@@ -402,9 +450,8 @@ def test_mutations_need_csrf(admin: TestClient) -> None:
     token = admin.headers.pop("X-CSRF-Token")
     try:
         for r in (
-            admin.put("/api/admin/activities/settings", json={"days": [0], "unlock_time": "07:00"}),
+            admin.put("/api/admin/activities/settings", json={"chapter_needed": 3}),
             admin.put("/api/admin/activities/queue", json={"world_ids": []}),
-            admin.post("/api/admin/activities/days-off", json={"from": "2026-11-09"}),
             admin.post("/api/admin/worlds/examples/lighthouse-island"),
             import_json(admin, pack()),
         ):
@@ -640,7 +687,7 @@ def test_delete_world_cascades(admin: TestClient, device_token: str, settings: S
 def set_level(admin: TestClient, level: str) -> Any:
     r = admin.put(
         "/api/admin/activities/settings",
-        json={"days": [0, 1, 2, 3, 4, 5], "unlock_time": "07:00", "level": level},
+        json={"level": level},
     )
     assert r.status_code == 200, r.text
     return r.json()
@@ -654,13 +701,8 @@ def device_tasks(admin: TestClient, device_token: str) -> dict[str, Any]:
 def test_level_round_trip(admin: TestClient) -> None:
     assert set_level(admin, "harder")["settings"]["level"] == "harder"
     # Omitting the level keeps it.
-    r = admin.put("/api/admin/activities/settings", json={"days": [0], "unlock_time": "07:00"})
-    assert r.json()["settings"] == {
-        "days": [0],
-        "unlock_time": "07:00",
-        "level": "harder",
-        "windows": [],
-    }
+    r = admin.put("/api/admin/activities/settings", json={"chapter_needed": 2})
+    assert r.json()["settings"]["level"] == "harder"
     assert admin.get("/api/admin/activities").json()["settings"]["level"] == "harder"
 
 
@@ -1225,7 +1267,7 @@ WINDOWS = [
 def set_windows(admin: TestClient, windows: list[dict[str, Any]]) -> Any:
     r = admin.put(
         "/api/admin/activities/settings",
-        json={"days": [0, 1, 2, 3, 4, 5, 6], "unlock_time": "07:00", "windows": windows},
+        json={"windows": windows},
     )
     assert r.status_code == 200, r.text
     return r.json()
@@ -1234,7 +1276,7 @@ def set_windows(admin: TestClient, windows: list[dict[str, Any]]) -> Any:
 def test_windows_round_trip(admin: TestClient) -> None:
     assert set_windows(admin, WINDOWS)["settings"]["windows"] == WINDOWS
     # Omitting the windows keeps them; an empty list clears them.
-    r = admin.put("/api/admin/activities/settings", json={"days": [0, 1], "unlock_time": "07:00"})
+    r = admin.put("/api/admin/activities/settings", json={"level": "normal"})
     assert r.json()["settings"]["windows"] == WINDOWS
     assert admin.get("/api/admin/activities").json()["settings"]["windows"] == WINDOWS
     assert set_windows(admin, [])["settings"]["windows"] == []
@@ -1314,7 +1356,7 @@ def test_a_queued_tap_is_judged_when_it_happened(
 ) -> None:
     """§14.4a: "Tue 18:40 done, sent at 21:00 -> accepted; Tue 18:50 -> 409"."""
     world_id = queued_world(admin)
-    set_windows(admin, WINDOWS)  # every day an activity day: chapter 1 on Sat 7 Nov
+    set_windows(admin, WINDOWS)  # chapter 1 opened on Sat 7 Nov
     clock.set(datetime(2026, 11, 10, 21, 0, tzinfo=BERLIN))  # Tue 21:00, closed
     r = done_at(admin, device_token, world_id, 1, datetime(2026, 11, 10, 18, 50, tzinfo=BERLIN))
     assert r.status_code == 409
@@ -1327,15 +1369,40 @@ def test_a_queued_tap_is_judged_when_it_happened(
 def test_a_queued_tap_uses_the_unlock_and_the_day_of_its_moment(
     admin: TestClient, device_token: str, clock: FixedClock, settings: Settings
 ) -> None:
+    """Chapter 2 opens on Sun 8 Nov (the second idea of chapter 1). A tap for it queued on
+    Sat counts as locked; one on Sun is booked to Sunday."""
     world_id = queued_world(admin)
-    set_windows(admin, [])  # every day: chapter 2 on Sun 8 Nov, unlocked at 07:00
-    clock.set(datetime(2026, 11, 9, 10, 0, tzinfo=BERLIN))  # Mon: chapter 2 is unlocked now
-    r = done_at(admin, device_token, world_id, 2, datetime(2026, 11, 8, 6, 30, tzinfo=BERLIN))
+    clock.set(datetime(2026, 11, 8, 10, 0, tzinfo=BERLIN))
+    do(admin, device_token, world_id, 1, "calc", "write")
+    clock.set(datetime(2026, 11, 9, 10, 0, tzinfo=BERLIN))  # Mon: chapter 2 is open now
+    r = done_at(admin, device_token, world_id, 2, datetime(2026, 11, 7, 18, 30, tzinfo=BERLIN))
     assert r.status_code == 409
     assert r.json()["reason"] == "activity_locked"  # still locked at the tap
     r = done_at(admin, device_token, world_id, 2, "2026-11-08T23:50:00+01:00")
     assert r.status_code == 200, r.text
-    assert done_rows(settings) == [(2, "2026-11-08", datetime(2026, 11, 8, 22, 50))]
+    assert (2, "2026-11-08", datetime(2026, 11, 8, 22, 50)) in done_rows(settings)
+
+
+def test_queued_taps_open_the_next_chapter_in_order(
+    admin: TestClient, device_token: str, clock: FixedClock
+) -> None:
+    """Offline the tablet opened chapter 2 itself; its taps arrive in order and count."""
+    world_id = queued_world(admin)
+    clock.set(datetime(2026, 11, 7, 20, 0, tzinfo=BERLIN))
+    auth = bearer(device_token)
+    for position, kind, minute in ((1, "draw", 0), (1, "write", 5), (2, "draw", 10)):
+        r = admin.post(
+            "/api/activities/done",
+            json={
+                "world_id": world_id,
+                "position": position,
+                "kind": kind,
+                "done_at": f"2026-11-07T15:{minute:02d}:00+01:00",
+            },
+            headers=auth,
+        )
+        assert r.status_code == 200, r.text
+    assert r.json()["world"]["chapters"][1]["done_kinds"] == ["draw"]
 
 
 def test_a_done_at_ahead_of_the_server_is_now(

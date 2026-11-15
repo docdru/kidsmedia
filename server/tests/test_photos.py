@@ -207,11 +207,7 @@ def test_a_photo_is_judged_like_done(
     assert r.json()["reason"] == "activity_too_old"
     admin.put(
         "/api/admin/activities/settings",
-        json={
-            "days": [0, 1, 2, 3, 4, 5],
-            "unlock_time": "07:00",
-            "windows": [{"days": [5], "from": "09:00", "to": "12:00"}],
-        },
+        json={"windows": [{"days": [5], "from": "09:00", "to": "12:00"}]},
     )
     r = upload(admin, device_token, world_id)
     assert r.status_code == 409

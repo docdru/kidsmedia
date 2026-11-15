@@ -7,21 +7,22 @@ import json
 import zipfile
 from collections.abc import Callable
 from dataclasses import dataclass
-from datetime import date, datetime, timedelta
+from datetime import datetime, timedelta
 from pathlib import Path, PurePosixPath
 from typing import Any, ClassVar, Literal
 
 from fastapi import APIRouter, Depends, Query, Request, Response
 from fastapi.responses import FileResponse
 from PIL import Image
-from pydantic import BaseModel, ConfigDict, Field, ValidationError
+from pydantic import BaseModel, Field, ValidationError
 from sqlalchemy import Connection, Row, delete, insert, select, update
 
 from kidsmedia import photos, speech, thumbs
 from kidsmedia.activities import (
     LANGS,
+    MAX_NEEDED,
+    MAX_PER_DAY,
     MAX_WINDOWS,
-    TIME_PATTERN,
     ChapterTexts,
     Kind,
     Lang,
@@ -33,13 +34,10 @@ from kidsmedia.activities import (
     TaskTexts,
     Window,
     WorldTexts,
-    format_days,
     is_complete,
     load_content,
     merge_langs,
     pack_warnings,
-    parse_days,
-    queue_start_after_change,
     stored_content,
     story_lang,
     task_count,
@@ -47,7 +45,6 @@ from kidsmedia.activities import (
 from kidsmedia.clock import Clock, from_db, to_db
 from kidsmedia.config import Settings
 from kidsmedia.db import (
-    activity_days_off,
     activity_done,
     activity_photos,
     activity_settings,
@@ -74,7 +71,6 @@ from kidsmedia.routes.activities import (
     ensure_settings,
     langs_of,
     level_of,
-    load_days_off,
     pick_lang,
     picture_ref,
     read_body,
@@ -103,34 +99,21 @@ EXAMPLE_ORDER = ("owl-mystery", "lighthouse-island", "rocket-kiwi", "forest-bake
 
 
 class SettingsIn(BaseModel):
-    days: list[int] = Field(max_length=7)
-    unlock_time: str = Field(pattern=TIME_PATTERN)
-    level: Level | None = None  # §14.1; None = unchanged
+    """Every field omitted = kept."""
+
+    level: Level | None = None  # §14.1
     windows: list[Window] | None = Field(default=None, max_length=MAX_WINDOWS)  # §14.4a
+    # §13.2: ideas to do in a chapter to open the next one
+    chapter_needed: int | None = Field(default=None, ge=1, le=MAX_NEEDED)
+    # §13.2: most chapters opened by finishing per day; null = no limit
+    max_new_per_day: int | None = Field(default=None, ge=1, le=MAX_PER_DAY)
 
 
 class SettingsOut(BaseModel):
-    days: list[int]
-    unlock_time: str
     level: Level
     windows: list[Window]  # opening times for Ideas (§14.4a); empty = always open
-
-
-class DayOffIn(BaseModel):
-    model_config = ConfigDict(populate_by_name=True)
-
-    from_: date = Field(alias="from")
-    to: date | None = None
-    note: str = Field(default="", max_length=80)
-
-
-class DayOffOut(BaseModel):
-    model_config = ConfigDict(populate_by_name=True)
-
-    id: int
-    from_: str = Field(alias="from")
-    to: str
-    note: str
+    chapter_needed: int
+    max_new_per_day: int | None  # None = no limit
 
 
 class QueueIn(BaseModel):
@@ -141,9 +124,10 @@ class QueueIn(BaseModel):
 
 class QueueEntry(BaseModel):
     world_id: int
-    first_date: str | None
-    last_date: str | None
     status: Literal["running", "upcoming"]
+    chapters: int
+    chapters_open: int  # 0 for an upcoming world (§13.2)
+    story_done: bool  # running, every chapter done and nothing queued after it
     lang: Lang  # the language the tablet tells this story in (§14.7)
     langs: list[Lang]  # the languages the world has its own texts in
 
@@ -185,7 +169,6 @@ class ExampleOut(BaseModel):
 
 class ActivitiesAdminOut(BaseModel):
     settings: SettingsOut
-    days_off: list[DayOffOut]
     queue: list[QueueEntry]
     worlds: list[WorldSummary]
     log: list[LogRow]
@@ -393,12 +376,6 @@ def example_packs(settings: Settings) -> dict[str, Example]:
     return {slug: found[slug] for slug in sorted(found, key=example_key)}
 
 
-def _day_off_out(row: Row[Any]) -> DayOffOut:
-    return DayOffOut.model_validate(
-        {"id": row.id, "from": row.from_day, "to": row.to_day, "note": row.note}
-    )
-
-
 def world_langs(row: Row[Any]) -> list[Lang]:
     """The languages a world has its own texts in, in LANGS order (§14.7)."""
     texts = content_of(row).texts
@@ -412,15 +389,17 @@ def admin_state(conn: Connection, now: datetime, settings: Settings) -> Activiti
     st = ensure_settings(conn, profile)
     chosen = langs_of(st)
     queue = []
-    for span in sched.spans:
-        have = world_langs(rows[span.world_id])
+    for world_id in sched.queue:
+        have = world_langs(rows[world_id])
+        running = world_id == sched.current
         queue.append(
             QueueEntry(
-                world_id=span.world_id,
-                first_date=span.first.isoformat() if span.first else None,
-                last_date=span.last.isoformat() if span.last else None,
-                status="running" if span.world_id == sched.current else "upcoming",
-                lang=story_lang(chosen.get(span.world_id), have, default_lang),
+                world_id=world_id,
+                status="running" if running else "upcoming",
+                chapters=len(content_of(rows[world_id]).chapters),
+                chapters_open=sum(c.unlocked for c in sched.chapters) if running else 0,
+                story_done=running and sched.story_done,
+                lang=story_lang(chosen.get(world_id), have, default_lang),
                 langs=have,
             )
         )
@@ -463,12 +442,11 @@ def admin_state(conn: Connection, now: datetime, settings: Settings) -> Activiti
     ]
     return ActivitiesAdminOut(
         settings=SettingsOut(
-            days=sorted(parse_days(st.days)),
-            unlock_time=st.unlock_time,
             level=level_of(st),
             windows=windows_of(st),
+            chapter_needed=st.chapter_needed,
+            max_new_per_day=st.max_new_per_day,
         ),
-        days_off=[_day_off_out(o) for o in load_days_off(conn, profile)],
         queue=queue,
         worlds=[world_summary(r) for r in sorted(rows.values(), key=lambda r: r.id)],
         log=log,
@@ -479,18 +457,16 @@ def admin_state(conn: Connection, now: datetime, settings: Settings) -> Activiti
 def _set_queue(
     conn: Connection, now: datetime, new_queue: list[int], langs: dict[int, Lang] | None = None
 ) -> None:
-    """Store a queue, applying §13.2 rule 7 against the queue after housekeeping, and the
-    story languages (§14.7): `langs` updates the stored ones; worlds leaving the queue lose
-    theirs."""
-    sched = compute(conn, DEFAULT_PROFILE_ID, now)[0]
-    start = queue_start_after_change(list(sched.queue), new_queue, sched.queue_start, now.date())
+    """Store a queue and the story languages (§14.7): `langs` updates the stored ones; worlds
+    leaving the queue lose theirs. A new first world starts fresh on the next read (§13.2);
+    reordering only later entries keeps the progress."""
+    compute(conn, DEFAULT_PROFILE_ID, now)  # progress and housekeeping up to now first
     stored = langs_of(ensure_settings(conn, DEFAULT_PROFILE_ID))
     conn.execute(
         update(activity_settings)
         .where(activity_settings.c.profile_id == DEFAULT_PROFILE_ID)
         .values(
             queue=new_queue,
-            queue_start=start.isoformat() if start else None,
             langs=merge_langs(stored, langs or {}, new_queue),
         )
     )
@@ -770,7 +746,7 @@ def import_pack(
     )
 
 
-# ---- activities: settings, days off, queue ------------------------------------------------
+# ---- activities: settings, queue ----------------------------------------------------
 
 
 @router.get("/activities", response_model=ActivitiesAdminOut)
@@ -780,7 +756,7 @@ def get_activities(
     clock: Clock = Depends(get_clock),
     settings: Settings = Depends(get_settings),
 ) -> ActivitiesAdminOut:
-    """Settings, days off, the queue with its dates, worlds, the last 14 days, examples."""
+    """Settings, the queue with its progress, worlds, the last 14 days, examples."""
     return admin_state(conn, local_now(clock, settings), settings)
 
 
@@ -792,64 +768,27 @@ def put_settings(
     clock: Clock = Depends(get_clock),
     settings: Settings = Depends(get_settings),
 ) -> ActivitiesAdminOut:
-    """Activity days (Mon=0), the unlock time, the child's level (§14.1) and the opening times
-    (§14.4a); level and windows omitted = kept. Dates of the current and later worlds are
-    recomputed from the queue start (§13.2 rule 6)."""
-    if any(d < 0 or d > 6 for d in body.days):
-        raise ApiError(422, "invalid_days")
-    ensure_settings(conn, DEFAULT_PROFILE_ID)
-    values: dict[str, Any] = {"days": format_days(body.days), "unlock_time": body.unlock_time}
+    """The child's level (§14.1), the opening times (§14.4a), the ideas per chapter and the
+    daily limit of new chapters (§13.2); omitted = kept, `max_new_per_day: null` = no limit.
+    Chapters already open stay open; a change applies from the next idea on."""
+    now = local_now(clock, settings)
+    compute(conn, DEFAULT_PROFILE_ID, now)  # progress up to now under the old settings
+    values: dict[str, Any] = {}
+    if body.chapter_needed is not None:
+        values["chapter_needed"] = body.chapter_needed
+    if "max_new_per_day" in body.model_fields_set:
+        values["max_new_per_day"] = body.max_new_per_day
     if body.level is not None:
         values["level"] = body.level
     if body.windows is not None:
         values["windows"] = [w.model_dump(by_alias=True) for w in body.windows]
-    conn.execute(
-        update(activity_settings)
-        .where(activity_settings.c.profile_id == DEFAULT_PROFILE_ID)
-        .values(**values)
-    )
-    return admin_state(conn, local_now(clock, settings), settings)
-
-
-@router.post("/activities/days-off", response_model=DayOffOut, status_code=201)
-def add_days_off(
-    body: DayOffIn,
-    _: Admin = Depends(require_admin_csrf),
-    conn: Connection = Depends(get_conn, scope="function"),
-    clock: Clock = Depends(get_clock),
-) -> DayOffOut:
-    to = body.to or body.from_
-    if to < body.from_:
-        raise ApiError(422, "days_off_order")
-    day_off_id = insert_id(
+    if values:
         conn.execute(
-            insert(activity_days_off).values(
-                profile_id=DEFAULT_PROFILE_ID,
-                from_day=body.from_.isoformat(),
-                to_day=to.isoformat(),
-                note=body.note.strip(),
-                created_at=to_db(clock.now()),
-            )
+            update(activity_settings)
+            .where(activity_settings.c.profile_id == DEFAULT_PROFILE_ID)
+            .values(**values)
         )
-    )
-    row = conn.execute(select(activity_days_off).where(activity_days_off.c.id == day_off_id)).one()
-    return _day_off_out(row)
-
-
-@router.delete("/activities/days-off/{day_off_id}", status_code=204)
-def delete_days_off(
-    day_off_id: int,
-    _: Admin = Depends(require_admin_csrf),
-    conn: Connection = Depends(get_conn, scope="function"),
-) -> None:
-    result = conn.execute(
-        delete(activity_days_off).where(
-            activity_days_off.c.id == day_off_id,
-            activity_days_off.c.profile_id == DEFAULT_PROFILE_ID,
-        )
-    )
-    if result.rowcount == 0:
-        raise ApiError(404, "days_off_not_found", day_off_id=day_off_id)
+    return admin_state(conn, now, settings)
 
 
 @router.put("/activities/queue", response_model=ActivitiesAdminOut)
