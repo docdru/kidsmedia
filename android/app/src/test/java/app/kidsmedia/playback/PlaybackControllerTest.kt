@@ -108,9 +108,10 @@ class PlaybackControllerTest {
     private fun allowed(session: String) =
         MockResponse().setBody("""{"allowed":true,"play_session_id":"$session","position_ms":0}""")
 
-    /** Song one plays; then the player moves on to song two by itself. */
-    private fun playThenAdvance() {
+    /** Song one plays; then the player moves on to song two by itself, answered with [next]. */
+    private fun playThenAdvance(vararg next: MockResponse) {
         server.enqueue(allowed("s1"))
+        next.forEach { server.enqueue(it) }
         runBlocking { assertTrue(controller.play(group, 0)) }
         assertEquals("/api/play/start", server.takeRequest().path)
         player.calls.clear()
@@ -132,9 +133,10 @@ class PlaybackControllerTest {
     @Test
     fun autoAdvanceKeepsThePlayerRunningWhileTheServerIsAsked() {
         // The final heartbeat of song one and the start of song two both take a moment.
-        server.enqueue(MockResponse().setBody("""{"allowed":true}""").setBodyDelay(500, TimeUnit.MILLISECONDS))
-        server.enqueue(allowed("s2").setBodyDelay(500, TimeUnit.MILLISECONDS))
-        playThenAdvance()
+        playThenAdvance(
+            MockResponse().setBody("""{"allowed":true}""").setBodyDelay(500, TimeUnit.MILLISECONDS),
+            allowed("s2").setBodyDelay(500, TimeUnit.MILLISECONDS)
+        )
 
         // While the requests are in flight: muted, but never paused.
         assertEquals("/api/play/heartbeat", server.takeRequest().path)
@@ -150,9 +152,10 @@ class PlaybackControllerTest {
 
     @Test
     fun deniedAutoAdvancePausesAndShowsTheReason() {
-        server.enqueue(MockResponse().setBody("""{"allowed":true}"""))
-        server.enqueue(MockResponse().setBody("""{"allowed":false,"reason":"item_limit","params":{"limit":1}}"""))
-        playThenAdvance()
+        playThenAdvance(
+            MockResponse().setBody("""{"allowed":true}"""),
+            MockResponse().setBody("""{"allowed":false,"reason":"item_limit","params":{"limit":1}}""")
+        )
 
         waitFor("the reason screen") { controller.block.value != null && player.volume == 1f }
         assertEquals("item_limit", controller.block.value?.reason)
