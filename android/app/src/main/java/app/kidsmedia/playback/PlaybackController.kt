@@ -38,8 +38,9 @@ interface PlayerHost {
 
 /**
  * Coordinates the server rules with the player (SPEC §5.3):
- * every new file goes through `/play/start` (auto-advance included), heartbeats every
- * 15 s while playing, a local countdown that stops playback even offline, and the
+ * every new file goes through `/play/start` (auto-advance included; the player keeps
+ * running, muted, during that check so the tablet stays awake with the screen off),
+ * heartbeats every 15 s while playing, a local countdown that stops playback even offline, and the
  * reason screen when the server says no.
  *
  * All methods run on the main thread.
@@ -72,6 +73,9 @@ class PlaybackController(
     private var forceQueued = false
     private var lastPositionMs = 0L
 
+    // True while an auto-advance waits for `/play/start`: the next file runs muted and isn't a session yet.
+    private var advancing = false
+
     // Offline session (M7): rules are evaluated locally and the play is queued for the server.
     private var offlineSession = false
     private var sessionStartedAt: OffsetDateTime? = null
@@ -81,6 +85,7 @@ class PlaybackController(
     private val listener =
         object : Player.Listener {
             override fun onIsPlayingChanged(isPlaying: Boolean) {
+                if (advancing) return // the muted run between two files belongs to no session
                 guard.setPlaying(isPlaying)
                 if (isPlaying) scope.launch { beat() } // refresh the deadline on every resume
                 publish()
@@ -194,7 +199,7 @@ class PlaybackController(
     /** Called every second by the service while it runs. */
     fun tick() {
         val p = _player.value ?: return
-        if (p.isPlaying) {
+        if (p.isPlaying && !advancing) {
             lastPositionMs = p.currentPosition
             if (guard.expired()) {
                 p.pause() // local enforcement, also when offline (SPEC §4.3)
@@ -206,28 +211,69 @@ class PlaybackController(
         publish()
     }
 
-    /** [ended]: the previous item played to its end (an automatic transition). */
+    /**
+     * The queue moved on to [mediaId]; [ended]: the previous item played to its end (an
+     * automatic transition).
+     *
+     * The player is not paused while `/play/start` is asked: a paused player gives up its
+     * wake and Wi-Fi locks and the service leaves the foreground, so with the screen off the
+     * tablet fell asleep in the middle of the request and the next song never started.
+     * Instead the next file runs muted and is rewound once the server allows it, or paused
+     * when it doesn't (SPEC §4.3, §5.3).
+     */
     private suspend fun advanceTo(mediaId: Int, ended: Boolean) {
         val g = group ?: return
         val next = g.items.firstOrNull { it.id == mediaId } ?: return
         val p = _player.value ?: return
-        p.pause()
-        val previous = item
-        flushAndWait(if (ended && previous != null) (previous.durationS * 1000).toLong() else lastPositionMs)
+        if (advancing) return // a skip during the check: the loop below follows the player
+        val volume = p.volume
+        advancing = true
+        p.volume = 0f
+        guard.setPlaying(false) // the muted run counts for no session
+        var started = false
+        try {
+            val previous = item
+            flushAndWait(if (ended && previous != null) (previous.durationS * 1000).toLong() else lastPositionMs)
+            var target = next
+            while (true) {
+                val positionMs = startNext(g, target) ?: break
+                // Skipped on during the check? Then ask again for the file the player is on now.
+                val current = p.currentMediaItem?.mediaId?.toIntOrNull() ?: target.id
+                if (current == target.id) {
+                    started = true
+                    p.seekTo(positionMs) // rewind the muted run to where the file should start
+                    p.play()
+                    break
+                }
+                target = g.items.firstOrNull { it.id == current } ?: break
+            }
+        } finally {
+            if (!started) {
+                p.pause()
+                p.seekTo(0)
+            }
+            p.volume = volume
+            advancing = false
+            guard.setPlaying(p.isPlaying)
+            publish()
+        }
+    }
+
+    /** `/play/start` for the next queue item, or the local rules when offline. null: denied, with the reason shown. */
+    private suspend fun startNext(g: LibraryGroup, next: LibraryItem): Long? {
         val answer =
             try {
                 api.start(next.id)
             } catch (e: ApiException) {
                 _block.value = Block(e.reason, e.params)
-                return
+                return null
             } catch (e: IOException) {
                 _offline.value = true
-                advanceOffline(g, next)
-                return
+                return if (advanceOffline(g, next)) 0L else null
             }
         if (!answer.allowed) {
             _block.value = Block(answer.reason ?: "not_allowed", answer.params)
-            return
+            return null
         }
         endSession()
         item = next
@@ -235,9 +281,7 @@ class PlaybackController(
         sessionStartedAt = store?.now() ?: OffsetDateTime.now()
         guard.reset(answer.remainingSeconds, answer.grace.active)
         lastBeatAt = clock()
-        if (answer.positionMs > 0) p.seekTo(answer.positionMs)
-        p.play()
-        publish()
+        return answer.positionMs
     }
 
     private suspend fun beat(force: Boolean = false) {
@@ -379,19 +423,17 @@ class PlaybackController(
         return true
     }
 
-    private fun advanceOffline(group: LibraryGroup, next: LibraryItem) {
-        val p = _player.value ?: return
+    private fun advanceOffline(group: LibraryGroup, next: LibraryItem): Boolean {
         val decision = store?.takeIf { it.localFile(next.id) != null }?.decide(group.id, next.id)
         if (decision == null || !decision.allowed) {
             _block.value =
                 Block(decision?.reason?.wire ?: "offline", decision?.let { paramsOf(it.params) } ?: emptyMap())
-            return
+            return false
         }
         endSession()
         item = next
         startOfflineSession(decision)
-        p.play()
-        publish()
+        return true
     }
 
     private fun startOfflineSession(decision: Decision) {
