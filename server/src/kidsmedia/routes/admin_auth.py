@@ -7,6 +7,7 @@ from fastapi import APIRouter, Depends, Request, Response
 from pydantic import BaseModel, Field
 from sqlalchemy import Connection, delete, insert, select, update
 
+from kidsmedia import running_version
 from kidsmedia.clock import Clock, to_db
 from kidsmedia.config import Settings
 from kidsmedia.db import admin_sessions, admin_users
@@ -42,6 +43,7 @@ class Me(BaseModel):
     username: str
     csrf_token: str
     locale: Locale | None
+    version: str  # the release the server runs, shown in the admin (SPEC §9)
 
 
 class MePatch(BaseModel):
@@ -93,7 +95,12 @@ def login(
         secure=settings.secure_cookies,
         path="/",
     )
-    return Me(username=user.username, csrf_token=csrf, locale=_locale(user.locale))
+    return Me(
+        username=user.username,
+        csrf_token=csrf,
+        locale=_locale(user.locale),
+        version=running_version(),
+    )
 
 
 @router.post("/logout", status_code=204)
@@ -108,7 +115,12 @@ def logout(
 
 @router.get("/me", response_model=Me)
 def me(admin: Admin = Depends(require_admin)) -> Me:
-    return Me(username=admin.username, csrf_token=admin.csrf_token, locale=_locale(admin.locale))
+    return Me(
+        username=admin.username,
+        csrf_token=admin.csrf_token,
+        locale=_locale(admin.locale),
+        version=running_version(),
+    )
 
 
 @router.patch("/me", response_model=Me)
@@ -121,4 +133,9 @@ def patch_me(
     conn.execute(
         update(admin_users).where(admin_users.c.id == admin.user_id).values(locale=body.locale)
     )
-    return Me(username=admin.username, csrf_token=admin.csrf_token, locale=body.locale)
+    return Me(
+        username=admin.username,
+        csrf_token=admin.csrf_token,
+        locale=body.locale,
+        version=running_version(),
+    )

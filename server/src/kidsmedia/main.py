@@ -7,7 +7,7 @@ from fastapi import APIRouter, FastAPI
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
-from kidsmedia import __version__, speech
+from kidsmedia import __version__, running_version, speech
 from kidsmedia.bootstrap import bootstrap
 from kidsmedia.clock import Clock
 from kidsmedia.config import Settings, get_settings
@@ -45,7 +45,7 @@ router = APIRouter()
 @router.get("/healthz", response_model=Health, tags=["meta"])
 def healthz() -> Health:
     """Liveness probe used by Docker HEALTHCHECK and monitoring."""
-    return Health(status="ok", version=__version__)
+    return Health(status="ok", version=running_version())
 
 
 def create_app(settings: Settings | None = None, clock: Clock | None = None) -> FastAPI:

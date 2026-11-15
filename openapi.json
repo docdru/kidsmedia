@@ -2472,12 +2472,17 @@
           "username": {
             "title": "Username",
             "type": "string"
+          },
+          "version": {
+            "title": "Version",
+            "type": "string"
           }
         },
         "required": [
           "username",
           "csrf_token",
-          "locale"
+          "locale",
+          "version"
         ],
         "title": "Me",
         "type": "object"

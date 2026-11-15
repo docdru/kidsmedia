@@ -1,7 +1,8 @@
 {
   "app": {
     "title": "Kids Media",
-    "subtitle": "Eltern-Verwaltung"
+    "subtitle": "Eltern-Verwaltung",
+    "versionHelp": "Server-Version"
   },
   "language": {
     "label": "Sprache",

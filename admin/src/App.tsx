@@ -41,6 +41,11 @@ export default function App({ client }: { client?: QueryClient }) {
   );
 }
 
+/** "0.9.0" -> "v0.9.0"; builds from main ("main-27b5f9f") and "dev" as they are. */
+export function versionLabel(version: string): string {
+  return /^\d+\.\d+\.\d+$/.test(version) ? `v${version}` : version;
+}
+
 /** Loads the session; without one, shows the login form (SPEC §4.2). */
 function Shell() {
   const { t } = useTranslation();
@@ -99,7 +104,13 @@ function Main({ me }: { me: Me }) {
       <header className="topbar">
         <div className="brand">
           <strong>{t("app.title")}</strong>
-          <span className="muted">{t("app.subtitle")}</span>
+          <span className="muted">
+            {t("app.subtitle")}
+            <span className="version" title={t("app.versionHelp")}>
+              {" · "}
+              {versionLabel(me.version)}
+            </span>
+          </span>
         </div>
         <nav className="tabs" aria-label={t("nav.label")}>
           {TABS.map((name) => (
