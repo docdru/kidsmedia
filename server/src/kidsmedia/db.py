@@ -338,24 +338,15 @@ activity_settings = Table(
     "activity_settings",
     metadata,
     Column("profile_id", Integer, ForeignKey("profiles.id", ondelete="CASCADE"), primary_key=True),
-    Column("days", String, nullable=False, server_default="012345"),  # weekdays, Mon=0
-    Column("unlock_time", String, nullable=False, server_default="07:00"),
     Column("queue", JSON, nullable=False),  # world ids in order
-    Column("queue_start", String),  # ISO date counting starts from; NULL = empty queue
+    # How the story moves on (§13.2): ideas to do per chapter, most new chapters per day
+    # (NULL = no limit), and the progress in the current world.
+    Column("chapter_needed", Integer, nullable=False, server_default="2"),
+    Column("max_new_per_day", Integer),
+    Column("progress", JSON, nullable=False, server_default="{}"),
     Column("level", String, nullable=False, server_default="normal"),  # easier|normal|harder
     Column("windows", JSON, nullable=False, server_default="[]"),  # opening times (§14.4a)
     Column("langs", JSON, nullable=False, server_default="{}"),  # story language (§14.7)
-)
-
-activity_days_off = Table(
-    "activity_days_off",
-    metadata,
-    Column("id", Integer, primary_key=True),
-    Column("profile_id", Integer, ForeignKey("profiles.id", ondelete="CASCADE"), nullable=False),
-    Column("from_day", String, nullable=False),
-    Column("to_day", String, nullable=False),
-    Column("note", String, nullable=False, server_default=""),
-    Column("created_at", DateTime, nullable=False),
 )
 
 activity_done = Table(

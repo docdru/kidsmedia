@@ -3,13 +3,6 @@
     "schemas": {
       "ActivitiesAdminOut": {
         "properties": {
-          "days_off": {
-            "items": {
-              "$ref": "#/components/schemas/DayOffOut"
-            },
-            "title": "Days Off",
-            "type": "array"
-          },
           "examples": {
             "items": {
               "$ref": "#/components/schemas/ExampleOut"
@@ -44,7 +37,6 @@
         },
         "required": [
           "settings",
-          "days_off",
           "queue",
           "worlds",
           "log",
@@ -64,6 +56,17 @@
             "title": "Level",
             "type": "string"
           },
+          "max_new_per_day": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Max New Per Day"
+          },
           "next_unlock_at": {
             "anyOf": [
               {
@@ -79,6 +82,10 @@
           "open_now": {
             "title": "Open Now",
             "type": "boolean"
+          },
+          "opened_today": {
+            "title": "Opened Today",
+            "type": "integer"
           },
           "opens_at": {
             "anyOf": [
@@ -97,11 +104,17 @@
             "title": "Server Time",
             "type": "string"
           },
+          "story_done": {
+            "title": "Story Done",
+            "type": "boolean"
+          },
           "today_is_activity_day": {
+            "default": true,
             "title": "Today Is Activity Day",
             "type": "boolean"
           },
           "unlock_time": {
+            "default": "00:00",
             "title": "Unlock Time",
             "type": "string"
           },
@@ -125,10 +138,11 @@
         },
         "required": [
           "server_time",
-          "unlock_time",
           "level",
-          "today_is_activity_day",
           "next_unlock_at",
+          "max_new_per_day",
+          "opened_today",
+          "story_done",
           "windows",
           "open_now",
           "opens_at",
@@ -327,66 +341,6 @@
         "title": "CoverChoice",
         "type": "object"
       },
-      "DayOffIn": {
-        "properties": {
-          "from": {
-            "format": "date",
-            "title": "From",
-            "type": "string"
-          },
-          "note": {
-            "default": "",
-            "maxLength": 80,
-            "title": "Note",
-            "type": "string"
-          },
-          "to": {
-            "anyOf": [
-              {
-                "format": "date",
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "To"
-          }
-        },
-        "required": [
-          "from"
-        ],
-        "title": "DayOffIn",
-        "type": "object"
-      },
-      "DayOffOut": {
-        "properties": {
-          "from": {
-            "title": "From",
-            "type": "string"
-          },
-          "id": {
-            "title": "Id",
-            "type": "integer"
-          },
-          "note": {
-            "title": "Note",
-            "type": "string"
-          },
-          "to": {
-            "title": "To",
-            "type": "string"
-          }
-        },
-        "required": [
-          "id",
-          "from",
-          "to",
-          "note"
-        ],
-        "title": "DayOffOut",
-        "type": "object"
-      },
       "DeviceChapter": {
         "properties": {
           "date": {
@@ -423,6 +377,10 @@
               }
             ]
           },
+          "needed": {
+            "title": "Needed",
+            "type": "integer"
+          },
           "position": {
             "title": "Position",
             "type": "integer"
@@ -458,6 +416,7 @@
           "date",
           "unlocked",
           "done_kinds",
+          "needed",
           "image",
           "texts",
           "tasks"
@@ -3348,16 +3307,13 @@
       },
       "QueueEntry": {
         "properties": {
-          "first_date": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "First Date"
+          "chapters": {
+            "title": "Chapters",
+            "type": "integer"
+          },
+          "chapters_open": {
+            "title": "Chapters Open",
+            "type": "integer"
           },
           "lang": {
             "enum": [
@@ -3380,17 +3336,6 @@
             "title": "Langs",
             "type": "array"
           },
-          "last_date": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Last Date"
-          },
           "status": {
             "enum": [
               "running",
@@ -3399,6 +3344,10 @@
             "title": "Status",
             "type": "string"
           },
+          "story_done": {
+            "title": "Story Done",
+            "type": "boolean"
+          },
           "world_id": {
             "title": "World Id",
             "type": "integer"
@@ -3406,9 +3355,10 @@
         },
         "required": [
           "world_id",
-          "first_date",
-          "last_date",
           "status",
+          "chapters",
+          "chapters_open",
+          "story_done",
           "lang",
           "langs"
         ],
@@ -4015,14 +3965,20 @@
         "type": "object"
       },
       "SettingsIn": {
+        "description": "Every field omitted = kept.",
         "properties": {
-          "days": {
-            "items": {
-              "type": "integer"
-            },
-            "maxItems": 7,
-            "title": "Days",
-            "type": "array"
+          "chapter_needed": {
+            "anyOf": [
+              {
+                "maximum": 4.0,
+                "minimum": 1.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Chapter Needed"
           },
           "level": {
             "anyOf": [
@@ -4040,10 +3996,18 @@
             ],
             "title": "Level"
           },
-          "unlock_time": {
-            "pattern": "^([01]\\d|2[0-3]):[0-5]\\d$",
-            "title": "Unlock Time",
-            "type": "string"
+          "max_new_per_day": {
+            "anyOf": [
+              {
+                "maximum": 12.0,
+                "minimum": 1.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Max New Per Day"
           },
           "windows": {
             "anyOf": [
@@ -4061,21 +4025,14 @@
             "title": "Windows"
           }
         },
-        "required": [
-          "days",
-          "unlock_time"
-        ],
         "title": "SettingsIn",
         "type": "object"
       },
       "SettingsOut": {
         "properties": {
-          "days": {
-            "items": {
-              "type": "integer"
-            },
-            "title": "Days",
-            "type": "array"
+          "chapter_needed": {
+            "title": "Chapter Needed",
+            "type": "integer"
           },
           "level": {
             "enum": [
@@ -4086,9 +4043,16 @@
             "title": "Level",
             "type": "string"
           },
-          "unlock_time": {
-            "title": "Unlock Time",
-            "type": "string"
+          "max_new_per_day": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Max New Per Day"
           },
           "windows": {
             "items": {
@@ -4099,10 +4063,10 @@
           }
         },
         "required": [
-          "days",
-          "unlock_time",
           "level",
-          "windows"
+          "windows",
+          "chapter_needed",
+          "max_new_per_day"
         ],
         "title": "SettingsOut",
         "type": "object"
@@ -5685,7 +5649,7 @@
     },
     "/api/admin/activities": {
       "get": {
-        "description": "Settings, days off, the queue with its dates, worlds, the last 14 days, examples.",
+        "description": "Settings, the queue with its progress, worlds, the last 14 days, examples.",
         "operationId": "get_activities_api_admin_activities_get",
         "responses": {
           "200": {
@@ -5700,82 +5664,6 @@
           }
         },
         "summary": "Get Activities",
-        "tags": [
-          "admin: activities"
-        ]
-      }
-    },
-    "/api/admin/activities/days-off": {
-      "post": {
-        "operationId": "add_days_off_api_admin_activities_days_off_post",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/DayOffIn"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "201": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/DayOffOut"
-                }
-              }
-            },
-            "description": "Successful Response"
-          },
-          "422": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            },
-            "description": "Validation Error"
-          }
-        },
-        "summary": "Add Days Off",
-        "tags": [
-          "admin: activities"
-        ]
-      }
-    },
-    "/api/admin/activities/days-off/{day_off_id}": {
-      "delete": {
-        "operationId": "delete_days_off_api_admin_activities_days_off__day_off_id__delete",
-        "parameters": [
-          {
-            "in": "path",
-            "name": "day_off_id",
-            "required": true,
-            "schema": {
-              "title": "Day Off Id",
-              "type": "integer"
-            }
-          }
-        ],
-        "responses": {
-          "204": {
-            "description": "Successful Response"
-          },
-          "422": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            },
-            "description": "Validation Error"
-          }
-        },
-        "summary": "Delete Days Off",
         "tags": [
           "admin: activities"
         ]
@@ -5967,7 +5855,7 @@
     },
     "/api/admin/activities/settings": {
       "put": {
-        "description": "Activity days (Mon=0), the unlock time, the child's level (§14.1) and the opening times\n(§14.4a); level and windows omitted = kept. Dates of the current and later worlds are\nrecomputed from the queue start (§13.2 rule 6).",
+        "description": "The child's level (§14.1), the opening times (§14.4a), the ideas per chapter and the\ndaily limit of new chapters (§13.2); omitted = kept, `max_new_per_day: null` = no limit.\nChapters already open stay open; a change applies from the next idea on.",
         "operationId": "put_settings_api_admin_activities_settings_put",
         "requestBody": {
           "content": {

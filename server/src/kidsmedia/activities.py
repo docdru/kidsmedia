@@ -1,7 +1,7 @@
-"""Activities (SPEC §13, §14, §15): the schedule over activity days, and the story-pack format.
+"""Activities (SPEC §13, §14, §15): how the story moves on, and the story-pack format.
 
-Pure: no I/O and no clock. The routes load settings and content, call these functions
-with the local time, and persist the housekeeping result (§13.2 rule 5).
+Pure: no I/O and no clock. The routes load settings, content and done ideas, call these
+functions with the local time, and persist the housekeeping result (§13.2).
 """
 
 from collections.abc import Iterable, Mapping, Sequence
@@ -20,9 +20,6 @@ KINDS: tuple[Kind, ...] = ("draw", "calc", "write", "read")
 LANGS: tuple[Lang, ...] = ("de", "en", "el")
 LEVELS: tuple[Level, ...] = ("easier", "normal", "harder")
 DEFAULT_LEVEL: Level = "normal"
-HORIZON_DAYS = 400  # chapters further out than this get no date
-DEFAULT_DAYS = frozenset(range(6))  # Mon-Sat
-DEFAULT_UNLOCK = time(7, 0)
 
 
 # ---- story language (§14.7) ---------------------------------------------------------------
@@ -64,155 +61,153 @@ def merge_langs(
     return {str(i): merged[i] for i in queue if i in merged}
 
 
-# ---- schedule (§13.2) ---------------------------------------------------------------------
+# ---- progress (§13.2) ---------------------------------------------------------------------
+
+DEFAULT_NEEDED = 2  # ideas done in a chapter to open the next one
+MAX_NEEDED = 4  # a chapter has at most four tasks
+MAX_PER_DAY = 12  # highest "new chapters per day" the admin can set
+OPENS_KEEP_DAYS = 8  # how long the per-day counts are kept
 
 
 @dataclass(frozen=True)
-class DayOff:
-    start: date
-    end: date  # inclusive
-
-    def covers(self, day: date) -> bool:
-        return self.start <= day <= self.end
-
-
-@dataclass(frozen=True)
-class WorldSpan:
-    """One queued world and the dates of its chapters (None = past the horizon)."""
+class PlannedWorld:
+    """A queued world: its id and the number of tasks in each chapter, in order."""
 
     world_id: int
-    dates: tuple[date | None, ...]
+    tasks: tuple[int, ...]
 
-    @property
-    def first(self) -> date | None:
-        return self.dates[0] if self.dates else None
 
-    @property
-    def last(self) -> date | None:
-        return self.dates[-1] if self.dates else None
+@dataclass(frozen=True)
+class Progress:
+    """How far the child is (stored in `activity_settings.progress`): the current world, the
+    day each of its open chapters opened (chapter 1 first), and how many chapters opened by
+    finishing, per day (for the daily limit)."""
+
+    world_id: int | None = None
+    opened: tuple[date, ...] = ()
+    opens: Mapping[date, int] = field(default_factory=dict)
+
+    def to_json(self) -> dict[str, Any]:
+        return {
+            "world": self.world_id,
+            "opened": [d.isoformat() for d in self.opened],
+            "opens": {d.isoformat(): n for d, n in sorted(self.opens.items())},
+        }
+
+    @classmethod
+    def from_json(cls, value: object) -> "Progress":
+        """Anything unreadable counts as no progress (a fresh start)."""
+        if not isinstance(value, Mapping):
+            return cls()
+        try:
+            world = value.get("world")
+            opened = tuple(date.fromisoformat(d) for d in value.get("opened") or [])
+            opens = {date.fromisoformat(d): int(n) for d, n in (value.get("opens") or {}).items()}
+        except (TypeError, ValueError, AttributeError):
+            return cls()
+        return cls(int(world) if isinstance(world, int) else None, opened, opens)
 
 
 @dataclass(frozen=True)
 class Chapter:
     position: int  # 1-based
-    date: date | None
+    opened_on: date | None  # None = not open yet
     unlocked: bool
+    needed: int  # ideas to do here to open the next chapter (or the next world)
 
 
 @dataclass(frozen=True)
 class Schedule:
     queue: tuple[int, ...]  # after housekeeping
-    queue_start: date | None  # after housekeeping
-    spans: tuple[WorldSpan, ...]  # one per queue entry, in order
+    progress: Progress  # after housekeeping, to store
     current: int | None  # world id shown on the tablet
     chapters: tuple[Chapter, ...] = field(default=())  # of the current world
-    next_unlock_at: datetime | None = None
-    today_is_activity_day: bool = False
+    next_unlock_at: datetime | None = None  # held back by the daily limit until then
+    story_done: bool = False  # the last chapter is done and nothing is queued after it
+    opened_today: int = 0  # chapters opened by finishing today (the daily limit counts these)
 
 
-def is_activity_day(day: date, days: frozenset[int], days_off: Sequence[DayOff]) -> bool:
-    return day.weekday() in days and not any(o.covers(day) for o in days_off)
+def needed_for(tasks: int, needed: int) -> int:
+    """Ideas to do in a chapter with `tasks` tasks: the setting, at most all of its tasks."""
+    return max(1, min(needed, tasks))
 
 
-def activity_days(
-    start: date, count: int, days: frozenset[int], days_off: Sequence[DayOff]
-) -> list[date]:
-    """The first `count` activity days from `start` (inclusive), within the horizon."""
-    out: list[date] = []
-    if not days:
-        return out
-    day = start
-    end = start + timedelta(days=HORIZON_DAYS)
-    while len(out) < count and day < end:
-        if is_activity_day(day, days, days_off):
-            out.append(day)
-        day += timedelta(days=1)
-    return out
-
-
-def lay_out(
-    queue: Sequence[tuple[int, int]],
-    days: frozenset[int],
-    days_off: Sequence[DayOff],
-    queue_start: date | None,
-) -> list[WorldSpan]:
-    """Chapters over the activity days in queue order (rule 2). queue = (world id, chapters)."""
-    total = sum(n for _, n in queue)
-    dates: list[date | None] = []
-    if queue_start is not None:
-        dates.extend(activity_days(queue_start, total, days, days_off))
-    dates.extend([None] * (total - len(dates)))
-    spans: list[WorldSpan] = []
-    i = 0
-    for world_id, n in queue:
-        spans.append(WorldSpan(world_id, tuple(dates[i : i + n])))
-        i += n
-    return spans
+def finished_on(days: Sequence[date], need: int) -> date | None:
+    """The day a chapter got its `need`-th done idea (`days`: one per done kind), or None."""
+    if len(days) < need:
+        return None
+    return sorted(days)[need - 1]
 
 
 def schedule(
-    queue: Sequence[tuple[int, int]],
-    days: frozenset[int],
-    days_off: Sequence[DayOff],
-    queue_start: date | None,
+    queue: Sequence[PlannedWorld],
+    progress: Progress,
+    done: Mapping[int, Mapping[int, Sequence[date]]],
+    needed: int,
+    per_day: int | None,
     now: datetime,
-    unlock_time: time = DEFAULT_UNLOCK,
 ) -> Schedule:
-    """Rules 1-5 and 8 of §13.2. `now` is the local, timezone-aware time."""
+    """§13.2: the story moves on by doing ideas. `done`: world id -> chapter -> the day of
+    each done kind. `per_day`: most chapters opened by finishing per day (None = no limit).
+    `now` is the local, timezone-aware time.
+
+    Chapter 1 of the first queued world opens as soon as it is first in the queue. A chapter
+    with `needed` ideas done opens the next one on the day of that last idea (or later, when
+    the daily limit is reached that day); finishing the last chapter starts the next queued
+    world the same way, and housekeeping drops the finished one. Open chapters never close
+    again, even when a done idea is opened again (§17.3)."""
     today = now.date()
-    today_active = is_activity_day(today, days, days_off)
-    spans = lay_out(queue, days, days_off, queue_start)
-    current_index: int | None = None
-    for i, span in enumerate(spans):
-        if span.first is not None and span.first <= today:
-            current_index = i
-    queue_ids = tuple(world_id for world_id, _ in queue)
-    if current_index is None:
-        return Schedule(queue_ids, queue_start, tuple(spans), None, (), None, today_active)
-    # Rule 5: housekeeping drops the worlds before the current one.
-    spans = spans[current_index:]
-    queue_ids = queue_ids[current_index:]
-    queue_start = spans[0].first
-    span = spans[0]
-    chapters: list[Chapter] = []
-    next_unlock: datetime | None = None
-    for pos, day in enumerate(span.dates, start=1):
-        unlocked = day is not None and (day < today or (day == today and now.time() >= unlock_time))
-        chapters.append(Chapter(pos, day, unlocked))
-        if not unlocked and day is not None and next_unlock is None:
-            next_unlock = datetime.combine(day, unlock_time, tzinfo=now.tzinfo)
-    return Schedule(
-        queue_ids,
-        queue_start,
-        tuple(spans),
-        span.world_id,
-        tuple(chapters),
-        next_unlock,
-        today_active,
+    if not queue:
+        return Schedule((), Progress(), None)
+    worlds = list(queue)
+    opens = {d: n for d, n in progress.opens.items() if d > today - timedelta(OPENS_KEEP_DAYS)}
+    if progress.world_id == worlds[0].world_id and progress.opened:
+        opened = list(progress.opened[: len(worlds[0].tasks)])
+    else:  # a new first world (rule 3): it starts now, and its chapter 1 doesn't count
+        opened = [today]
+    pending: date | None = None
+    story_done = False
+    while True:
+        world = worlds[0]
+        n = len(opened)
+        need = needed_for(world.tasks[n - 1], needed)
+        finished = finished_on(done.get(world.world_id, {}).get(n, ()), need)
+        if finished is None:
+            break
+        day = max(finished, opened[-1])
+        while per_day is not None and opens.get(day, 0) >= per_day:
+            day += timedelta(days=1)
+        if n == len(world.tasks) and len(worlds) == 1:
+            story_done = True
+            break
+        if day > today:
+            pending = day
+            break
+        if n == len(world.tasks):
+            worlds.pop(0)
+            opened = [day]
+        else:
+            opened.append(day)
+        opens[day] = opens.get(day, 0) + 1
+    world = worlds[0]
+    chapters = tuple(
+        Chapter(
+            pos,
+            opened[pos - 1] if pos <= len(opened) else None,
+            pos <= len(opened) and opened[pos - 1] <= today,
+            needed_for(tasks, needed),
+        )
+        for pos, tasks in enumerate(world.tasks, start=1)
     )
-
-
-def queue_start_after_change(
-    old_queue: Sequence[int], new_queue: Sequence[int], old_start: date | None, today: date
-) -> date | None:
-    """Rule 7: a new first world starts fresh today; reordering later entries keeps the start.
-
-    `old_queue` is the queue after housekeeping, so its head is the current (or the
-    upcoming) world.
-    """
-    if not new_queue:
-        return None
-    if old_start is not None and old_queue and old_queue[0] == new_queue[0]:
-        return old_start
-    return today
-
-
-def parse_days(text: str) -> frozenset[int]:
-    return frozenset(int(c) for c in text if c.isdigit() and int(c) < 7)
-
-
-def format_days(days: Iterable[int]) -> str:
-    return "".join(str(d) for d in sorted(set(days)))
+    return Schedule(
+        tuple(w.world_id for w in worlds),
+        Progress(world.world_id, tuple(opened), opens),
+        world.world_id,
+        chapters,
+        datetime.combine(pending, time(0, 0), tzinfo=now.tzinfo) if pending else None,
+        story_done,
+        opens.get(today, 0),
+    )
 
 
 # ---- opening times (§14.4a) ---------------------------------------------------------------

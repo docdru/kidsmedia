@@ -5,44 +5,28 @@ import app.kidsmedia.data.DoneRequest
 import app.kidsmedia.data.StoryChapter
 import app.kidsmedia.data.StoryWorld
 import app.kidsmedia.data.ThumbRef
-import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.LocalDateTime
-import java.time.LocalTime
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
-import java.time.temporal.TemporalAdjusters
 
 /** The home tile's badge for the current story world (SPEC §13.7). */
 sealed interface ActivityBadge {
-    /** Today's chapter is ready, and it's the only one open. */
+    /** The chapter to do now, nothing of it done yet. */
     data class Ready(val position: Int) : ActivityBadge
 
-    data class SeveralReady(val count: Int) : ActivityBadge
+    /** [left] more ideas in chapter [position] open the next chapter, or finish the story when it is the last. */
+    data class MoreToGo(val position: Int, val left: Int, val last: Boolean) : ActivityBadge
 
-    /** One chapter open, from an earlier day. */
-    data object CatchUp : ActivityBadge
-
-    data object DoneToday : ActivityBadge
-
-    /** Nothing open; the next chapter unlocks on [date] (today: later, at the unlock time). */
-    data class NextOn(val date: LocalDate) : ActivityBadge
+    /** The next chapter waits for tomorrow (the daily limit, SPEC §13.2). */
+    data object Tomorrow : ActivityBadge
 
     /** Every chapter of the world is done. */
     data object AllDone : ActivityBadge
 
-    /** Nothing open and no date known for the next chapter. */
+    /** Nothing to show yet. */
     data object Waiting : ActivityBadge
-}
-
-/** What a chapter button shows above its number: its weekday, or "next week". */
-sealed interface ChapterDay {
-    data class Weekday(val day: DayOfWeek) : ChapterDay
-
-    data object NextWeek : ChapterDay
-
-    data object Unknown : ChapterDay
 }
 
 /**
@@ -85,21 +69,17 @@ object ActivityLogic {
     fun storyLanguage(world: StoryWorld, appLanguage: String): String =
         world.lang?.takeIf { it in LANGUAGES } ?: appLanguage
 
-    fun parseTime(value: String): LocalTime = runCatching { LocalTime.parse(value) }.getOrDefault(LocalTime.of(7, 0))
+    /** Ideas to do in [chapter] to open the next one (SPEC §13.2): the server's number, at most all its tasks. */
+    fun needed(chapter: StoryChapter): Int = chapter.needed.coerceAtMost(chapter.tasks.size).coerceAtLeast(1)
 
-    fun dateOf(chapter: StoryChapter): LocalDate? =
-        chapter.date?.let { runCatching { LocalDate.parse(it) }.getOrNull() }
+    /** Enough ideas of [chapter] are done to open the next chapter (or finish the story). */
+    fun finished(chapter: StoryChapter): Boolean = chapter.doneKinds.size >= needed(chapter)
 
-    /**
-     * Is [chapter] unlocked at [now] (SPEC §13.2/4)? The server's answer counts; offline,
-     * the date and unlock time decide, so a chapter still opens on its morning.
-     */
-    fun unlocked(chapter: StoryChapter, now: LocalDateTime, unlockTime: String): Boolean {
-        if (chapter.unlocked) return true
-        val date = dateOf(chapter) ?: return false
-        val today = now.toLocalDate()
-        return date.isBefore(today) || (date == today && !now.toLocalTime().isBefore(parseTime(unlockTime)))
-    }
+    /** Ideas still to do in [chapter] to open the next one. */
+    fun left(chapter: StoryChapter): Int = (needed(chapter) - chapter.doneKinds.size).coerceAtLeast(0)
+
+    /** The local date of [serverTime] (`YYYY-MM-DDTHH:MM…`), or null. */
+    fun serverDate(serverTime: String): LocalDate? = runCatching { LocalDate.parse(serverTime.take(10)) }.getOrNull()
 
     /**
      * `done_at` of a tap at [now] (the trusted clock in the server's time zone): ISO-8601 with
@@ -119,46 +99,57 @@ object ActivityLogic {
     private fun DoneRequest.sameTask(other: DoneRequest) =
         worldId == other.worldId && position == other.position && kind == other.kind
 
-    /** Unlocks recomputed for [now], and the pending taps shown as done. */
+    /**
+     * The pending taps shown as done, and the chapters they open (SPEC §13.2), so the story moves on
+     * offline too: a finished chapter opens the next one, unless the daily limit is reached. The day's
+     * count starts from the server's [Activities.openedToday] on the server's day, from 0 on a later
+     * day. The next world needs the server: it only starts on the next refresh.
+     */
     fun applyLocal(data: Activities, pending: List<DoneRequest>, now: LocalDateTime): Activities {
         val world = data.world ?: return data
-        val chapters = world.chapters.map { c ->
+        val withTaps = world.chapters.map { c ->
             val extra = pending.filter { it.worldId == world.id && it.position == c.position }.map { it.kind }
-            c.copy(
-                unlocked = unlocked(c, now, data.unlockTime),
-                doneKinds = (c.doneKinds + extra).distinct()
-            )
+            c.copy(doneKinds = (c.doneKinds + extra).distinct())
+        }
+        var openedToday = if (serverDate(data.serverTime) == now.toLocalDate()) data.openedToday else 0
+        val chapters = withTaps.toMutableList()
+        for (i in 0 until chapters.size - 1) {
+            val c = chapters[i]
+            val next = chapters[i + 1]
+            if (!c.unlocked || !finished(c)) break
+            if (next.unlocked) continue
+            val limit = data.maxNewPerDay
+            if (limit != null && openedToday >= limit) break
+            chapters[i + 1] = next.copy(unlocked = true)
+            openedToday++
         }
         return data.copy(world = world.copy(chapters = chapters))
     }
 
-    fun badge(world: StoryWorld, today: LocalDate): ActivityBadge {
+    /** The chapter to do now: the first open one that isn't finished, else the last open one. */
+    fun current(world: StoryWorld): StoryChapter? =
+        world.chapters.firstOrNull { it.unlocked && !finished(it) } ?: world.chapters.lastOrNull { it.unlocked }
+
+    fun badge(world: StoryWorld): ActivityBadge {
         val chapters = world.chapters
-        if (chapters.isNotEmpty() && chapters.all { it.doneKinds.isNotEmpty() }) return ActivityBadge.AllDone
-        val open = chapters.filter { it.unlocked && it.doneKinds.isEmpty() }
-        val todays = chapters.firstOrNull { dateOf(it) == today }
+        if (chapters.isNotEmpty() && chapters.all { it.unlocked && finished(it) }) return ActivityBadge.AllDone
+        val current = current(world) ?: return ActivityBadge.Waiting
         return when {
-            open.size > 1 -> ActivityBadge.SeveralReady(open.size)
-            open.size == 1 && open[0] == todays -> ActivityBadge.Ready(open[0].position)
-            open.size == 1 -> ActivityBadge.CatchUp
-            todays != null && todays.unlocked -> ActivityBadge.DoneToday
-            else -> chapters.firstOrNull { !it.unlocked }?.let(::dateOf)?.let { ActivityBadge.NextOn(it) }
-                ?: ActivityBadge.Waiting
+            finished(current) -> ActivityBadge.Tomorrow // open and finished, the next one locked
+            current.doneKinds.isEmpty() -> ActivityBadge.Ready(current.position)
+            else -> ActivityBadge.MoreToGo(current.position, left(current), current == chapters.last())
         }
     }
 
     fun view(data: Activities, pending: List<DoneRequest>, now: LocalDateTime): ActivitiesView {
         val applied = applyLocal(data, pending, now)
         val today = now.toLocalDate()
-        val badge = applied.world?.let { badge(it, today) } ?: ActivityBadge.Waiting
+        val badge = applied.world?.let { badge(it) } ?: ActivityBadge.Waiting
         return ActivitiesView(applied, today, badge, OpenLogic.openState(data.windows, now))
     }
 
-    /** The chapter to show when the story opens: the first open one, else the last unlocked. */
-    fun firstOpen(world: StoryWorld): Int {
-        world.chapters.firstOrNull { it.unlocked && it.doneKinds.isEmpty() }?.let { return it.position }
-        return world.chapters.lastOrNull { it.unlocked }?.position ?: world.chapters.firstOrNull()?.position ?: 1
-    }
+    /** The chapter to show when the story opens: the one to do now (see [current]). */
+    fun firstOpen(world: StoryWorld): Int = current(world)?.position ?: world.chapters.firstOrNull()?.position ?: 1
 
     /**
      * The picture shown for [chapter] (SPEC §13.5): its own, else the world cover.
@@ -178,11 +169,4 @@ object ActivityLogic {
      */
     fun prefetchPictures(world: StoryWorld): List<ThumbRef> =
         (listOfNotNull(world.cover) + ahead(world).mapNotNull { picture(world, it) }).distinct()
-
-    /** Label above a chapter button: its weekday this week, else "next week" (prototype). */
-    fun chapterDay(chapter: StoryChapter, today: LocalDate): ChapterDay {
-        val date = dateOf(chapter) ?: return ChapterDay.Unknown
-        val endOfWeek = today.with(TemporalAdjusters.nextOrSame(DayOfWeek.SUNDAY))
-        return if (date.isAfter(endOfWeek)) ChapterDay.NextWeek else ChapterDay.Weekday(date.dayOfWeek)
-    }
 }

@@ -1,4 +1,6 @@
+import json
 import re
+from datetime import date, timedelta
 from pathlib import Path
 
 import pytest
@@ -192,3 +194,60 @@ def test_begin_immediate_inside_a_writing_transaction(tmp_path: Path) -> None:
         begin_immediate(conn)  # no "cannot start a transaction within a transaction"
         conn.rollback()
         assert conn.execute(text("SELECT count(*) FROM profiles")).scalar_one() == 0
+
+
+def test_upgrade_to_0018_keeps_the_open_chapters(tmp_path: Path) -> None:
+    """§13.2 v0.22: the date schedule is worked out once more as of today. Worlds before the
+    current one leave the queue, and the chapters open by date stay open."""
+    engine = make_engine(tmp_path / "km.db")
+    _upgrade_to(engine, "0017")
+    today = date.today()
+    every_day = "0123456"
+    start = today - timedelta(days=4)
+    # Every day from `start`: world 1 (2 chapters) on start and start+1, a day off on start+2,
+    # world 2 from start+3, so its chapters 1 and 2 (today) are open.
+    content = '{"chapters": [{}, {}, {}, {}]}'
+    with engine.begin() as conn:
+        conn.execute(
+            text("INSERT INTO profiles (id, name, created_at) VALUES (1, 'a', :at)"),
+            {"at": "2026-11-01"},
+        )
+        for world_id, chapters in ((1, '{"chapters": [{}, {}]}'), (2, content), (3, content)):
+            conn.execute(
+                text(
+                    "INSERT INTO worlds (id, slug, age_band, color, content, created_at,"
+                    " updated_at) VALUES (:id, :slug, '6-7', '#000000', :c, :at, :at)"
+                ),
+                {"id": world_id, "slug": f"w{world_id}", "c": chapters, "at": "2026-11-01"},
+            )
+        conn.execute(
+            text(
+                "INSERT INTO activity_settings (profile_id, days, unlock_time, queue, queue_start)"
+                " VALUES (1, :days, '07:00', '[1, 2, 3]', :start)"
+            ),
+            {"days": every_day, "start": start.isoformat()},
+        )
+        # A day off pushes world 2's chapters by one day.
+        conn.execute(
+            text(
+                "INSERT INTO activity_days_off (profile_id, from_day, to_day, created_at)"
+                " VALUES (1, :d, :d, '2026-11-01')"
+            ),
+            {"d": (start + timedelta(days=2)).isoformat()},
+        )
+    migrate(engine)
+    with engine.connect() as conn:
+        row = conn.execute(
+            text("SELECT queue, progress, chapter_needed, max_new_per_day FROM activity_settings")
+        ).one()
+        columns = {c["name"] for c in inspect(engine).get_columns("activity_settings")}
+        assert "activity_days_off" not in inspect(engine).get_table_names()
+
+    assert json.loads(row.queue) == [2, 3]
+    assert json.loads(row.progress) == {
+        "world": 2,
+        "opened": [(start + timedelta(days=3)).isoformat(), today.isoformat()],
+        "opens": {},
+    }
+    assert (row.chapter_needed, row.max_new_per_day) == (2, None)
+    assert not {"days", "unlock_time", "queue_start"} & columns

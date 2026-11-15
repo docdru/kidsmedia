@@ -91,30 +91,46 @@
     <string name="update_failed">The update didn\'t work.</string>
     <string name="update_failed_checksum">The download was damaged. Please try again.</string>
     <!-- Activities (SPEC §13) -->
-    <string name="activity_this_week">THIS WEEK</string>
     <string name="activity_badge_ready">Chapter %1$d is ready</string>
-    <string name="activity_badge_several">%1$d chapters ready</string>
-    <string name="activity_badge_catch_up">1 chapter to catch up</string>
-    <string name="activity_badge_done_today">Done for today</string>
-    <string name="activity_badge_next_on">Next chapter on %1$s</string>
-    <string name="activity_badge_next_today">Next chapter at %1$s</string>
     <string name="activity_badge_all_done">All chapters done!</string>
     <string name="activity_badge_waiting">Coming soon</string>
+    <string name="activity_tile_label">YOUR STORY</string>
+    <string name="activity_badge_tomorrow">Next chapter tomorrow</string>
+    <plurals name="activity_badge_more">
+        <item quantity="one">%1$d more idea opens chapter %2$d</item>
+        <item quantity="other">%1$d more ideas open chapter %2$d</item>
+    </plurals>
+    <plurals name="activity_badge_more_last">
+        <item quantity="one">%1$d more idea finishes the story</item>
+        <item quantity="other">%1$d more ideas finish the story</item>
+    </plurals>
     <string name="ideas_open_at">Ideas open at %1$s</string>
     <string name="ideas_open_on">Ideas open on %1$s at %2$s</string>
     <string name="ideas_closed">Ideas are resting</string>
     <string name="reason_ideas_resting">Ideas are resting until %1$s</string>
     <string name="reason_ideas_resting_on">Ideas are resting until %1$s at %2$s</string>
     <string name="reason_ideas_resting_now">Ideas are resting for now</string>
-    <string name="activity_chapter_label">CHAPTER %1$d · %2$s</string>
+    <string name="activity_chapter_label">CHAPTER %1$d</string>
     <string name="activity_chapter_short">Chapter %1$d · %2$s</string>
     <string name="activity_chapter_a11y">Chapter %1$d, %2$s</string>
     <string name="activity_state_done">done</string>
     <string name="activity_state_locked">locked</string>
-    <string name="activity_next_week">Next wk</string>
+    <string name="activity_state_progress">%1$d of %2$d ideas done</string>
+    <string name="activity_locked_tomorrow">This chapter opens tomorrow</string>
+    <plurals name="activity_locked_needs">
+        <item quantity="one">Do %1$d more idea in chapter %2$d to open this one</item>
+        <item quantity="other">Do %1$d more ideas in chapter %2$d to open this one</item>
+    </plurals>
+    <plurals name="activity_choose_more">
+        <item quantity="one">Great! %1$d more idea opens the next chapter.</item>
+        <item quantity="other">Great! %1$d more ideas open the next chapter.</item>
+    </plurals>
+    <plurals name="activity_choose_more_last">
+        <item quantity="one">Great! %1$d more idea finishes the story.</item>
+        <item quantity="other">Great! %1$d more ideas finish the story.</item>
+    </plurals>
     <string name="activity_choose">What do you want to do?</string>
     <string name="activity_choose_extra">Chapter done! Want to do an extra?</string>
-    <string name="activity_locked_on">This chapter opens on %1$s</string>
     <string name="activity_locked_later">This chapter opens soon</string>
     <string name="activity_kind_draw">Draw</string>
     <string name="activity_kind_calc">Calculate</string>
@@ -127,6 +143,7 @@
     <string name="activity_stop">Stop</string>
     <string name="activity_done_button">I\'m done!</string>
     <string name="activity_done_title">Chapter %1$d done!</string>
+    <string name="activity_done_great">Well done!</string>
     <string name="activity_back_to_story">Back to the story</string>
     <!-- Reading (SPEC §14.2) -->
     <string name="read_done_reading">I\'ve read it</string>

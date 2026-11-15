@@ -3,7 +3,7 @@ admin too."""
 
 from collections.abc import Mapping
 from dataclasses import dataclass
-from datetime import date, datetime, time, timedelta
+from datetime import date, datetime, timedelta
 from typing import Any
 
 from fastapi import APIRouter, Depends, Query, Request
@@ -17,31 +17,29 @@ from kidsmedia.activities import (
     DEFAULT_LEVEL,
     KINDS,
     ChapterTexts,
-    DayOff,
     Kind,
     Lang,
     Level,
     PackTask,
     Picture,
+    PlannedWorld,
+    Progress,
     Schedule,
     TaskTexts,
     Window,
     WorldContent,
     WorldTexts,
     done_allowed,
-    format_days,
     load_content,
     load_langs,
     load_windows,
     open_state,
-    parse_days,
     schedule,
     story_lang,
 )
 from kidsmedia.clock import Clock, to_db
 from kidsmedia.config import Settings
 from kidsmedia.db import (
-    activity_days_off,
     activity_done,
     activity_photos,
     activity_settings,
@@ -76,25 +74,11 @@ def ensure_settings(conn: Connection, profile_id: int) -> Row[Any]:
         select(activity_settings).where(activity_settings.c.profile_id == profile_id)
     ).first()
     if row is None:
-        conn.execute(
-            insert(activity_settings).values(
-                profile_id=profile_id, days=format_days(range(6)), unlock_time="07:00", queue=[]
-            )
-        )
+        conn.execute(insert(activity_settings).values(profile_id=profile_id, queue=[], progress={}))
         row = conn.execute(
             select(activity_settings).where(activity_settings.c.profile_id == profile_id)
         ).one()
     return row
-
-
-def load_days_off(conn: Connection, profile_id: int) -> list[Row[Any]]:
-    return list(
-        conn.execute(
-            select(activity_days_off)
-            .where(activity_days_off.c.profile_id == profile_id)
-            .order_by(activity_days_off.c.from_day, activity_days_off.c.id)
-        ).all()
-    )
 
 
 def world_rows(conn: Connection) -> dict[int, Row[Any]]:
@@ -130,36 +114,46 @@ def windows_of(row: Row[Any]) -> list[Window]:
     return load_windows(row.windows)
 
 
-def parse_time(text: str) -> time:
-    hh, _, mm = text.partition(":")
-    return time(int(hh), int(mm or 0))
+def done_days(
+    conn: Connection, profile_id: int, world_ids: list[int]
+) -> dict[int, dict[int, list[date]]]:
+    """world id -> chapter -> the day of each done idea (one per kind), for the progress."""
+    out: dict[int, dict[int, list[date]]] = {}
+    if not world_ids:
+        return out
+    for r in conn.execute(
+        select(activity_done.c.world_id, activity_done.c.position, activity_done.c.day).where(
+            activity_done.c.profile_id == profile_id, activity_done.c.world_id.in_(world_ids)
+        )
+    ).all():
+        out.setdefault(r.world_id, {}).setdefault(r.position, []).append(date.fromisoformat(r.day))
+    return out
 
 
 def compute(
     conn: Connection, profile_id: int, now: datetime, persist: bool = True
 ) -> tuple[Schedule, dict[int, Row[Any]]]:
-    """The schedule for `now` (local time). Persists housekeeping (§13.2 rule 5) and drops
-    queue entries whose world no longer exists; with `persist=False` (a schedule at a past
-    moment, for a queued done tap) nothing is written."""
+    """Where the story is at `now` (local time, §13.2). Persists the progress and the
+    housekeeping (finished worlds leave the queue) and drops queue entries whose world no
+    longer exists; with `persist=False` (judging a queued done tap at a past moment) nothing
+    is written."""
     st = ensure_settings(conn, profile_id)
     rows = world_rows(conn)
     stored_queue = [int(i) for i in st.queue]
-    queue = [(i, len(content_of(rows[i]).chapters)) for i in stored_queue if i in rows]
-    start = date.fromisoformat(st.queue_start) if st.queue_start else None
-    offs = [
-        DayOff(date.fromisoformat(o.from_day), date.fromisoformat(o.to_day))
-        for o in load_days_off(conn, profile_id)
+    queue = [
+        PlannedWorld(i, tuple(len(c.tasks) for c in content_of(rows[i]).chapters))
+        for i in stored_queue
+        if i in rows
     ]
-    sched = schedule(queue, parse_days(st.days), offs, start, now, parse_time(st.unlock_time))
-    new_start = sched.queue_start if sched.queue else None
-    if persist and (list(sched.queue) != stored_queue or new_start != start):
+    stored = Progress.from_json(st.progress)
+    done = done_days(conn, profile_id, [w.world_id for w in queue])
+    sched = schedule(queue, stored, done, st.chapter_needed, st.max_new_per_day, now)
+    progress = sched.progress.to_json()
+    if persist and (list(sched.queue) != stored_queue or progress != st.progress):
         conn.execute(
             update(activity_settings)
             .where(activity_settings.c.profile_id == profile_id)
-            .values(
-                queue=list(sched.queue),
-                queue_start=new_start.isoformat() if new_start else None,
-            )
+            .values(queue=list(sched.queue), progress=progress)
         )
     return sched, rows
 
@@ -233,9 +227,10 @@ class DeviceTask(BaseModel):
 
 class DeviceChapter(BaseModel):
     position: int
-    date: str | None  # ISO date; None = past the horizon
+    date: str | None  # ISO date the chapter opened; None = not open yet
     unlocked: bool
     done_kinds: list[Kind]
+    needed: int  # ideas to do here to open the next chapter (§13.2)
     image: ThumbRef | None
     texts: dict[Lang, DeviceChapterTexts]
     tasks: list[DeviceTask]
@@ -254,10 +249,17 @@ class DeviceWorld(BaseModel):
 
 class ActivitiesOut(BaseModel):
     server_time: datetime
-    unlock_time: str
+    # Kept for apps before v0.22, which unlocked chapters by date: "00:00" and always true.
+    unlock_time: str = "00:00"
     level: Level
-    today_is_activity_day: bool
+    today_is_activity_day: bool = True
+    # The next chapter is held back by the daily limit until then (§13.2); None otherwise.
     next_unlock_at: datetime | None
+    # For the tablet's offline unlock (§13.3): the daily limit (None = none) and how many
+    # chapters opened by finishing today.
+    max_new_per_day: int | None
+    opened_today: int
+    story_done: bool  # the last chapter is done and no story is queued after it
     # Opening times (§14.4a): the tablet re-evaluates `windows` with its trusted clock.
     windows: list[Window]
     open_now: bool
@@ -370,9 +372,10 @@ def activities_out(
         chapters = [
             DeviceChapter(
                 position=slot.position,
-                date=slot.date.isoformat() if slot.date else None,
+                date=slot.opened_on.isoformat() if slot.unlocked and slot.opened_on else None,
                 unlocked=slot.unlocked,
                 done_kinds=done.get(slot.position, []),
+                needed=slot.needed,
                 image=picture_ref(picture),
                 texts=device_chapter_texts(chapter.texts, audio),
                 tasks=[device_task(task, level, audio) for task in chapter.tasks],
@@ -393,10 +396,11 @@ def activities_out(
         )
     return ActivitiesOut(
         server_time=now,
-        unlock_time=st.unlock_time,
         level=level,
-        today_is_activity_day=sched.today_is_activity_day,
         next_unlock_at=sched.next_unlock_at,
+        max_new_per_day=st.max_new_per_day,
+        opened_today=sched.opened_today,
+        story_done=sched.story_done,
         windows=windows,
         open_now=open_now,
         opens_at=opens_at,

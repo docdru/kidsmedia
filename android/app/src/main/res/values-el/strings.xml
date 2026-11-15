@@ -85,30 +85,46 @@
     <string name="update_failed">Η ενημέρωση δεν πέτυχε.</string>
     <string name="update_failed_checksum">Η λήψη ήταν κατεστραμμένη. Δοκίμασε ξανά.</string>
     <!-- Δραστηριότητες (SPEC §13) -->
-    <string name="activity_this_week">ΑΥΤΗ ΤΗΝ ΕΒΔΟΜΑΔΑ</string>
     <string name="activity_badge_ready">Το κεφάλαιο %1$d είναι έτοιμο</string>
-    <string name="activity_badge_several">%1$d κεφάλαια έτοιμα</string>
-    <string name="activity_badge_catch_up">1 κεφάλαιο σε περιμένει</string>
-    <string name="activity_badge_done_today">Τελείωσες για σήμερα</string>
-    <string name="activity_badge_next_on">Επόμενο κεφάλαιο: %1$s</string>
-    <string name="activity_badge_next_today">Επόμενο κεφάλαιο στις %1$s</string>
     <string name="activity_badge_all_done">Τελείωσες όλα τα κεφάλαια!</string>
     <string name="activity_badge_waiting">Έρχεται σύντομα</string>
+    <string name="activity_tile_label">Η ΙΣΤΟΡΙΑ ΣΟΥ</string>
+    <string name="activity_badge_tomorrow">Το επόμενο κεφάλαιο αύριο</string>
+    <plurals name="activity_badge_more">
+        <item quantity="one">Ακόμα %1$d ιδέα ανοίγει το κεφάλαιο %2$d</item>
+        <item quantity="other">Ακόμα %1$d ιδέες ανοίγουν το κεφάλαιο %2$d</item>
+    </plurals>
+    <plurals name="activity_badge_more_last">
+        <item quantity="one">Ακόμα %1$d ιδέα και η ιστορία τελειώνει</item>
+        <item quantity="other">Ακόμα %1$d ιδέες και η ιστορία τελειώνει</item>
+    </plurals>
     <string name="ideas_open_at">Οι Ιδέες ανοίγουν στις %1$s</string>
     <string name="ideas_open_on">Οι Ιδέες ανοίγουν: %1$s στις %2$s</string>
     <string name="ideas_closed">Οι Ιδέες ξεκουράζονται</string>
     <string name="reason_ideas_resting">Οι Ιδέες ξεκουράζονται μέχρι τις %1$s</string>
     <string name="reason_ideas_resting_on">Οι Ιδέες ξεκουράζονται. Ξανά: %1$s στις %2$s</string>
     <string name="reason_ideas_resting_now">Οι Ιδέες ξεκουράζονται τώρα</string>
-    <string name="activity_chapter_label">ΚΕΦΑΛΑΙΟ %1$d · %2$s</string>
+    <string name="activity_chapter_label">ΚΕΦΑΛΑΙΟ %1$d</string>
     <string name="activity_chapter_short">Κεφάλαιο %1$d · %2$s</string>
     <string name="activity_chapter_a11y">Κεφάλαιο %1$d, %2$s</string>
     <string name="activity_state_done">έγινε</string>
     <string name="activity_state_locked">κλειδωμένο</string>
-    <string name="activity_next_week">Επόμ. εβδ.</string>
+    <string name="activity_state_progress">%1$d από %2$d ιδέες έγιναν</string>
+    <string name="activity_locked_tomorrow">Αυτό το κεφάλαιο ανοίγει αύριο</string>
+    <plurals name="activity_locked_needs">
+        <item quantity="one">Κάνε ακόμα %1$d ιδέα στο κεφάλαιο %2$d για να ανοίξει αυτό</item>
+        <item quantity="other">Κάνε ακόμα %1$d ιδέες στο κεφάλαιο %2$d για να ανοίξει αυτό</item>
+    </plurals>
+    <plurals name="activity_choose_more">
+        <item quantity="one">Μπράβο! Ακόμα %1$d ιδέα ανοίγει το επόμενο κεφάλαιο.</item>
+        <item quantity="other">Μπράβο! Ακόμα %1$d ιδέες ανοίγουν το επόμενο κεφάλαιο.</item>
+    </plurals>
+    <plurals name="activity_choose_more_last">
+        <item quantity="one">Μπράβο! Ακόμα %1$d ιδέα και η ιστορία τελειώνει.</item>
+        <item quantity="other">Μπράβο! Ακόμα %1$d ιδέες και η ιστορία τελειώνει.</item>
+    </plurals>
     <string name="activity_choose">Τι θέλεις να κάνεις;</string>
     <string name="activity_choose_extra">Το κεφάλαιο τελείωσε! Θέλεις κάτι έξτρα;</string>
-    <string name="activity_locked_on">Αυτό το κεφάλαιο ανοίγει: %1$s</string>
     <string name="activity_locked_later">Αυτό το κεφάλαιο ανοίγει σύντομα</string>
     <string name="activity_kind_draw">Ζωγραφική</string>
     <string name="activity_kind_calc">Μαθηματικά</string>
@@ -121,6 +137,7 @@
     <string name="activity_stop">Σταμάτα</string>
     <string name="activity_done_button">Τελείωσα!</string>
     <string name="activity_done_title">Τελείωσες το κεφάλαιο %1$d!</string>
+    <string name="activity_done_great">Μπράβο!</string>
     <string name="activity_back_to_story">Πίσω στην ιστορία</string>
     <!-- Διάβασμα (SPEC §14.2) -->
     <string name="read_done_reading">Το διάβασα</string>

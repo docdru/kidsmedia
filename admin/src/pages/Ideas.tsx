@@ -1,12 +1,11 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useState, type FormEvent } from "react";
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
 
 import {
   api,
   thumbSrc,
   type ActivitiesAdmin,
-  type DayOff,
   type Level,
   type SettingsIn,
   type SpeechStatus,
@@ -30,7 +29,7 @@ import {
 import { DoneCard } from "./IdeasDone";
 import { ImportCard, WorldEditor, WorldList } from "./IdeasWorlds";
 
-/** Off-screen ideas: story worlds over chosen activity days (SPEC §13.4, §13.7, §14). */
+/** Off-screen ideas: story worlds whose chapters open by doing ideas (SPEC §13.2, §13.4, §13.7, §14). */
 export default function Ideas() {
   const { t, i18n } = useTranslation();
   const state = useQuery({ queryKey: IDEAS_KEY, queryFn: () => api<ActivitiesAdmin>("GET", "/api/admin/activities") });
@@ -47,7 +46,7 @@ export default function Ideas() {
         <h2>{t("ideas.title")}</h2>
         <p className="muted">{t("ideas.intro")}</p>
       </div>
-      <ScheduleCard data={data} />
+      <ProgressCard data={data} />
       <ChildCard data={data} />
       <QueueCard data={data} lang={lang} />
       <div className="split">
@@ -77,6 +76,8 @@ export default function Ideas() {
 }
 
 const MAX_WINDOWS = 14; // SPEC §14.4a, as the server
+const NEEDED = [1, 2, 3, 4]; // ideas per chapter (SPEC §13.2); a chapter has at most four
+const PER_DAY = Array.from({ length: 12 }, (_, i) => i + 1); // new chapters per day, as the server
 const JOY_URL = "https://huggingface.co/Efso/joy-greek-tts";
 // Not in the public image (non-commercial licence); the hint to add JOY by hand shows while Greek uses another voice.
 const JOY_ID = "el_GR-joy-medium";
@@ -94,127 +95,60 @@ function dayLabel(day: string, lang: string): string {
   return new Date(`${day}T12:00:00`).toLocaleDateString(lang, { weekday: "short", day: "numeric", month: "short" });
 }
 
-function ScheduleCard({ data }: { data: ActivitiesAdmin }) {
-  const { t, i18n } = useTranslation();
-  const queryClient = useQueryClient();
-  const lang = i18n.resolvedLanguage ?? "en";
-  const { days, unlock_time } = data.settings;
-  const [unlock, setUnlock] = useState(unlock_time);
-  const [from, setFrom] = useState("");
-  const [to, setTo] = useState("");
-  const [note, setNote] = useState("");
-
+/** How the story moves on (SPEC §13.2): ideas to do per chapter, and new chapters per day. */
+function ProgressCard({ data }: { data: ActivitiesAdmin }) {
+  const { t } = useTranslation();
+  const { chapter_needed, max_new_per_day } = data.settings;
   const save = useStateMutation((body: SettingsIn) => api<ActivitiesAdmin>("PUT", "/api/admin/activities/settings", body));
-  const refresh = () => void queryClient.invalidateQueries({ queryKey: IDEAS_KEY });
-  const addOff = useMutation({
-    mutationFn: (body: { from: string; to: string | null; note: string }) =>
-      api<DayOff>("POST", "/api/admin/activities/days-off", body),
-    onSuccess: () => {
-      setFrom("");
-      setTo("");
-      setNote("");
-      refresh();
-    },
-  });
-  const removeOff = useMutation({
-    mutationFn: (id: number) => api<void>("DELETE", `/api/admin/activities/days-off/${id}`),
-    onSuccess: refresh,
-  });
-
-  const toggle = (d: number) => {
-    const next = days.includes(d) ? days.filter((x) => x !== d) : [...days, d].sort((a, b) => a - b);
-    save.mutate({ days: next, unlock_time });
-  };
-  const submitOff = (e: FormEvent) => {
-    e.preventDefault();
-    if (!from) return;
-    addOff.mutate({ from, to: to || null, note: note.trim() });
-  };
-  const offLabel = (o: DayOff) =>
-    (o.to && o.to !== o.from ? `${dayLabel(o.from, lang)} – ${dayLabel(o.to, lang)}` : dayLabel(o.from, lang)) +
-    (o.note ? ` · ${o.note}` : "");
 
   return (
-    <section className="card stack" aria-labelledby="ideas-when">
+    <section className="card stack" aria-labelledby="ideas-progress">
       <div className="row spread wrap">
-        <h3 id="ideas-when">{t("ideas.when")}</h3>
-        <span className="muted small">{t("ideas.whenHelp")}</span>
+        <h3 id="ideas-progress">{t("ideas.progress")}</h3>
+        <span className="muted small">{t("ideas.progressHelp")}</span>
       </div>
       <div className="row wrap top">
         <fieldset className="grow">
-          <legend>{t("ideas.everyWeek")}</legend>
+          <legend>{t("ideas.needed")}</legend>
           <div className="row wrap">
-            {WEEKDAYS.map((d) => (
+            {NEEDED.map((n) => (
               <button
-                key={d}
+                key={n}
                 type="button"
-                className={days.includes(d) ? "pill on" : "pill"}
-                aria-pressed={days.includes(d)}
+                className={n === chapter_needed ? "pill on" : "pill"}
+                aria-pressed={n === chapter_needed}
                 disabled={save.isPending}
-                onClick={() => toggle(d)}
+                onClick={() => {
+                  if (n !== chapter_needed) save.mutate({ chapter_needed: n });
+                }}
               >
-                {t(`days.short.${d}`)}
+                {n}
               </button>
             ))}
           </div>
-          <p className="muted small">
-            {days.length === 0
-              ? t("ideas.noDays")
-              : days.length < 6
-                ? t("ideas.fewDays", { count: days.length })
-                : t("ideas.manyDays", { count: days.length })}
-          </p>
-          <label className="check">
-            {t("ideas.unlockAt")}
-            <input
-              type="time"
-              value={unlock}
-              onChange={(e) => setUnlock(e.target.value)}
-              onBlur={() => {
-                if (/^\d\d:\d\d$/.test(unlock) && unlock !== unlock_time) save.mutate({ days, unlock_time: unlock });
-              }}
-            />
-          </label>
-          {save.error && <p className="error">{errorText(save.error, t)}</p>}
+          <p className="muted small">{t("ideas.neededHelp", { count: chapter_needed })}</p>
         </fieldset>
         <fieldset className="grow">
-          <legend>{t("ideas.daysOff")}</legend>
-          {data.days_off.length === 0 && <p className="muted small">{t("ideas.noDaysOff")}</p>}
-          <ul className="chips">
-            {data.days_off.map((o) => (
-              <li key={o.id} className="chip">
-                {offLabel(o)}
-                <button
-                  type="button"
-                  className="icon"
-                  aria-label={t("ideas.removeDaysOff", { what: offLabel(o) })}
-                  onClick={() => removeOff.mutate(o.id)}
-                >
-                  ✕
-                </button>
-              </li>
+          <legend>{t("ideas.perDay")}</legend>
+          <select
+            aria-label={t("ideas.perDay")}
+            value={max_new_per_day ?? ""}
+            disabled={save.isPending}
+            onChange={(e) => save.mutate({ max_new_per_day: e.target.value ? Number(e.target.value) : null })}
+          >
+            <option value="">{t("ideas.noLimit")}</option>
+            {PER_DAY.map((n) => (
+              <option key={n} value={n}>
+                {t("ideas.perDayValue", { count: n })}
+              </option>
             ))}
-          </ul>
-          <form className="row wrap" onSubmit={submitOff}>
-            <label>
-              {t("ideas.from")}
-              <input type="date" value={from} onChange={(e) => setFrom(e.target.value)} required />
-            </label>
-            <label>
-              {t("ideas.to")}
-              <input type="date" value={to} min={from || undefined} onChange={(e) => setTo(e.target.value)} />
-            </label>
-            <label className="grow">
-              {t("ideas.note")}
-              <input value={note} maxLength={80} placeholder={t("ideas.notePlaceholder")} onChange={(e) => setNote(e.target.value)} />
-            </label>
-            <button type="submit" disabled={!from || addOff.isPending}>
-              {t("ideas.addDaysOff")}
-            </button>
-          </form>
-          {addOff.error && <p className="error">{errorText(addOff.error, t)}</p>}
+          </select>
+          <p className="muted small">
+            {max_new_per_day == null ? t("ideas.noLimitHelp") : t("ideas.perDayHelp", { count: max_new_per_day })}
+          </p>
         </fieldset>
       </div>
+      {save.error && <p className="error">{errorText(save.error, t)}</p>}
     </section>
   );
 }
@@ -222,7 +156,7 @@ function ScheduleCard({ data }: { data: ActivitiesAdmin }) {
 /** The child's level (SPEC §14.1) and the opening times of Ideas (SPEC §14.4a). */
 function ChildCard({ data }: { data: ActivitiesAdmin }) {
   const { t } = useTranslation();
-  const { days, unlock_time, level } = data.settings;
+  const { level } = data.settings;
   const saved = data.settings.windows ?? [];
   const [windows, setWindows] = useState<Window[]>(saved);
   const save = useStateMutation((body: SettingsIn) => api<ActivitiesAdmin>("PUT", "/api/admin/activities/settings", body));
@@ -253,7 +187,7 @@ function ChildCard({ data }: { data: ActivitiesAdmin }) {
                 aria-pressed={l === level}
                 disabled={save.isPending}
                 onClick={() => {
-                  if (l !== level) save.mutate({ days, unlock_time, level: l });
+                  if (l !== level) save.mutate({ level: l });
                 }}
               >
                 {t(`ideas.level.${l}`)}
@@ -312,7 +246,7 @@ function ChildCard({ data }: { data: ActivitiesAdmin }) {
               type="button"
               className="primary small"
               disabled={!dirty || !valid || save.isPending}
-              onClick={() => save.mutate({ days, unlock_time, windows })}
+              onClick={() => save.mutate({ windows })}
             >
               {t("ideas.saveWindows")}
             </button>
@@ -362,9 +296,11 @@ function QueueCard({ data, lang }: { data: ActivitiesAdmin; lang: string }) {
               </span>
               <strong className="grow">{name}</strong>
               <span className="muted">
-                {q.first_date && q.last_date
-                  ? t("ideas.dates", { from: dayLabel(q.first_date, lang), to: dayLabel(q.last_date, lang) })
-                  : t("ideas.noDates")}
+                {q.status === "upcoming"
+                  ? t("ideas.upcoming")
+                  : q.story_done
+                    ? t("ideas.storyDone")
+                    : t("ideas.chaptersOpen", { open: q.chapters_open, total: q.chapters })}
               </span>
               <select
                 aria-label={t("ideas.storyLangFor", { name })}

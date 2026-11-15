@@ -17,7 +17,6 @@ export type UsageDay = Schemas["UsageDay"];
 export type HistoryDay = Schemas["HistoryDay"];
 export type Kind = Group["kind"];
 export type ActivitiesAdmin = Schemas["ActivitiesAdminOut"];
-export type DayOff = Schemas["DayOffOut"];
 export type QueueEntry = Schemas["QueueEntry"];
 export type WorldSummary = Schemas["WorldSummary"];
 export type WorldFull = Schemas["WorldFull"];
