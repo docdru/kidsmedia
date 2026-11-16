@@ -54,6 +54,11 @@ COPY --from=voices /voices /app/voices
 # Release images: the signed APK of the same tag, put here by release.yml (SPEC §4.3).
 COPY apk-bundle/ /app/apk-bundle/
 
+# The release this image is (shown in the admin and on /healthz): the tag without "v" from
+# release.yml, main-<sha> from docker.yml, "dev" otherwise. The family image inherits it.
+ARG KIDSMEDIA_VERSION=dev
+ENV KIDSMEDIA_VERSION=$KIDSMEDIA_VERSION
+
 ENV PATH="/app/.venv/bin:$PATH" \
     PYTHONUNBUFFERED=1 \
     DATA_DIR=/data \

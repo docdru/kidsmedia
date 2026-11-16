@@ -1,7 +1,8 @@
 {
   "app": {
     "title": "Kids Media",
-    "subtitle": "Διαχείριση γονέων"
+    "subtitle": "Διαχείριση γονέων",
+    "versionHelp": "Έκδοση διακομιστή"
   },
   "language": {
     "label": "Γλώσσα",

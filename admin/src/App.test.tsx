@@ -1,7 +1,7 @@
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, expect, it, vi } from "vitest";
 
-import App, { makeQueryClient } from "./App";
+import App, { makeQueryClient, versionLabel } from "./App";
 import i18n from "./i18n";
 
 type Handler = (url: string, init?: RequestInit) => Response | Promise<Response>;
@@ -31,7 +31,7 @@ afterEach(() => {
   vi.unstubAllGlobals();
 });
 
-const ME = { username: "parent", csrf_token: "csrf-123", locale: null };
+const ME = { username: "parent", csrf_token: "csrf-123", locale: null, version: "0.9.0" };
 
 it("shows the login form without a session", async () => {
   serve(() => json({ reason: "not_authenticated", params: {} }, 401));
@@ -99,4 +99,16 @@ it("switches the header to Greek and remembers it for the admin user (decision 1
     const patch = fetchMock.mock.calls.find(([u, i]) => u === "/api/admin/me" && i?.method === "PATCH");
     expect(JSON.parse(String(patch?.[1]?.body))).toEqual({ locale: "el" });
   });
+});
+
+it("shows the server version under the title", async () => {
+  serve((url) => (url === "/api/admin/me" ? json(ME) : json([])));
+  renderApp();
+  expect(await screen.findByTitle("Server version")).toHaveTextContent("v0.9.0");
+});
+
+it("labels release versions with a v and other builds as they are", () => {
+  expect(versionLabel("0.9.0")).toBe("v0.9.0");
+  expect(versionLabel("main-27b5f9f")).toBe("main-27b5f9f");
+  expect(versionLabel("dev")).toBe("dev");
 });

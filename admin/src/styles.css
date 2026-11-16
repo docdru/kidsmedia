@@ -49,6 +49,7 @@ button.inline:hover { text-decoration: underline dotted; }
 
 .topbar { display: flex; align-items: center; gap: 20px; padding: 10px 24px; background: #fff; border-bottom: 1px solid var(--line); flex-wrap: wrap; }
 .brand { display: flex; flex-direction: column; }
+.version { font-size: 0.85em; font-variant-numeric: tabular-nums; }
 .tabs { display: flex; gap: 4px; flex: 1; flex-wrap: wrap; }
 .tab { padding: 8px 14px; border-radius: 999px; text-decoration: none; color: var(--ink); font-weight: 600; }
 .tab.active { background: var(--ink); color: #fff; }
