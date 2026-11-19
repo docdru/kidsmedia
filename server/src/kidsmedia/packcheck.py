@@ -1,4 +1,4 @@
-"""Checks for example story packs (SPEC §13.5, §15.2, §15.4, §15.5).
+"""Checks for example story packs (SPEC §13.5, §14.3, §15.2, §15.4, §15.5).
 
 Every example pack, bundled or added by a derived image through EXTRA_PACKS_DIR, must pass:
 
@@ -9,12 +9,14 @@ problem and exits with 1 if there is any. The server's tests run the same checks
 bundled packs; the family image's build runs them on its own packs.
 """
 
+import json
 import sys
+from collections import defaultdict
 from pathlib import Path
 
 from pydantic import ValidationError
 
-from kidsmedia import thumbs
+from kidsmedia import speech, thumbs
 from kidsmedia.activities import LANGS, LEVELS, Pack, is_simple_material, pack_warnings
 
 # §15.2 (decision 42): problems per level, and the largest answer for age band 6-7 (easier
@@ -37,6 +39,7 @@ def check_pack(folder: Path) -> list[str]:
     problems += _calc(p)
     problems += _materials(p)
     problems += _writes(p)
+    problems += _recordings(folder, p)
     return problems
 
 
@@ -118,6 +121,52 @@ def _writes(p: Pack) -> list[str]:
             for name in ("text", "easier", "harder"):
                 if not getattr(t, name).strip():
                     out.append(f"chapter {pos}, write, {lang}: no {name} text")
+    return out
+
+
+def _recordings(folder: Path, p: Pack) -> list[str]:
+    """§14.3: an optional `speech/` folder. Each language in `speech/voices.json` has a
+    recording of every text it speaks, `speech/<lang>/<key>.m4a`, and no other files; each
+    entry names the voice and its licence."""
+    root = folder / speech.RECORDED_DIR
+    if not root.exists():
+        return []
+    try:
+        voices = json.loads((root / speech.RECORDED_VOICES).read_text(encoding="utf-8"))
+    except (OSError, ValueError) as e:
+        return [f"speech: {speech.RECORDED_VOICES} is missing or not JSON ({e})"]
+    if not isinstance(voices, dict):
+        return [f"speech: {speech.RECORDED_VOICES} isn't an object"]
+    texts: dict[str, list[str]] = defaultdict(list)
+    for lang, text in speech.spoken_texts(p.content()):
+        texts[lang].append(text)
+    out: list[str] = []
+    entries = {e.name for e in root.iterdir()}
+    for name in sorted(entries - {speech.RECORDED_VOICES} - set(voices)):
+        out.append(f"speech/{name}: not a language in {speech.RECORDED_VOICES}")
+    for lang, entry in sorted(voices.items()):
+        where = f"speech/{lang}"
+        if lang not in texts:
+            out.append(f"{where}: the pack has no {lang} texts")
+            continue
+        if not isinstance(entry, dict) or not all(
+            isinstance(entry.get(k), str) and entry[k].strip() for k in ("voice", "license")
+        ):
+            out.append(f"{where}: {speech.RECORDED_VOICES} needs a voice and a license")
+        wanted = {f"{speech.recorded_key(lang, t)}.m4a": t for t in texts[lang]}
+        files = {f.name: f for f in (root / lang).iterdir()} if (root / lang).is_dir() else {}
+        missing = [t for name, t in wanted.items() if name not in files]
+        if missing:
+            out.append(
+                f"{where}: {len(missing)} spoken texts have no recording, e.g. {missing[0]!r}"
+            )
+        extra = sorted(set(files) - set(wanted))
+        if extra:
+            out.append(f"{where}: {len(extra)} files no text speaks, e.g. {extra[0]}")
+        for name in sorted(set(files) & set(wanted)):
+            size = files[name].stat().st_size
+            if not 0 < size <= speech.MAX_RECORDED_BYTES:
+                out.append(f"{where}/{name}: {size} bytes")
     return out
 
 

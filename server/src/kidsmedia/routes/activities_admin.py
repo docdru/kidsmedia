@@ -864,12 +864,14 @@ def import_example(
     settings: Settings = Depends(get_settings),
     worker: speech.SpeechWorker = Depends(get_worker),
 ) -> ImportReport:
-    """Import one of the example packs (a folder, §13.5), like an upload."""
+    """Import one of the example packs (a folder, §13.5), like an upload. Its recordings
+    (`speech/`) are copied first, so only the texts without one are queued (§14.3)."""
     example = example_packs(settings).get(slug)
     if example is None:
         raise ApiError(404, "example_not_found", slug=slug)
     pack, pictures = load_folder_pack(example.folder)
     report = import_pack(conn, settings, clock.now(), pack, pictures, dry_run=False)
+    speech.install_recorded(settings, example.folder, pack.content())
     worker.enqueue_world(pack.content())
     return report
 

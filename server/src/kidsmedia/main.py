@@ -61,7 +61,15 @@ def create_app(settings: Settings | None = None, clock: Clock | None = None) -> 
 
     @asynccontextmanager
     async def lifespan(_: FastAPI) -> AsyncIterator[None]:
-        # Read aloud (SPEC §14.3): tidy up, then render what is missing, queued worlds first.
+        # Read aloud (SPEC §14.3): the example packs' recordings of imported worlds, then
+        # tidy up and render what is missing, queued worlds first.
+        try:
+            examples = activities_admin.example_packs(settings)
+            folders = {slug: ex.folder for slug, ex in examples.items()}
+            with engine.connect() as conn:
+                speech.install_all_recorded(conn, settings, folders)
+        except Exception:  # read aloud is optional: never keep the app from starting
+            speech.log.exception("speech: can't copy the example packs' recordings")
         if settings.speech_worker:
             speech.log_voices(settings)
             try:
