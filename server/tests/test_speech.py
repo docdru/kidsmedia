@@ -14,13 +14,13 @@ from fastapi import FastAPI
 from fastapi.testclient import TestClient
 from sqlalchemy import update
 
-from kidsmedia import speech
-from kidsmedia.activities import ChapterTexts, Pack, TaskTexts
+from kidsmedia import packcheck, speech
+from kidsmedia.activities import ChapterTexts, Lang, Pack, TaskTexts
 from kidsmedia.config import Settings
 from kidsmedia.db import make_engine, worlds
 from kidsmedia.speech import Voice, speech_key
 from tests.conftest import ADMIN_PASSWORD
-from tests.test_activities_api import import_json, pack, queued_world
+from tests.test_activities_api import example_folder, import_json, pack, queued_world
 from tests.test_play import bearer
 
 BUNDLED = {"de": "de_DE-thorsten-medium", "en": "en_GB-cori-medium", "el": "el_GR-rapunzelina-low"}
@@ -638,3 +638,168 @@ def test_the_editor_gets_audio_and_may_send_it_back(app: FastAPI, admin: TestCli
     assert r.status_code == 200, r.text
     r = admin.get(f"/api/admin/worlds/{world_id}/export")
     assert r.status_code == 200
+
+
+# ---- a pack's own recordings (§13.5, §14.3) -----------------------------------------------
+
+
+def spoken_of(body: dict[str, Any], lang: Lang) -> list[str]:
+    content = Pack.model_validate(body).content()
+    return [t for lg, t in speech.spoken_texts(content) if lg == lang]
+
+
+def recorded_pack(root: Path, slug: str, langs: tuple[Lang, ...] = ("en",)) -> Path:
+    """An example pack folder with a recording of every text it speaks in `langs`."""
+    body = pack(slug, chapters=1)
+    folder = example_folder(root, slug, body, {})
+    (folder / "speech").mkdir()
+    voices = {lang: {"voice": f"test-{lang}", "license": "CC0"} for lang in langs}
+    (folder / "speech" / "voices.json").write_text(json.dumps(voices))
+    for lang in langs:
+        (folder / "speech" / lang).mkdir()
+        for text in spoken_of(body, lang):
+            key = speech.recorded_key(lang, text)
+            (folder / "speech" / lang / f"{key}.m4a").write_bytes(f"rec {text}".encode())
+    return folder
+
+
+def test_a_recording_has_its_own_voice_id() -> None:
+    assert speech.recorded_key("en", "World") == speech_key("recorded:en", "World")
+    assert speech.recorded_key("en", "World") != speech.recorded_key("de", "World")
+    # Piper voice ids can't contain ":", so no rendered file can take a recording's key.
+    assert not speech.VOICE_ID_RE.match("recorded:en")
+
+
+def test_an_example_brings_its_recordings(
+    app: FastAPI, admin: TestClient, device_token: str, settings: Settings, tmp_path: Path
+) -> None:
+    """Importing an example copies its recordings of the texts it speaks; those texts get
+    the recording and aren't rendered, the other languages are (§14.3)."""
+    folder = recorded_pack(tmp_path / "extra", "rec-world")
+    (folder / "speech" / "en" / "0123456789abcdef0123.m4a").write_bytes(b"no text says this")
+    settings.extra_packs_dir = tmp_path / "extra"
+    worker = worker_of(app)
+    r = admin.post("/api/admin/worlds/examples/rec-world")
+    assert r.status_code == 200, r.text
+    body = pack("rec-world", chapters=1)
+    recorded = {speech.recorded_key("en", t) for t in spoken_of(body, "en")}
+    copied = {p.stem for p in settings.speech_dir.glob("*.m4a")}
+    assert copied == recorded  # the stray file stays behind
+    assert (settings.speech_dir / f"{speech.recorded_key('en', 'World')}.m4a").read_bytes() == (
+        b"rec World"
+    )
+    queued = set(worker.queued())
+    assert not queued & {speech_key(BUNDLED["en"], t) for t in spoken_of(body, "en")}
+    assert {speech_key(BUNDLED["de"], t) for t in spoken_of(body, "de")} <= queued
+
+    admin.put("/api/admin/activities/queue", json={"world_ids": [r.json()["world_id"]]})
+    world = admin.get("/api/activities", headers=bearer(device_token)).json()["world"]
+    name = speech.recorded_key("en", "World")
+    assert world["texts"]["en"]["audio"] == {"name": f"/api/speech/{name}.m4a"}
+    served = admin.get(f"/api/speech/{name}.m4a", headers=bearer(device_token))
+    assert served.status_code == 200
+    assert served.content == b"rec World"
+
+
+def test_a_recording_wins_and_an_edited_text_falls_back_to_piper(
+    app: FastAPI, admin: TestClient, settings: Settings, tmp_path: Path
+) -> None:
+    folder = recorded_pack(tmp_path / "extra", "rec-world")
+    settings.extra_packs_dir = tmp_path / "extra"
+    worker = worker_of(app)
+    world_id = admin.post("/api/admin/worlds/examples/rec-world").json()["world_id"]
+    render(settings, "en", "World")  # a Piper file of the same text is there as well
+    lookup = speech.AudioLookup(settings)
+    assert lookup.url("en", "World") == f"/api/speech/{speech.recorded_key('en', 'World')}.m4a"
+    assert lookup.url("de", "Welt") is None  # not rendered yet, no recording
+
+    edited = pack("rec-world", chapters=1)
+    edited["texts"]["en"]["name"] = "New World"
+    assert admin.put(f"/api/admin/worlds/{world_id}", json=edited).status_code == 200
+    assert speech_key(BUNDLED["en"], "New World") in worker.queued()
+    assert lookup.url("en", "New World") is None  # the recording was of the old text
+    worker.drain()
+    new = speech_key(BUNDLED["en"], "New World")
+    assert lookup.url("en", "New World") == f"/api/speech/{new}.m4a"
+    assert folder.is_dir()
+
+
+def test_start_up_copies_recordings_and_keeps_them(
+    app: FastAPI, admin: TestClient, settings: Settings, tmp_path: Path
+) -> None:
+    """At start-up the recordings of imported example worlds are copied again when missing
+    or changed, and pruning keeps them while a world speaks their text."""
+    folder = recorded_pack(tmp_path / "extra", "rec-world")
+    settings.extra_packs_dir = tmp_path / "extra"
+    worker = worker_of(app)
+    admin.post("/api/admin/worlds/examples/rec-world")
+    worker.drain()
+    engine = make_engine(settings.db_path)
+    folders = {"rec-world": folder, "other": tmp_path / "nothing"}
+    name = settings.speech_dir / f"{speech.recorded_key('en', 'World')}.m4a"
+    with engine.connect() as conn:
+        assert speech.install_all_recorded(conn, settings, folders) == 0  # all there
+        name.unlink()
+        assert speech.install_all_recorded(conn, settings, folders) == 1
+        (folder / "speech" / "en" / name.name).write_bytes(b"re-recorded")
+        assert speech.install_all_recorded(conn, settings, folders) == 1
+        assert name.read_bytes() == b"re-recorded"
+        before = {p.name for p in settings.speech_dir.iterdir()}
+        piper = render(settings, "en", "World")  # rendered before the pack had recordings
+        assert worker.prune(conn) == 1
+    assert {p.name for p in settings.speech_dir.iterdir()} == before
+    assert f"{piper}.m4a" not in before
+
+
+def test_an_oversized_recording_is_skipped(settings: Settings, tmp_path: Path) -> None:
+    folder = recorded_pack(tmp_path / "extra", "rec-world")
+    big = folder / "speech" / "en" / f"{speech.recorded_key('en', 'World')}.m4a"
+    big.write_bytes(b"x" * (speech.MAX_RECORDED_BYTES + 1))
+    content = Pack.model_validate(pack("rec-world", chapters=1)).content()
+    copied = speech.install_recorded(settings, folder, content)
+    assert copied == len(spoken_of(pack("rec-world", chapters=1), "en")) - 1
+    assert not (settings.speech_dir / big.name).exists()
+
+
+def test_the_status_counts_recordings_as_rendered(
+    app: FastAPI, admin: TestClient, settings: Settings, tmp_path: Path
+) -> None:
+    recorded_pack(tmp_path / "extra", "rec-world")
+    settings.extra_packs_dir = tmp_path / "extra"
+    worker_of(app)
+    admin.post("/api/admin/worlds/examples/rec-world")
+    body = admin.get("/api/admin/speech").json()
+    en = len(spoken_of(pack("rec-world", chapters=1), "en"))
+    total = len(all_keys(pack("rec-world", chapters=1)))
+    assert (body["rendered"], body["pending"]) == (en, total - en)
+
+
+def test_packcheck_checks_recordings(tmp_path: Path) -> None:
+    def problems(folder: Path) -> list[str]:
+        return [p for p in packcheck.check_pack(folder) if p.startswith("speech")]
+
+    folder = recorded_pack(tmp_path, "rec-world", ("en", "de"))
+    assert problems(folder) == []
+    root = folder / "speech"
+    one = next((root / "de").iterdir())
+    one.unlink()
+    (root / "en" / "0123456789abcdef0123.m4a").write_bytes(b"x")
+    (root / "el").mkdir()
+    (root / "voices.json").write_text(
+        json.dumps({"en": {"voice": "x"}, "de": {"voice": "y", "license": "CC0"}})
+    )
+    assert problems(folder) == [
+        "speech/el: not a language in voices.json",
+        "speech/de: 1 spoken texts have no recording, e.g. "
+        + repr(
+            next(
+                t
+                for t in spoken_of(pack("rec-world", chapters=1), "de")
+                if speech.recorded_key("de", t) == one.stem
+            )
+        ),
+        "speech/en: voices.json needs a voice and a license",
+        "speech/en: 1 files no text speaks, e.g. 0123456789abcdef0123.m4a",
+    ]
+    (root / "voices.json").write_text("not json")
+    assert problems(folder)[0].startswith("speech: voices.json is missing or not JSON")

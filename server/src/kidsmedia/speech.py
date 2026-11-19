@@ -1,9 +1,12 @@
 """Read aloud on the server (SPEC §14.3): Piper voices, the spoken fields of a world, the
-content-addressed speech files and the background worker that renders them.
+content-addressed speech files, a pack's own recordings and the background worker that
+renders the rest.
 
 Every spoken text becomes `data/media/_speech/<key>.m4a` with
 `key = sha256(voice id + "\\n" + spoken text)[:20]`, so identical texts share a file and only
-changed texts are rendered again. Files need no table; the worker keeps its state in memory.
+changed texts are rendered again. A recording that comes with an example pack uses the voice
+id `recorded:<lang>` and wins over the Piper file. Files need no table; the worker keeps its
+state in memory.
 """
 
 import hashlib
@@ -52,6 +55,9 @@ ADMIN_PREFIX = "/api/admin/speech/"
 RENDER_TIMEOUT = 300  # seconds per file, for Piper and for ffmpeg
 TEMP_PREFIX = ".render-"  # temporary folders in data/media/_speech while a file is rendered
 NICE = "10"  # Piper runs below the app's priority, so playback requests stay quick
+RECORDED_DIR = "speech"  # an example pack's recordings: speech/<lang>/<key>.m4a (§13.5)
+RECORDED_VOICES = "voices.json"  # speech/voices.json: who or what recorded each language
+MAX_RECORDED_BYTES = 4 * 1024 * 1024  # per file; a 900-character text is far below
 
 
 # ---- keys and spoken fields (pure) --------------------------------------------------------
@@ -61,6 +67,13 @@ def speech_key(voice_id: str, text: str) -> str:
     """The file key of a spoken text in a voice: the first 20 hex characters of the sha256."""
     digest = hashlib.sha256(f"{voice_id}\n{text}".encode()).hexdigest()
     return digest[:KEY_LENGTH]
+
+
+def recorded_key(lang: Lang, text: str) -> str:
+    """The key of a pack's own recording of a text (§14.3): the speech key with the voice id
+    `recorded:<lang>`. Piper voice ids can't contain ':', so the two kinds never collide, and
+    an edited text no longer matches its recording (it is rendered by Piper instead)."""
+    return speech_key(f"recorded:{lang}", text)
 
 
 def spoken(shown: str, say: Mapping[Any, str] | None, field: str) -> str:
@@ -302,8 +315,14 @@ class AudioLookup:
         self.prefix = prefix
 
     def url(self, lang: Lang, text: str) -> str | None:
+        """The pack's recording if there is one, else the rendered file of the voice."""
+        if not text:
+            return None
+        recorded = recorded_key(lang, text)
+        if (self.folder / f"{recorded}.m4a").is_file():
+            return f"{self.prefix}{recorded}.m4a"
         voice = self.voices.get(lang)
-        if voice is None or not text:
+        if voice is None:
             return None
         key = speech_key(voice.id, text)
         if not (self.folder / f"{key}.m4a").is_file():
@@ -333,6 +352,65 @@ class AudioLookup:
         """Always an object; a field that isn't rendered is None (§15.2)."""
         text, hint = problem_texts(p)
         return ProblemAudio(text=self.url(lang, text), hint=self.url(lang, hint))
+
+
+def has_recording(settings: Settings, lang: Lang, text: str) -> bool:
+    return speech_file(settings, recorded_key(lang, text)).is_file()
+
+
+def install_recorded(settings: Settings, folder: Path, content: WorldContent) -> int:
+    """Copy an example pack folder's recordings (`speech/<lang>/<key>.m4a`, §13.5) of the
+    texts the world speaks into `data/media/_speech/`, where they are served like rendered
+    files. A file already there with the same size and time is kept, a changed one replaced.
+    Names come from the keys, never from the folder. Returns how many files were copied."""
+    root = folder / RECORDED_DIR
+    if not root.is_dir():
+        return 0
+    copied = 0
+    for lang, text in spoken_texts(content):
+        key = recorded_key(lang, text)
+        src = root / lang / f"{key}.m4a"
+        dest = speech_file(settings, key)
+        tmp = dest.with_name(f".{key}.tmp")
+        try:
+            if not src.is_file():
+                continue
+            st = src.stat()
+            if st.st_size > MAX_RECORDED_BYTES:
+                log.warning("speech: %s is larger than %d bytes", src, MAX_RECORDED_BYTES)
+                continue
+            if dest.is_file():
+                have = dest.stat()
+                if have.st_size == st.st_size and int(have.st_mtime) == int(st.st_mtime):
+                    continue
+            dest.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copy2(src, tmp)
+            tmp.replace(dest)
+            copied += 1
+        except OSError:
+            log.warning("speech: can't copy %s", src, exc_info=True)
+        finally:
+            tmp.unlink(missing_ok=True)
+    return copied
+
+
+def install_all_recorded(conn: Connection, settings: Settings, folders: Mapping[str, Path]) -> int:
+    """At start-up: the recordings of every world that came from an example pack (by slug,
+    `folders` = {slug: pack folder}), for the texts the world speaks now."""
+    copied = 0
+    for row in conn.execute(select(worlds.c.slug, worlds.c.content)).all():
+        folder = folders.get(row.slug)
+        if folder is None:
+            continue
+        try:
+            content = load_content(row.content)[0]
+        except Exception:
+            log.warning("speech: can't load world %s", row.slug, exc_info=True)
+            continue
+        copied += install_recorded(settings, folder, content)
+    if copied:
+        log.info("speech: copied %d recordings from the example packs", copied)
+    return copied
 
 
 # ---- jobs ---------------------------------------------------------------------------------
@@ -377,23 +455,17 @@ def ordered_contents(conn: Connection) -> tuple[list[WorldContent], bool]:
     return out, complete
 
 
-def all_jobs_checked(conn: Connection, settings: Settings) -> tuple[list[Job], bool]:
-    """Every speech file the worlds need, queued worlds first, without duplicates; and
-    whether every world loaded (only then is the list complete)."""
+def all_jobs(conn: Connection, settings: Settings) -> list[Job]:
+    """Every speech file the worlds need, queued worlds first, without duplicates."""
     voices = chosen_voices(settings)
     seen: set[str] = set()
     out: list[Job] = []
-    contents, complete = ordered_contents(conn)
-    for content in contents:
+    for content in ordered_contents(conn)[0]:
         for job in world_jobs(content, voices):
             if job.key not in seen:
                 seen.add(job.key)
                 out.append(job)
-    return out, complete
-
-
-def all_jobs(conn: Connection, settings: Settings) -> list[Job]:
-    return all_jobs_checked(conn, settings)[0]
+    return out
 
 
 # ---- rendering ----------------------------------------------------------------------------
@@ -525,6 +597,8 @@ class SpeechWorker:
                     continue
                 if speech_file(self.settings, job.key).is_file():
                     continue
+                if has_recording(self.settings, job.voice.lang, job.text):
+                    continue  # the pack's own recording is played instead (§14.3)
                 self._queued.add(job.key)
                 self._queue.put(job)
                 added += 1
@@ -538,14 +612,24 @@ class SpeechWorker:
 
     def prune(self, conn: Connection) -> int:
         """At start-up, before the worker runs: delete leftover temporary files and folders of
-        an interrupted render, and the `.m4a` files no world speaks any more (only when every
-        world loaded, so a broken world never costs its files). Returns how many entries
-        were deleted."""
+        an interrupted render, and the `.m4a` files no world speaks any more, rendered or
+        recorded, and Piper files of texts that have a recording (only when every world
+        loaded, so a broken world never costs its files). Returns how many entries were
+        deleted."""
         folder = self.settings.speech_dir
         if not folder.is_dir():
             return 0
-        jobs, complete = all_jobs_checked(conn, self.settings)
-        wanted = {f"{job.key}.m4a" for job in jobs}
+        contents, complete = ordered_contents(conn)
+        voices = chosen_voices(self.settings)
+        wanted: set[str] = set()
+        for content in contents:
+            for lang, text in spoken_texts(content):
+                recorded = f"{recorded_key(lang, text)}.m4a"
+                voice = voices.get(lang)
+                if (folder / recorded).is_file():
+                    wanted.add(recorded)  # a Piper file of the same text isn't needed
+                elif voice is not None:
+                    wanted.add(f"{speech_key(voice.id, text)}.m4a")
         deleted = 0
         for entry in folder.iterdir():
             try:
@@ -568,7 +652,7 @@ class SpeechWorker:
         dest = speech_file(self.settings, job.key)
         tmp = dest.with_name(f".{job.key}.tmp")
         try:
-            if not dest.is_file():
+            if not dest.is_file() and not has_recording(self.settings, job.voice.lang, job.text):
                 dest.parent.mkdir(parents=True, exist_ok=True)
                 self.render(job.voice, job.text, tmp)
                 tmp.replace(dest)
@@ -672,12 +756,15 @@ class SpeechStatus(BaseModel):
 
 
 def status(conn: Connection, settings: Settings, worker: SpeechWorker) -> SpeechStatus:
-    """Voices and file counts over every spoken text of every world."""
+    """Voices and file counts over every spoken text of every world; a pack's recording
+    counts as rendered."""
     voices = chosen_voices(settings)
     failed = worker.failed()
     rendered = pending = failures = 0
     for job in all_jobs(conn, settings):
-        if speech_file(settings, job.key).is_file():
+        if speech_file(settings, job.key).is_file() or has_recording(
+            settings, job.voice.lang, job.text
+        ):
             rendered += 1
         elif job.key in failed:
             failures += 1
