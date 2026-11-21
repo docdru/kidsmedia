@@ -82,6 +82,15 @@ object ActivityLogic {
     fun serverDate(serverTime: String): LocalDate? = runCatching { LocalDate.parse(serverTime.take(10)) }.getOrNull()
 
     /**
+     * Whether a queued done tap goes after the server refused it with HTTP [status] (SPEC §13.3,
+     * §14.4a): 404 `unknown_task` or 409 (the plan changed, closed, too old) and 422 (it would fail
+     * every time). Only an answer of Kids Media itself counts ([fromServer]); an HTML page from
+     * something in front of it says nothing about the tap, which is kept and sent again.
+     */
+    fun dropsTap(status: Int, fromServer: Boolean): Boolean =
+        fromServer && (status == 404 || status == 409 || status == 422)
+
+    /**
      * `done_at` of a tap at [now] (the trusted clock in the server's time zone): ISO-8601 with
      * offset, to the second, e.g. `2026-11-03T18:40:00+01:00` (SPEC §14.4a).
      */

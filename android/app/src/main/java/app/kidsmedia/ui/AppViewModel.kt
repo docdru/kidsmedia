@@ -293,7 +293,8 @@ class AppViewModel(private val graph: Graph) : ViewModel() {
                     // 409 activities_closed: the tap (its done_at) was after the grace (§14.4a).
                     // 409 activity_too_old: the server no longer takes a tap that old.
                     // 422: the request itself can't be taken (it would fail every time).
-                    if (e.status == 404 || e.status == 409 || e.status == 422) {
+                    // Not for an answer that isn't from Kids Media (ActivityLogic.dropsTap).
+                    if (ActivityLogic.dropsTap(e.status, e.fromServer)) {
                         graph.activities.removePending(request)
                     }
                 }
@@ -557,7 +558,7 @@ class AppViewModel(private val graph: Graph) : ViewModel() {
             graph.api.activityPhoto(photo, file).also { graph.activities.removePhoto(photo) }
         } catch (e: ApiException) {
             Log.w("kidsmedia", "activity photo: $e")
-            if (PhotoLogic.outcome(e.status) != PhotoOutcome.KEEP) graph.activities.removePhoto(photo)
+            if (PhotoLogic.outcome(e.status, e.fromServer) != PhotoOutcome.KEEP) graph.activities.removePhoto(photo)
             null
         }
     }
@@ -597,7 +598,7 @@ class AppViewModel(private val graph: Graph) : ViewModel() {
                 prefetchSpeech(answer)
                 refreshRewards() // a new star, maybe a new sticker
             } catch (e: ApiException) {
-                if (e.status == 404 || e.status == 409) {
+                if (ActivityLogic.dropsTap(e.status, e.fromServer)) {
                     graph.activities.removePending(request)
                     refreshActivities()
                 }

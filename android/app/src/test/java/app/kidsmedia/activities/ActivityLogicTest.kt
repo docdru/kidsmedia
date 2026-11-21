@@ -423,4 +423,15 @@ class ActivityLogicTest {
     fun readIsTheFourthKind() {
         assertEquals(listOf("draw", "calc", "write", "read"), ActivityLogic.KINDS)
     }
+
+    @Test
+    fun aQueuedTapGoesOnlyWhenKidsMediaRefusedIt() {
+        assertTrue(ActivityLogic.dropsTap(404, fromServer = true))
+        assertTrue(ActivityLogic.dropsTap(409, fromServer = true))
+        assertTrue(ActivityLogic.dropsTap(422, fromServer = true))
+        assertFalse(ActivityLogic.dropsTap(429, fromServer = true))
+        assertFalse(ActivityLogic.dropsTap(500, fromServer = true))
+        // Another site's 404 page says nothing about the tap.
+        assertFalse(ActivityLogic.dropsTap(404, fromServer = false))
+    }
 }

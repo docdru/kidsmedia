@@ -56,6 +56,15 @@ class PhotoLogicTest {
     }
 
     @Test
+    fun aPhotoIsKeptWhenTheAnswerIsNotFromKidsMedia() {
+        // An HTML 404 of another site (a misrouted nginx location) or nginx's own 413 page.
+        assertEquals(PhotoOutcome.KEEP, PhotoLogic.outcome(404, fromServer = false))
+        assertEquals(PhotoOutcome.KEEP, PhotoLogic.outcome(413, fromServer = false))
+        assertEquals(PhotoOutcome.DROP, PhotoLogic.outcome(404, fromServer = true))
+        assertEquals(PhotoOutcome.SENT, PhotoLogic.outcome(200, fromServer = false))
+    }
+
+    @Test
     fun filesNoQueuedPhotoNamesAreOrphans() {
         val queue = listOf(photo("a.jpg", "2026-11-03T18:40:00+01:00"))
         assertEquals(listOf("b.jpg"), PhotoLogic.orphans(listOf("a.jpg", "b.jpg"), queue))

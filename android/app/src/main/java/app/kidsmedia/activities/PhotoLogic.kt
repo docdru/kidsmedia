@@ -46,13 +46,16 @@ object PhotoLogic {
         runCatching { OffsetDateTime.parse(photo.doneAt).toInstant() }.getOrNull()
 
     /**
-     * An answer of the server, HTTP [status]: a photo is deleted after the server stored it or refused
+     * An answer to an upload, HTTP [status]: a photo is deleted after the server stored it or refused
      * it with a 4xx (SPEC §15.3), like a queued done tap. Its `done_at` is fixed, so a refusal
      * (e.g. 409 `activities_closed`) would only repeat. A timeout (408) or too many requests (429)
-     * aren't about the photo, so it is kept for those.
+     * aren't about the photo, so it is kept for those. So is any answer that isn't JSON
+     * (![fromServer]): it didn't come from Kids Media but from something in front of it (a
+     * misrouted nginx location, nginx's own 413), and the photo is sent again once that is fixed.
      */
-    fun outcome(status: Int): PhotoOutcome = when {
+    fun outcome(status: Int, fromServer: Boolean = true): PhotoOutcome = when {
         status in 200..299 -> PhotoOutcome.SENT
+        !fromServer -> PhotoOutcome.KEEP
         status == 408 || status == 429 -> PhotoOutcome.KEEP
         status in 400..499 -> PhotoOutcome.DROP
         else -> PhotoOutcome.KEEP
