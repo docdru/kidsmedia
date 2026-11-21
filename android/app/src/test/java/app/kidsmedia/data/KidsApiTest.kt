@@ -83,7 +83,38 @@ class KidsApiTest {
             fail("expected ApiException")
         } catch (e: ApiException) {
             assertEquals("http_502", e.reason)
+            assertFalse(e.fromServer)
         }
+    }
+
+    @Test
+    fun onlyAJsonAnswerIsFromKidsMedia() = runTest {
+        // Another site's 404 page, e.g. an nginx location that proxies to the wrong port.
+        server.enqueue(
+            MockResponse()
+                .setResponseCode(404)
+                .setHeader("Content-Type", "text/html; charset=utf-8")
+                .setBody("<!DOCTYPE html><html><title>Seafile</title></html>")
+        )
+        // FastAPI's own validation answer has no reason, but it is JSON.
+        server.enqueue(
+            MockResponse()
+                .setResponseCode(422)
+                .setHeader("Content-Type", "application/json")
+                .setBody("""{"detail":[]}""")
+        )
+        server.enqueue(MockResponse().setResponseCode(404).setBody("""{"reason":"unknown_task","params":{}}"""))
+        for (expected in listOf(false, true, true)) {
+            try {
+                api.activities()
+                fail("expected ApiException")
+            } catch (e: ApiException) {
+                assertEquals(expected, e.fromServer)
+            }
+        }
+        assertTrue(KidsApi.isJson("application/json; charset=utf-8"))
+        assertFalse(KidsApi.isJson("text/html"))
+        assertFalse(KidsApi.isJson(null))
     }
 
     @Test

@@ -16,8 +16,18 @@ import okhttp3.RequestBody.Companion.asRequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
 
 /** An error answer from the server: HTTP status plus reason code and params (SPEC §3.2). */
-class ApiException(val status: Int, val reason: String, val params: Params = emptyMap()) :
-    IOException("HTTP $status: $reason")
+/**
+ * An error answer. [fromServer] is false when the answer isn't JSON (neither a `{"reason": …}` body
+ * nor `application/json`, which also covers FastAPI's own 422), so it didn't come from Kids
+ * Media but from something in front of it (e.g. an nginx location that sends the path to another
+ * site, or nginx's own 413 page). Such an answer says nothing about the request itself.
+ */
+class ApiException(
+    val status: Int,
+    val reason: String,
+    val params: Params = emptyMap(),
+    val fromServer: Boolean = true
+) : IOException("HTTP $status: $reason")
 
 /** Where the server is and how to authenticate. Read on every request. */
 interface Credentials {
@@ -137,10 +147,17 @@ class KidsApi(private val client: OkHttpClient, private val credentials: Credent
                 throw ApiException(
                     response.code,
                     error?.reason ?: "http_${response.code}",
-                    error?.params ?: emptyMap()
+                    error?.params ?: emptyMap(),
+                    fromServer = error != null || isJson(response.header("Content-Type"))
                 )
             }
             ApiJson.decodeFromString(deserializer, text)
         }
+    }
+
+    companion object {
+        /** `application/json` (with or without parameters): an answer of Kids Media itself. */
+        fun isJson(contentType: String?): Boolean =
+            contentType?.substringBefore(';')?.trim()?.lowercase() == "application/json"
     }
 }

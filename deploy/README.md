@@ -2,6 +2,20 @@
 
 Installation and nginx: see `install.sh`, `docker-compose.yml`, `nginx/kidsmedia.conf` and SPEC §4.1. Settings: `.env.example`.
 
+## Check the nginx routing
+
+If `KM_PORT` isn't 8080 (another service already uses it), change `$km_backend` in the snippet. A hand-written config from an older snippet may still have `proxy_pass http://127.0.0.1:8080;` in the nested upload locations: then uploads go to whatever runs on 8080, and a tablet's photos of drawings and stories never arrive. After every nginx change, check that the upload paths reach Kids Media. Each must answer **JSON** (`{"reason": …}`, usually 401 without a login), never an HTML page:
+
+```bash
+for p in "POST /api/activities/photo?world_id=1&position=1&kind=draw" \
+         "PUT /api/admin/groups/1/upload" "PUT /api/admin/app/apk" \
+         "PUT /api/admin/worlds/import" "PUT /api/admin/worlds/1/cover"; do
+  set -- $p
+  printf '%-40s ' "$2"
+  curl -s -o /dev/null -w '%{http_code} %{content_type}\n' -X "$1" "https://YOUR-DOMAIN$2"
+done
+```
+
 ## Read-aloud voices (SPEC §14.3)
 
 The server reads the activity texts aloud with [Piper](https://github.com/OHF-Voice/piper1-gpl) and stores the result as `data/media/_speech/<key>.m4a`. nginx serves these files through the existing `/_media/` location, so its configuration doesn't change. A background worker renders what is missing at start-up and after an import, an example add or a world save, worlds in the queue first. Texts without a file yet use the tablet's own TextToSpeech. Admin → Activities shows the voice of each language, its licence and how many files are rendered, pending or failed. Failed texts are tried again after the next restart (`docker compose restart kidsmedia`).

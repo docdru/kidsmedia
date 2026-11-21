@@ -42,17 +42,26 @@ class PhotoLogicTest {
 
     @Test
     fun aPhotoIsDeletedOnlyWhenStoredOrRefusedForGood() {
-        assertEquals(PhotoOutcome.SENT, PhotoLogic.outcome(200))
+        assertEquals(PhotoOutcome.SENT, PhotoLogic.outcome(200, fromServer = true))
         // Every 4xx drops it, 409 activities_closed too: done_at is fixed, it would only repeat (SPEC §15.3).
-        assertEquals(PhotoOutcome.DROP, PhotoLogic.outcome(409))
-        assertEquals(PhotoOutcome.DROP, PhotoLogic.outcome(404))
-        assertEquals(PhotoOutcome.DROP, PhotoLogic.outcome(413))
-        assertEquals(PhotoOutcome.DROP, PhotoLogic.outcome(422))
+        assertEquals(PhotoOutcome.DROP, PhotoLogic.outcome(409, fromServer = true))
+        assertEquals(PhotoOutcome.DROP, PhotoLogic.outcome(404, fromServer = true))
+        assertEquals(PhotoOutcome.DROP, PhotoLogic.outcome(413, fromServer = true))
+        assertEquals(PhotoOutcome.DROP, PhotoLogic.outcome(422, fromServer = true))
         // Not about the photo: kept for the next refresh.
-        assertEquals(PhotoOutcome.KEEP, PhotoLogic.outcome(408))
-        assertEquals(PhotoOutcome.KEEP, PhotoLogic.outcome(429))
-        assertEquals(PhotoOutcome.KEEP, PhotoLogic.outcome(500))
-        assertEquals(PhotoOutcome.KEEP, PhotoLogic.outcome(502))
+        assertEquals(PhotoOutcome.KEEP, PhotoLogic.outcome(408, fromServer = true))
+        assertEquals(PhotoOutcome.KEEP, PhotoLogic.outcome(429, fromServer = true))
+        assertEquals(PhotoOutcome.KEEP, PhotoLogic.outcome(500, fromServer = true))
+        assertEquals(PhotoOutcome.KEEP, PhotoLogic.outcome(502, fromServer = true))
+    }
+
+    @Test
+    fun aPhotoIsKeptWhenTheAnswerIsNotFromKidsMedia() {
+        // An HTML 404 of another site (a misrouted nginx location) or nginx's own 413 page.
+        assertEquals(PhotoOutcome.KEEP, PhotoLogic.outcome(404, fromServer = false))
+        assertEquals(PhotoOutcome.KEEP, PhotoLogic.outcome(413, fromServer = false))
+        assertEquals(PhotoOutcome.DROP, PhotoLogic.outcome(404, fromServer = true))
+        assertEquals(PhotoOutcome.SENT, PhotoLogic.outcome(200, fromServer = false))
     }
 
     @Test
