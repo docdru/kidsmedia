@@ -138,6 +138,14 @@
     <string name="activity_done_button">Τελείωσα!</string>
     <string name="activity_done_title">Τελείωσες το κεφάλαιο %1$d!</string>
     <string name="activity_done_great">Μπράβο!</string>
+    <plurals name="activity_chapter_stars_earned">
+        <item quantity="one">Όλες οι ιδέες έγιναν: %1$d αστέρι για αυτό το κεφάλαιο!</item>
+        <item quantity="other">Όλες οι ιδέες έγιναν: %1$d αστέρια για αυτό το κεφάλαιο!</item>
+    </plurals>
+    <plurals name="activity_chapter_stars_todo">
+        <item quantity="one">Ακόμα %1$d ιδέα εδώ και κερδίζεις τα αστέρια του κεφαλαίου.</item>
+        <item quantity="other">Ακόμα %1$d ιδέες εδώ και κερδίζεις τα αστέρια του κεφαλαίου.</item>
+    </plurals>
     <string name="activity_back_to_story">Πίσω στην ιστορία</string>
     <!-- Διάβασμα (SPEC §14.2) -->
     <string name="read_done_reading">Το διάβασα</string>

@@ -7,7 +7,7 @@ Pure functions, no I/O: the routes load the rows and call these.
 from collections.abc import Iterable
 from dataclasses import dataclass
 
-# Kinds with a check that counts tries (§14.2, §15.2): right at the first try earns 1 more.
+# Kinds with a check that counts tries (§14.2, §15.2); the tries are kept for the parent.
 CHECKED_KINDS = frozenset({"read", "calc"})
 
 
@@ -35,21 +35,47 @@ class AlbumPage:
     stickers: tuple[Sticker, ...]
 
 
-def stars_for(kind: str, attempts: int | None) -> int:
-    """1 star per done task, 1 more for a `read` or `calc` task right at the first try
-    (§15.2)."""
-    return 2 if kind in CHECKED_KINDS and attempts == 1 else 1
-
-
 # What a done task earned or gave back (§14.4, §15.3, §17.3); every other kind spends.
-EARNING_KINDS = frozenset({"earn", "bonus", "reopen"})
+# `earn`: 1 or 2 stars per done task, before v0.24; kept so those stars stay earned.
+EARN_KIND = "earn"
+CHAPTER_KIND = "chapter"  # a chapter with every idea done (§14.4)
+BONUS_KIND = "bonus"
+REOPEN_KIND = "reopen"
+EARNING_KINDS = frozenset({EARN_KIND, CHAPTER_KIND, BONUS_KIND, REOPEN_KIND})
 
 LedgerRow = tuple[str, int]  # (kind, delta) of a `reward_ledger` row
+RefRow = tuple[str, int | None, int]  # (kind, ref_id, delta)
+
+
+def chapter_complete(done_kinds: Iterable[str], task_kinds: Iterable[str]) -> bool:
+    """Every idea of the chapter is done (§14.4): the chapter has tasks and each kind is done."""
+    tasks = set(task_kinds)
+    return bool(tasks) and tasks <= set(done_kinds)
+
+
+def held_stars(rows: Iterable[RefRow], done_id: int) -> int:
+    """What a done task still holds (§17.3): its earning rows (`earn`, `chapter`, `bonus`)
+    minus what was taken back (`reopen` rows with its id while it still exists: a chapter's
+    stars taken back when another task of the chapter was opened again)."""
+    return sum(d for k, ref, d in rows if ref == done_id and k in EARNING_KINDS)
+
+
+def active_chapter_award(rows: Iterable[RefRow], chapter_done_ids: Iterable[int]) -> int | None:
+    """The done id that holds the chapter's stars right now (§14.4), or None: a `chapter`
+    row of one of the chapter's done tasks that wasn't taken back (no `reopen` row with that
+    id). A chapter is awarded again only after its award was taken back."""
+    ids = set(chapter_done_ids)
+    rows = list(rows)
+    taken = {ref for k, ref, _ in rows if k == REOPEN_KIND}
+    for k, ref, _ in rows:
+        if k == CHAPTER_KIND and ref in ids and ref not in taken:
+            return ref
+    return None
 
 
 def earned_stars(rows: Iterable[LedgerRow]) -> int:
-    """The stars earned: `earn` and `bonus` rows, minus what "open again" took back
-    (`reopen`, §17.3: negative earning, not spending)."""
+    """The stars earned: `earn`, `chapter` and `bonus` rows, minus what "open again" took
+    back (`reopen`, §17.3: negative earning, not spending)."""
     return sum(d for k, d in rows if k in EARNING_KINDS)
 
 
@@ -65,7 +91,7 @@ def balance(rows: Iterable[LedgerRow]) -> int:
 
 
 def reopen_delta(stars: int, balance_now: int) -> int:
-    """The `reopen` row of "open again" (§17.3): the task's stars back, but never more than
+    """A `reopen` row of "open again" (§17.3): the stars back, but never more than
     the balance, so it can't go below 0 (stars already swapped stay swapped)."""
     return -max(0, min(stars, balance_now))
 

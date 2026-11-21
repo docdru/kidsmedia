@@ -8,7 +8,7 @@ import type { PackWarning, WorldFull } from "../api/client";
 import Ideas from "./Ideas";
 
 const STATE = {
-  settings: { level: "normal", windows: [] as unknown[], chapter_needed: 2, max_new_per_day: null as number | null },
+  settings: { level: "normal", windows: [] as unknown[], chapter_needed: 2, max_new_per_day: null as number | null, chapter_stars: 3 },
   queue: [
     { world_id: 1, status: "running", chapters: 6, chapters_open: 3, story_done: false, lang: "de", langs: ["de", "en"] },
   ],
@@ -120,7 +120,12 @@ const photo = (id: number) => ({
   url_lg: `/api/admin/photos/p${id}-ab12cd34.webp?size=lg`,
   taken_at: "2026-11-05T15:20:00+01:00",
 });
-const done = (id: number, kind: string, title: string, extra: { attempts?: number; stars?: number; bonus?: boolean; photos?: object[] } = {}) => ({
+const done = (
+  id: number,
+  kind: string,
+  title: string,
+  extra: { attempts?: number; stars?: number; bonus?: boolean; chapter?: boolean; reopen_stars?: number; photos?: object[] } = {},
+) => ({
   id,
   world_id: 1,
   world_name: "Lighthouse Island",
@@ -131,6 +136,8 @@ const done = (id: number, kind: string, title: string, extra: { attempts?: numbe
   attempts: extra.attempts ?? null,
   stars: extra.stars ?? 1,
   bonus: extra.bonus ?? false,
+  chapter: extra.chapter ?? false,
+  reopen_stars: extra.reopen_stars ?? extra.stars ?? 1,
   photos: extra.photos ?? [],
 });
 const DONE = {
@@ -250,6 +257,44 @@ it("v0.22: choosing the ideas per chapter PUTs only that", async () => {
     expect(JSON.parse(String(put?.init?.body))).toEqual({ chapter_needed: 3 });
   });
   expect(await screen.findByText(/3 done ideas in a chapter open the next chapter/)).toBeInTheDocument();
+});
+
+it("v0.24: the stars for a finished chapter are set in the progress card", async () => {
+  renderPage();
+  const stars = await screen.findByRole("combobox", { name: "Stars for a finished chapter" });
+  expect(stars).toHaveValue("3");
+  expect(screen.getByText(/earns 3 stars once every idea of a chapter is done/)).toBeInTheDocument();
+  fireEvent.change(stars, { target: { value: "0" } });
+  await waitFor(() => {
+    const put = sent("/api/admin/activities/settings", "PUT");
+    expect(JSON.parse(String(put?.init?.body))).toEqual({ chapter_stars: 0 });
+  });
+});
+
+it("v0.24: the task that finished its chapter says so, and open again names the chapter's stars", async () => {
+  const confirm = vi.spyOn(window, "confirm").mockReturnValue(false);
+  const entries = [
+    done(21, "read", "Read the letter", { attempts: 1, stars: 3, chapter: true }),
+    done(20, "draw", "Draw the bottle", { stars: 0, reopen_stars: 3 }),
+  ];
+  vi.stubGlobal(
+    "fetch",
+    vi.fn(async (url: string) =>
+      url === "/api/admin/activities/done"
+        ? new Response(JSON.stringify({ entries, next_before_id: null }))
+        : url === "/api/admin/activities"
+          ? new Response(JSON.stringify(STATE))
+          : new Response("null"),
+    ),
+  );
+  renderPage();
+  const list = await screen.findByRole("region", { name: "Done activities" });
+  const read = (await within(list).findByText("Read the letter")).closest("li") as HTMLElement;
+  expect(within(read).getByText("1× through the questions · 3 stars · Finished the chapter")).toBeInTheDocument();
+  const draw = within(list).getByText("Draw the bottle").closest("li") as HTMLElement;
+  expect(within(draw).queryByText(/\d stars?/)).toBeNull(); // it holds nothing itself
+  fireEvent.click(within(draw).getByRole("button", { name: "Open again" }));
+  expect(confirm).toHaveBeenCalledWith("Open this task again? Its 3 stars are taken back.");
 });
 
 it("v0.22: a daily limit of new chapters, and back to no limit", async () => {

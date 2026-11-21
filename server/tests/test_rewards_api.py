@@ -16,7 +16,6 @@ from sqlalchemy.exc import IntegrityError
 from kidsmedia.clock import FixedClock, to_db
 from kidsmedia.config import Settings
 from kidsmedia.db import activity_done, insert_id, make_engine, reward_ledger, wish_requests
-from kidsmedia.rewards import stars_for
 from tests.test_activities_api import import_json, pack, picture_zip, queued_world
 from tests.test_play import Tablet, add_media, bearer, group, rule
 
@@ -51,7 +50,7 @@ def add_done(
         conn.execute(
             insert(reward_ledger).values(
                 profile_id=1,
-                delta=stars_for(kind, attempts),
+                delta=2 if kind in {"read", "calc"} and attempts == 1 else 1,  # as before v0.24
                 kind="earn",
                 ref_id=done_id,
                 created_at=at,
@@ -115,37 +114,43 @@ def test_nothing_yet(admin: TestClient, device_token: str) -> None:
     }
 
 
-def test_a_star_per_task_and_one_more_for_reading_right_first_time(
+def test_stars_come_from_finished_chapters_not_single_tasks(
     admin: TestClient, device_token: str, settings: Settings
 ) -> None:
+    """§14.4: a done task earns nothing; the chapter's last idea earns `chapter_stars`."""
     world_id = queued_world(admin)
-    done = {"world_id": world_id, "position": 1, "kind": "draw"}
-    assert admin.post("/api/activities/done", json=done, headers=bearer(device_token)).is_success
-    admin.post("/api/activities/done", json=done, headers=bearer(device_token))  # idempotent
-    assert rewards(admin, device_token)["stars"] == 1
-    add_done(settings, world_id, 2, "read", attempts=1)  # +2
-    add_done(settings, world_id, 3, "read", attempts=3)  # +1
-    add_done(settings, world_id, 4, "calc", attempts=None)  # +1
-    assert rewards(admin, device_token)["stars"] == 5
-    body = admin.get("/api/admin/rewards").json()
-    assert (body["stars"], body["earned"], body["spent"]) == (5, 5, 0)
-    assert body["ledger"] == []  # the admin's ledger lists spending only
-
-
-def test_the_first_done_of_a_task_earns_a_ledger_row(
-    admin: TestClient, device_token: str, settings: Settings
-) -> None:
-    world_id = queued_world(admin)
-    done = {"world_id": world_id, "position": 1, "kind": "draw"}
+    for kind in ("draw", "calc", "write"):
+        body = {"world_id": world_id, "position": 1, "kind": kind}
+        assert admin.post(
+            "/api/activities/done", json=body, headers=bearer(device_token)
+        ).is_success
+    assert rewards(admin, device_token)["stars"] == 0
+    last = {"world_id": world_id, "position": 1, "kind": "read", "attempts": 1}
     for _ in range(2):  # a repeated done earns nothing more
-        r = admin.post("/api/activities/done", json=done, headers=bearer(device_token))
+        r = admin.post("/api/activities/done", json=last, headers=bearer(device_token))
         assert r.status_code == 200, r.text
+    assert rewards(admin, device_token)["stars"] == 3
+    body = admin.get("/api/admin/rewards").json()
+    assert (body["stars"], body["earned"], body["spent"]) == (3, 3, 0)
+    assert body["ledger"] == []  # the admin's ledger lists spending only
     with make_engine(settings.db_path).connect() as conn:
         rows = conn.execute(
             select(reward_ledger.c.delta, reward_ledger.c.kind, reward_ledger.c.ref_id)
         ).all()
-        done_id = conn.execute(select(activity_done.c.id)).scalar_one()
-    assert [tuple(r) for r in rows] == [(1, "earn", done_id)]
+        read_id = conn.execute(
+            select(activity_done.c.id).where(activity_done.c.kind == "read")
+        ).scalar_one()
+    assert [tuple(r) for r in rows] == [(3, "chapter", read_id)]
+
+
+def test_stars_earned_per_task_before_v024_stay(
+    admin: TestClient, device_token: str, settings: Settings
+) -> None:
+    """`earn` rows from before v0.24 (1 per task, 2 for reading right first time) count."""
+    world_id = queued_world(admin)
+    add_done(settings, world_id, 2, "read", attempts=1)  # +2
+    add_done(settings, world_id, 3, "read", attempts=3)  # +1
+    assert rewards(admin, device_token)["stars"] == 3
 
 
 def test_deleting_a_world_keeps_the_stars(

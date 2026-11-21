@@ -155,7 +155,7 @@
   },
   "rewards": {
     "title": "Belohnungen",
-    "intro": "Sterne gibt es für erledigte Ideen ohne Bildschirm. Dein Kind kann sie gegen etwas mehr Medienzeit tauschen oder sich etwas wünschen.",
+    "intro": "Sterne gibt es für Kapitel, in denen alle Ideen erledigt sind, und als Extrasterne von dir. Dein Kind kann sie gegen etwas mehr Medienzeit tauschen oder sich etwas wünschen.",
     "balance": "Sterne",
     "now_one": "{{count}} Stern jetzt",
     "now_other": "{{count}} Sterne jetzt",
@@ -416,7 +416,15 @@
     "perDayHelp_other": "Höchstens {{count}} neue Kapitel pro Tag; das nächste wartet bis morgen.",
     "upcoming": "Beginnt, wenn die Geschichte davor erledigt ist",
     "storyDone": "Fertig: füge die nächste Geschichte hinzu",
-    "chaptersOpen": "Kapitel {{open}} von {{total}} offen"
+    "chaptersOpen": "Kapitel {{open}} von {{total}} offen",
+    "chapterStars": "Sterne für ein fertiges Kapitel",
+    "chapterStarsNone": "Keine Sterne",
+    "chapterStarsHelp_one": "Dein Kind bekommt einen Stern, sobald alle Ideen eines Kapitels erledigt sind, auch die Extras.",
+    "chapterStarsHelp_other": "Dein Kind bekommt {{count}} Sterne, sobald alle Ideen eines Kapitels erledigt sind, auch die Extras.",
+    "chapterStarsNoneHelp": "Fertige Kapitel bringen nichts; Sterne gibt es nur als deine Extrasterne.",
+    "finishedChapter": "Kapitel fertig gemacht",
+    "confirmOpenAgain_zero": "Diese Aufgabe wieder öffnen?",
+    "confirmOpenAgainPicture_zero": "Diese Aufgabe wieder öffnen? Ihr Bild wird gelöscht."
   },
   "status": {
     "lockout": "Gesperrt bis {{until}}",

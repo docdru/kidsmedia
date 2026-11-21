@@ -155,7 +155,7 @@
   },
   "rewards": {
     "title": "Rewards",
-    "intro": "Stars come from finished off-screen ideas. Your child can swap them for a little more media time or ask for a wish.",
+    "intro": "Stars come from chapters with every off-screen idea done, and from the bonus stars you give. Your child can swap them for a little more media time or ask for a wish.",
     "balance": "Stars",
     "now_one": "{{count}} star now",
     "now_other": "{{count}} stars now",
@@ -416,7 +416,15 @@
     "perDayHelp_other": "At most {{count}} new chapters per day; the next one waits until tomorrow.",
     "upcoming": "Starts when the story before is done",
     "storyDone": "Finished: add the next story",
-    "chaptersOpen": "Chapter {{open}} of {{total}} open"
+    "chaptersOpen": "Chapter {{open}} of {{total}} open",
+    "chapterStars": "Stars for a finished chapter",
+    "chapterStarsNone": "No stars",
+    "chapterStarsHelp_one": "Your child earns one star once every idea of a chapter is done, extras included.",
+    "chapterStarsHelp_other": "Your child earns {{count}} stars once every idea of a chapter is done, extras included.",
+    "chapterStarsNoneHelp": "Finished chapters earn nothing; stars come only as your bonus stars.",
+    "finishedChapter": "Finished the chapter",
+    "confirmOpenAgain_zero": "Open this task again?",
+    "confirmOpenAgainPicture_zero": "Open this task again? Its picture is deleted."
   },
   "status": {
     "lockout": "Locked until {{until}}",

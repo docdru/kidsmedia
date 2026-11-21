@@ -63,8 +63,16 @@ from kidsmedia.deps import (
 )
 from kidsmedia.errors import ApiError
 from kidsmedia.library import ThumbRef
-from kidsmedia.rewards import reopen_delta
+from kidsmedia.rewards import (
+    BONUS_KIND,
+    CHAPTER_KIND,
+    REOPEN_KIND,
+    active_chapter_award,
+    held_stars,
+    reopen_delta,
+)
 from kidsmedia.routes.activities import (
+    chapter_done,
     chapter_pictures,
     compute,
     content_of,
@@ -74,6 +82,7 @@ from kidsmedia.routes.activities import (
     pick_lang,
     picture_ref,
     read_body,
+    star_rows,
     windows_of,
     world_cover,
     world_rows,
@@ -90,6 +99,7 @@ MAX_PACK_BYTES = 50 * 1024 * 1024
 MAX_UNZIPPED_BYTES = 60 * 1024 * 1024
 MAX_ZIP_ENTRIES = 200
 LOG_DAYS = 14
+MAX_CHAPTER_STARS = 20  # highest "stars for a finished chapter" (§14.4)
 # Decision 31: the order of the example worlds; unknown slugs follow alphabetically. Most of
 # them come with a derived image through EXTRA_PACKS_DIR; only lighthouse-island is bundled.
 EXAMPLE_ORDER = ("owl-mystery", "lighthouse-island", "rocket-kiwi", "forest-bakery", "coral-city")
@@ -107,6 +117,8 @@ class SettingsIn(BaseModel):
     chapter_needed: int | None = Field(default=None, ge=1, le=MAX_NEEDED)
     # §13.2: most chapters opened by finishing per day; null = no limit
     max_new_per_day: int | None = Field(default=None, ge=1, le=MAX_PER_DAY)
+    # §14.4: stars for a chapter with every idea done; 0 = none
+    chapter_stars: int | None = Field(default=None, ge=0, le=MAX_CHAPTER_STARS)
 
 
 class SettingsOut(BaseModel):
@@ -114,6 +126,7 @@ class SettingsOut(BaseModel):
     windows: list[Window]  # opening times for Ideas (§14.4a); empty = always open
     chapter_needed: int
     max_new_per_day: int | None  # None = no limit
+    chapter_stars: int
 
 
 class QueueIn(BaseModel):
@@ -254,8 +267,10 @@ class DoneOut(BaseModel):
     task_title: str
     done_at: datetime
     attempts: int | None  # read and calc (§14.2, §15.2), else None
-    stars: int  # what it earned and still holds: its earn and bonus rows
+    stars: int  # what it earned and still holds: its earn, chapter and bonus rows (§17.3)
     bonus: bool  # the parent gave it its bonus star
+    chapter: bool  # it finished its chapter and holds the chapter's stars (§14.4)
+    reopen_stars: int  # what "open again" takes back: its stars + the chapter's, if held
     photos: list[DonePhotoOut]  # oldest first; empty = no picture
 
 
@@ -446,6 +461,7 @@ def admin_state(conn: Connection, now: datetime, settings: Settings) -> Activiti
             windows=windows_of(st),
             chapter_needed=st.chapter_needed,
             max_new_per_day=st.max_new_per_day,
+            chapter_stars=st.chapter_stars,
         ),
         queue=queue,
         worlds=[world_summary(r) for r in sorted(rows.values(), key=lambda r: r.id)],
@@ -768,8 +784,9 @@ def put_settings(
     clock: Clock = Depends(get_clock),
     settings: Settings = Depends(get_settings),
 ) -> ActivitiesAdminOut:
-    """The child's level (§14.1), the opening times (§14.4a), the ideas per chapter and the
-    daily limit of new chapters (§13.2); omitted = kept, `max_new_per_day: null` = no limit.
+    """The child's level (§14.1), the opening times (§14.4a), the ideas per chapter, the
+    daily limit of new chapters (§13.2) and the stars for a finished chapter (§14.4); omitted
+    = kept, `max_new_per_day: null` = no limit.
     Chapters already open stay open; a change applies from the next idea on."""
     now = local_now(clock, settings)
     compute(conn, DEFAULT_PROFILE_ID, now)  # progress up to now under the old settings
@@ -778,6 +795,8 @@ def put_settings(
         values["chapter_needed"] = body.chapter_needed
     if "max_new_per_day" in body.model_fields_set:
         values["max_new_per_day"] = body.max_new_per_day
+    if body.chapter_stars is not None:
+        values["chapter_stars"] = body.chapter_stars
     if body.level is not None:
         values["level"] = body.level
     if body.windows is not None:
@@ -1054,30 +1073,40 @@ def export_world(
 DONE_PAGE = 30
 DONE_PAGE_MAX = 100
 PHOTO_CACHE = "private, max-age=31536000, immutable"  # the key holds a content hash
-BONUS_KIND = "bonus"
-REOPEN_KIND = "reopen"
-TASK_STAR_KINDS = ("earn", BONUS_KIND)  # what a done task earned (§17.3)
 
 
-def _done_stars(
-    conn: Connection, profile_id: int, done_ids: list[int]
-) -> tuple[dict[int, int], set[int]]:
-    """({done id: its stars (earn + bonus rows)}, {done ids with a bonus star})."""
-    if not done_ids:
-        return {}, set()
-    stars: dict[int, int] = {}
-    bonus: set[int] = set()
-    for r in conn.execute(
-        select(reward_ledger.c.ref_id, reward_ledger.c.kind, reward_ledger.c.delta).where(
-            reward_ledger.c.profile_id == profile_id,
-            reward_ledger.c.kind.in_(TASK_STAR_KINDS),
-            reward_ledger.c.ref_id.in_(done_ids),
+@dataclass(frozen=True)
+class DoneStars:
+    """The stars of a done task (§17.3)."""
+
+    held: int  # what it holds: earn, chapter and bonus rows, minus what was taken back
+    bonus: bool  # its bonus star was given
+    chapter: bool  # it holds its chapter's stars
+    chapter_holder: int | None  # the done id that holds the chapter's stars, if any
+    chapter_stars: int  # what that holder still holds of them
+
+
+def _done_stars(conn: Connection, profile_id: int, rows: list[Row[Any]]) -> dict[int, DoneStars]:
+    """{done id: its stars} for these done rows, with their chapters' awards (§14.4)."""
+    chapters: dict[tuple[int, int], list[int]] = {}
+    for r in rows:
+        key = (r.world_id, r.position)
+        if key not in chapters:
+            chapters[key] = list(chapter_done(conn, profile_id, r.world_id, r.position).values())
+    ledger = star_rows(conn, profile_id, {i for ids in chapters.values() for i in ids})
+    holder = {key: active_chapter_award(ledger, ids) for key, ids in chapters.items()}
+    out: dict[int, DoneStars] = {}
+    for r in rows:
+        h = holder[(r.world_id, r.position)]
+        chapter_rows = [(k, ref, d) for k, ref, d in ledger if k in (CHAPTER_KIND, REOPEN_KIND)]
+        out[r.id] = DoneStars(
+            held=held_stars(ledger, r.id),
+            bonus=any(k == BONUS_KIND and ref == r.id for k, ref, _ in ledger),
+            chapter=h == r.id,
+            chapter_holder=h,
+            chapter_stars=held_stars(chapter_rows, h) if h is not None else 0,
         )
-    ).all():
-        stars[r.ref_id] = stars.get(r.ref_id, 0) + r.delta
-        if r.kind == BONUS_KIND:
-            bonus.add(r.ref_id)
-    return stars, bonus
+    return out
 
 
 def _photo_url(key: str, size: photos.PhotoSize) -> str:
@@ -1091,7 +1120,7 @@ def done_entries(
     (§14.7; a task the world no longer has keeps its photo's snapshot title), stars, bonus
     and photos."""
     ids = [r.id for r in rows]
-    stars, bonus = _done_stars(conn, profile_id, ids)
+    stars = _done_stars(conn, profile_id, rows)
     by_done: dict[int, list[Row[Any]]] = {}
     if ids:
         for ph in conn.execute(
@@ -1127,8 +1156,11 @@ def done_entries(
                 task_title=title,
                 done_at=from_db(r.done_at),
                 attempts=r.attempts,
-                stars=stars.get(r.id, 0),
-                bonus=r.id in bonus,
+                stars=stars[r.id].held,
+                bonus=stars[r.id].bonus,
+                chapter=stars[r.id].chapter,
+                reopen_stars=stars[r.id].held
+                + (stars[r.id].chapter_stars if not stars[r.id].chapter else 0),
                 photos=[
                     DonePhotoOut(
                         id=ph.id,
@@ -1189,7 +1221,7 @@ def give_bonus(
     and written as one atomic step)."""
     begin_immediate(conn)
     row = _done_row(conn, done_id)
-    if done_id in _done_stars(conn, DEFAULT_PROFILE_ID, [done_id])[1]:
+    if _done_stars(conn, DEFAULT_PROFILE_ID, [row])[done_id].bonus:
         raise ApiError(409, "bonus_given", done_id=done_id)
     conn.execute(
         insert(reward_ledger).values(
@@ -1213,14 +1245,28 @@ def reopen_done(
 ) -> None:
     """Open again (§17.3): in one transaction, deletes the done row and its photo rows and
     books a `reopen` row of -min(its stars, the balance), `ref_id` = the done id (none for 0),
-    so the balance never goes below 0. The photo files go after the commit (best effort: a
-    leftover file is harmless, a missing one for a kept row would not be). The tablet sees
-    the task open on its next refresh; its sticker goes with the chapter's last done task.
-    404 unknown_done."""
+    so the balance never goes below 0. When another task of the chapter holds the chapter's
+    stars (§14.4), they go back too: a `reopen` row with that task's id (also for 0 stars,
+    so the chapter is awarded again once it is finished again). The photo files go after the
+    commit (best effort: a leftover file is harmless, a missing one for a kept row would not
+    be). The tablet sees the task open on its next refresh; its sticker goes with the
+    chapter's last done task. 404 unknown_done."""
     begin_immediate(conn)
-    _done_row(conn, done_id)
-    stars = _done_stars(conn, DEFAULT_PROFILE_ID, [done_id])[0].get(done_id, 0)
-    delta = reopen_delta(stars, stars_of(conn, DEFAULT_PROFILE_ID))
+    row = _done_row(conn, done_id)
+    st = _done_stars(conn, DEFAULT_PROFILE_ID, [row])[done_id]
+    now = to_db(clock.now())
+    balance_now = stars_of(conn, DEFAULT_PROFILE_ID)
+    delta = reopen_delta(st.held, balance_now)
+    if st.chapter_holder is not None and st.chapter_holder != done_id:
+        conn.execute(
+            insert(reward_ledger).values(
+                profile_id=DEFAULT_PROFILE_ID,
+                delta=reopen_delta(st.chapter_stars, balance_now + delta),
+                kind=REOPEN_KIND,
+                ref_id=st.chapter_holder,
+                created_at=now,
+            )
+        )
     keys = [
         k
         for k in conn.execute(
@@ -1237,7 +1283,7 @@ def reopen_done(
                 delta=delta,
                 kind=REOPEN_KIND,
                 ref_id=done_id,
-                created_at=to_db(clock.now()),
+                created_at=now,
             )
         )
     conn.commit()

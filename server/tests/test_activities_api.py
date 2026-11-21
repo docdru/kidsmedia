@@ -342,6 +342,7 @@ def test_admin_state_defaults(admin: TestClient) -> None:
         "windows": [],
         "chapter_needed": 2,
         "max_new_per_day": None,
+        "chapter_stars": 3,
     }
     assert body["queue"] == []
     assert "days_off" not in body
@@ -841,10 +842,10 @@ def stars_of(settings: Settings) -> list[int]:
         )
 
 
-def test_attempts_and_stars_for_calc_tasks(
+def test_attempts_for_calc_tasks_and_no_stars_per_task(
     admin: TestClient, device_token: str, settings: Settings
 ) -> None:
-    """§15.2: attempts = 1 + the wrong answers; right at the first try earns 1 more star."""
+    """§15.2: attempts = 1 + the wrong answers; a task earns no stars itself (§14.4)."""
     world_id = queued_world(admin)
     auth = bearer(device_token)
     done = {"world_id": world_id, "position": 1, "kind": "calc"}
@@ -852,13 +853,13 @@ def test_attempts_and_stars_for_calc_tasks(
     assert r.status_code == 200, r.text
     admin.post("/api/activities/done", json=done | {"attempts": 4}, headers=auth)  # repeated
     assert attempts_of(settings) == {"calc": 1}
-    assert stars_of(settings) == [2]
+    assert stars_of(settings) == []
     reading = {"world_id": world_id, "position": 1, "kind": "read", "attempts": 3}
     admin.post("/api/activities/done", json=reading, headers=auth)
-    assert stars_of(settings) == [2, 1]
+    assert stars_of(settings) == []
 
 
-def test_a_calc_task_with_wrong_answers_earns_one_star(
+def test_a_calc_task_with_wrong_answers_keeps_its_tries(
     admin: TestClient, device_token: str, settings: Settings
 ) -> None:
     world_id = queued_world(admin)
@@ -869,7 +870,7 @@ def test_a_calc_task_with_wrong_answers_earns_one_star(
     )
     assert r.status_code == 200, r.text
     assert attempts_of(settings) == {"calc": 3}
-    assert stars_of(settings) == [1]
+    assert stars_of(settings) == []
     row = admin.get("/api/admin/activities").json()["log"][0]
     assert (row["attempts"], row["calc_attempts"]) == (None, 3)  # the log shows maths tries (§15.2)
 

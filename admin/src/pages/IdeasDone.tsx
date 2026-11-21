@@ -88,7 +88,8 @@ export function DoneCard() {
                   <span className="small">
                     {[
                       tries,
-                      t("rewards.starCount", { count: e.stars }),
+                      e.stars > 0 ? t("rewards.starCount", { count: e.stars }) : null,
+                      e.chapter ? t("ideas.finishedChapter") : null,
                       e.photos.length === 0 && PHOTO_KINDS.includes(e.kind) ? t("ideas.noPicture") : null,
                     ]
                       .filter(Boolean)
@@ -148,7 +149,7 @@ function DoneActions({ entry }: { entry: DoneEntry }) {
   });
   const given = entry.bonus || bonus.isSuccess;
   const confirmText = t(entry.photos.length > 0 ? "ideas.confirmOpenAgainPicture" : "ideas.confirmOpenAgain", {
-    count: entry.stars,
+    count: entry.reopen_stars,
   });
   return (
     <div className="stack">
