@@ -42,3 +42,48 @@ checklist = """
 does the change match docs/SPEC.md and AGENTS.md? This applies to code PRs (does
 the code implement the spec?) AND docs PRs (is the spec internally consistent,
 are edited sections coherent with the rest of the spec?)."""
+
+# Related context (ai-review v1.2): unchanged files that help judge the change.
+# Without it the reviewer reported tests as missing that existed in other files.
+[related]
+tests = true    # tests of the changed files by name (test_x.py, XTest.kt, x.test.tsx)
+imports = true  # Python and TypeScript files one import step away, both directions
+nearby = true   # names of the files and folders next to the changed files
+
+# The rules engine has a port in the app for offline mode (AGENTS.md, check 1).
+[[related.rules]]
+when = ["server/src/kidsmedia/rules.py"]
+send = [
+  "android/app/src/main/java/app/kidsmedia/rules/RulesEngine.kt",
+  "android/app/src/test/java/app/kidsmedia/rules/RulesEngineTest.kt",
+]
+
+[[related.rules]]
+when = ["android/app/src/main/java/app/kidsmedia/rules/"]
+send = ["server/src/kidsmedia/rules.py", "server/tests/test_rules.py"]
+
+# Ideas, stars and rewards: their API tests aren't named after the modules.
+[[related.rules]]
+when = [
+  "server/src/kidsmedia/routes/activities.py",
+  "server/src/kidsmedia/routes/activities_admin.py",
+  "server/src/kidsmedia/rewards.py",
+]
+send = [
+  "server/tests/test_done_admin.py",
+  "server/tests/test_rewards_api.py",
+  "server/tests/test_photos.py",
+]
+
+# Every language must stay in step (AGENTS.md, check 6).
+[[related.rules]]
+when = ["admin/src/i18n/"]
+send = ["admin/src/i18n/en.json", "admin/src/i18n/de.json", "admin/src/i18n/el.json"]
+
+[[related.rules]]
+when = ["android/app/src/main/res/values*/strings.xml"]
+send = [
+  "android/app/src/main/res/values/strings.xml",
+  "android/app/src/main/res/values-de/strings.xml",
+  "android/app/src/main/res/values-el/strings.xml",
+]
