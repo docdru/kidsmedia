@@ -891,6 +891,15 @@ fun TaskDoneScreen(base: String, view: ActivitiesView, position: Int, onBack: ()
     // The outro only once the chapter is finished; before that, how many ideas are left (SPEC §13.2).
     val finished = ActivityLogic.finished(chapter)
     val left = ActivityLogic.left(chapter)
+    // Stars only for a chapter with every idea done (SPEC §14.4): say so, or how many are left.
+    val chapterStars = view.data.chapterStars
+    val earned = chapterStars > 0 && ActivityLogic.complete(chapter)
+    val notDone = ActivityLogic.notDone(chapter)
+    val starsLine = when {
+        chapterStars <= 0 -> null
+        earned -> pluralStringResource(R.plurals.activity_chapter_stars_earned, chapterStars, chapterStars)
+        else -> pluralStringResource(R.plurals.activity_chapter_stars_todo, notDone, notDone)
+    }
     val title = if (finished) {
         stringResource(R.string.activity_done_title, position)
     } else {
@@ -926,9 +935,9 @@ fun TaskDoneScreen(base: String, view: ActivitiesView, position: Int, onBack: ()
                     contentAlignment = Alignment.Center
                 ) {
                     Icon(
-                        Icons.Filled.Star,
+                        if (earned) Icons.Filled.Star else Icons.Filled.Check,
                         contentDescription = null,
-                        tint = Color(0xFFFFB800),
+                        tint = if (earned) Color(0xFFFFB800) else DoneGreen,
                         modifier = Modifier.size(60.dp)
                     )
                 }
@@ -939,9 +948,9 @@ fun TaskDoneScreen(base: String, view: ActivitiesView, position: Int, onBack: ()
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
-                    Icons.Filled.Star,
+                    if (earned) Icons.Filled.Star else Icons.Filled.Check,
                     contentDescription = null,
-                    tint = Color(0xFFFFD34D),
+                    tint = if (earned) Color(0xFFFFD34D) else Color.White,
                     modifier = Modifier.size(120.dp)
                 )
             }
@@ -953,6 +962,15 @@ fun TaskDoneScreen(base: String, view: ActivitiesView, position: Int, onBack: ()
             color = Color.White
         )
         Text(text, fontSize = 28.sp, fontWeight = FontWeight.Bold, color = Color.White, lineHeight = 38.sp)
+        starsLine?.let {
+            Text(
+                it,
+                fontSize = 28.sp,
+                fontWeight = FontWeight.Black,
+                color = Color(0xFFFFD34D),
+                lineHeight = 38.sp
+            )
+        }
         Surface(onClick = onBack, shape = RoundedCornerShape(46.dp), color = Color.White) {
             Box(Modifier.height(92.dp).padding(horizontal = 40.dp), contentAlignment = Alignment.Center) {
                 Text(

@@ -75,6 +75,13 @@ object ActivityLogic {
     /** Enough ideas of [chapter] are done to open the next chapter (or finish the story). */
     fun finished(chapter: StoryChapter): Boolean = chapter.doneKinds.size >= needed(chapter)
 
+    /** Every idea of [chapter] is done, extras included: it earns its stars (SPEC §14.4). */
+    fun complete(chapter: StoryChapter): Boolean =
+        chapter.tasks.isNotEmpty() && chapter.tasks.all { it.kind in chapter.doneKinds }
+
+    /** Ideas of [chapter] not done yet, extras included (SPEC §14.4). */
+    fun notDone(chapter: StoryChapter): Int = chapter.tasks.count { it.kind !in chapter.doneKinds }
+
     /** Ideas still to do in [chapter] to open the next one. */
     fun left(chapter: StoryChapter): Int = (needed(chapter) - chapter.doneKinds.size).coerceAtLeast(0)
 

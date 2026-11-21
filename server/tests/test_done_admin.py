@@ -1,5 +1,7 @@
 """Done activities in the admin (SPEC §17): the list with photos and stars, one bonus star per
-done task, and "open again", which takes the task's stars back (never below 0).
+done task, and "open again", which takes the task's stars back (never below 0). A done task
+earns nothing itself; the task that finishes the chapter (every idea done) holds the
+chapter's stars (§14.4, 3 by default).
 
 The fixed clock starts on Saturday 2026-11-07 14:20 Europe/Berlin; a queued world's first
 chapter (draw "One", calc "T", write "T", read "R") is unlocked.
@@ -44,6 +46,13 @@ def done_kinds(admin: TestClient, token: str) -> list[str]:
     return sorted(kinds)
 
 
+def finish_chapter(admin: TestClient, token: str, world_id: int) -> None:
+    """Every idea of chapter 1 done, in this order: draw, calc, write, read."""
+    for kind in ("draw", "calc", "write"):
+        done(admin, token, world_id, kind)
+    done(admin, token, world_id, "read", attempts=1)
+
+
 def admin_stars(admin: TestClient) -> tuple[int, int, int]:
     body = admin.get("/api/admin/rewards").json()
     return body["stars"], body["earned"], body["spent"]
@@ -75,15 +84,18 @@ def test_the_list_shows_done_tasks_with_photos_and_stars(
         "attempts",
         "stars",
         "bonus",
+        "chapter",
+        "reopen_stars",
         "photos",
     }
     assert (draw["world_id"], draw["world_name"], draw["position"]) == (world_id, "World", 1)
     assert (draw["task_title"], draw["attempts"], draw["stars"], draw["bonus"]) == (
         "One",
         None,
-        1,
+        0,  # a done task earns nothing itself (§14.4)
         False,
     )
+    assert (draw["chapter"], draw["reopen_stars"]) == (False, 3)  # the chapter's stars go too
     [photo] = draw["photos"]
     assert set(photo) == {"id", "url_sm", "url_lg", "taken_at"}
     assert photo["url_sm"].startswith("/api/admin/photos/p")
@@ -92,7 +104,9 @@ def test_the_list_shows_done_tasks_with_photos_and_stars(
     assert admin.get(photo["url_lg"]).status_code == 200
     by_kind = {e["kind"]: e for e in listed}
     assert (by_kind["read"]["task_title"], by_kind["read"]["attempts"]) == ("R", 1)
-    assert (by_kind["read"]["stars"], by_kind["calc"]["stars"]) == (2, 1)  # first-try extra
+    assert (by_kind["read"]["stars"], by_kind["calc"]["stars"]) == (0, 0)  # no first-try extra
+    write = by_kind["write"]  # the last idea of the chapter: it holds the chapter's stars
+    assert (write["stars"], write["chapter"], write["reopen_stars"]) == (3, True, 3)
     assert by_kind["calc"]["attempts"] == 3
     assert by_kind["write"]["photos"] == []  # "no picture"
 
@@ -131,12 +145,13 @@ def test_one_bonus_star_per_done_task_of_any_kind(
     world_id = queued_world(admin)
     done(admin, device_token, world_id, "read", attempts=1)
     read = entry(admin, "read")
+    assert (read["stars"], admin_stars(admin)) == (0, (0, 0, 0))  # nothing for the task itself
     r = admin.post(f"{DONE}/{read['id']}/bonus")
     assert r.status_code == 200, r.text
-    assert r.json() == read | {"stars": 3, "bonus": True}
+    assert r.json() == read | {"stars": 1, "bonus": True, "reopen_stars": 1}
     assert ledger(settings)[-1] == ("bonus", 1, read["id"])
-    assert admin_stars(admin) == (3, 3, 0)  # a bonus counts as earned
-    assert rewards(admin, device_token)["stars"] == 3
+    assert admin_stars(admin) == (1, 1, 0)  # a bonus counts as earned
+    assert rewards(admin, device_token)["stars"] == 1
     assert admin.get("/api/admin/rewards").json()["ledger"] == []  # spending rows only
 
     r = admin.post(f"{DONE}/{read['id']}/bonus")
@@ -145,35 +160,99 @@ def test_one_bonus_star_per_done_task_of_any_kind(
     r = admin.post(f"{DONE}/999/bonus")
     assert r.status_code == 404
     assert r.json()["reason"] == "unknown_done"
+    assert admin_stars(admin) == (1, 1, 0)
+    assert entry(admin, "read")["stars"] == 1
+
+
+# ---- chapter stars --------------------------------------------------------------------------
+
+
+def test_stars_only_for_a_chapter_with_every_idea_done(
+    admin: TestClient, device_token: str, settings: Settings
+) -> None:
+    world_id = queued_world(admin)
+    for kind in ("draw", "calc", "write"):
+        done(admin, device_token, world_id, kind)
+    assert admin_stars(admin) == (0, 0, 0)  # the next chapter is open, but no stars yet
+    assert ledger(settings) == []
+    body = done(admin, device_token, world_id, "read", attempts=2)
+    assert body["chapter_stars"] == 3
+    read_id = entry(admin, "read")["id"]
+    assert ledger(settings) == [("chapter", 3, read_id)]
     assert admin_stars(admin) == (3, 3, 0)
-    assert entry(admin, "read")["stars"] == 3
+    assert rewards(admin, device_token)["stars"] == 3
+    done(admin, device_token, world_id, "read", attempts=1)  # a repeated done: nothing new
+    assert admin_stars(admin) == (3, 3, 0)
+
+
+def test_the_stars_per_chapter_are_set_in_the_admin(
+    admin: TestClient, device_token: str, settings: Settings
+) -> None:
+    world_id = queued_world(admin)
+    assert admin.get("/api/admin/activities").json()["settings"]["chapter_stars"] == 3
+    r = admin.put("/api/admin/activities/settings", json={"chapter_stars": 5})
+    assert r.status_code == 200, r.text
+    assert r.json()["settings"]["chapter_stars"] == 5
+    for bad in (-1, 21):
+        r = admin.put("/api/admin/activities/settings", json={"chapter_stars": bad})
+        assert r.status_code == 422, bad
+    finish_chapter(admin, device_token, world_id)
+    assert admin_stars(admin) == (5, 5, 0)
+
+    admin.put("/api/admin/activities/settings", json={"chapter_stars": 0})  # bonus stars only
+    assert admin.delete(f"{DONE}/{entry(admin, 'read')['id']}").status_code == 204
+    done(admin, device_token, world_id, "read", attempts=1)  # finished again: nothing now
+    assert [k for k, _, _ in ledger(settings)] == ["chapter", "reopen"]
+    assert admin_stars(admin) == (0, 0, 0)
 
 
 # ---- open again ---------------------------------------------------------------------------
 
 
-def test_open_again_takes_the_stars_back_and_the_task_can_earn_again(
+def test_open_again_takes_the_chapter_stars_back_and_the_chapter_can_earn_again(
     admin: TestClient, device_token: str, settings: Settings
 ) -> None:
     world_id = queued_world(admin)
-    done(admin, device_token, world_id, "draw")
-    done(admin, device_token, world_id, "read", attempts=1)
-    read_id = entry(admin, "read")["id"]
+    finish_chapter(admin, device_token, world_id)
+    read_id = entry(admin, "read")["id"]  # the last idea: it holds the chapter's 3 stars
     assert admin_stars(admin) == (3, 3, 0)
 
     assert admin.delete(f"{DONE}/{read_id}").status_code == 204
-    assert ledger(settings)[-1] == ("reopen", -2, read_id)
-    assert admin_stars(admin) == (1, 1, 0)  # negative earning, not spending
+    assert ledger(settings)[-1] == ("reopen", -3, read_id)
+    assert admin_stars(admin) == (0, 0, 0)  # negative earning, not spending
     assert admin.get("/api/admin/rewards").json()["ledger"] == []
-    assert [e["kind"] for e in entries(admin)] == ["draw"]
-    assert done_kinds(admin, device_token) == ["draw"]  # the tablet sees it open again
+    assert done_kinds(admin, device_token) == ["calc", "draw", "write"]  # open again
 
-    done(admin, device_token, world_id, "read", attempts=1)  # done anew: earns again
+    done(admin, device_token, world_id, "read", attempts=1)  # finished anew: earns again
     again = entry(admin, "read")
     assert again["id"] != read_id  # a reopened id is never handed out again
-    assert (again["stars"], again["bonus"]) == (2, False)
+    assert (again["stars"], again["chapter"], again["bonus"]) == (3, True, False)
     assert admin_stars(admin) == (3, 3, 0)
-    assert done_kinds(admin, device_token) == ["draw", "read"]
+
+
+def test_open_again_of_another_task_of_a_finished_chapter(
+    admin: TestClient, device_token: str, settings: Settings
+) -> None:
+    """The chapter's stars are held by its last idea; opening any of its tasks again takes
+    them back, and finishing the chapter again earns them once more, not twice."""
+    world_id = queued_world(admin)
+    finish_chapter(admin, device_token, world_id)
+    read_id = entry(admin, "read")["id"]
+    draw = entry(admin, "draw")
+    assert (draw["stars"], draw["reopen_stars"]) == (0, 3)
+
+    assert admin.delete(f"{DONE}/{draw['id']}").status_code == 204
+    assert ledger(settings)[-1] == ("reopen", -3, read_id)
+    assert admin_stars(admin) == (0, 0, 0)
+    read = entry(admin, "read")
+    assert (read["stars"], read["chapter"], read["reopen_stars"]) == (0, False, 0)
+
+    done(admin, device_token, world_id, "draw")  # the chapter is finished again
+    new_draw = entry(admin, "draw")
+    assert (new_draw["stars"], new_draw["chapter"]) == (3, True)
+    assert admin_stars(admin) == (3, 3, 0)
+    assert admin.delete(f"{DONE}/{read_id}").status_code == 204  # the read task holds nothing
+    assert admin_stars(admin) == (0, 0, 0)  # but the draw task's chapter stars go back
 
 
 def test_open_again_takes_back_the_bonus_star_too(
@@ -184,11 +263,11 @@ def test_open_again_takes_back_the_bonus_star_too(
     read_id = entry(admin, "read")["id"]
     admin.post(f"{DONE}/{read_id}/bonus")
     assert admin.delete(f"{DONE}/{read_id}").status_code == 204
-    assert ledger(settings)[-1] == ("reopen", -3, read_id)
+    assert ledger(settings)[-1] == ("reopen", -1, read_id)
     assert admin_stars(admin) == (0, 0, 0)
     done(admin, device_token, world_id, "read", attempts=2)
     again = entry(admin, "read")
-    assert (again["stars"], again["bonus"]) == (1, False)  # the old bonus stays with the old row
+    assert (again["stars"], again["bonus"]) == (0, False)  # the old bonus stays with the old row
     assert admin.post(f"{DONE}/{again['id']}/bonus").status_code == 200
 
 
@@ -196,24 +275,25 @@ def test_open_again_never_takes_the_balance_below_zero(
     admin: TestClient, device_token: str, settings: Settings
 ) -> None:
     world_id = queued_world(admin)
-    done(admin, device_token, world_id, "draw")
-    done(admin, device_token, world_id, "read", attempts=1)
-    wish_id = wish(admin, stars=2)
+    finish_chapter(admin, device_token, world_id)
+    draw_id = entry(admin, "draw")["id"]
+    admin.post(f"{DONE}/{draw_id}/bonus")
+    wish_id = wish(admin, stars=3)
     request_id = ask(admin, device_token, wish_id).json()["wishes"][0]["request"]["id"]
     assert admin.post(f"/api/admin/rewards/requests/{request_id}/approve").is_success
-    assert admin_stars(admin) == (1, 3, 2)
+    assert admin_stars(admin) == (1, 4, 3)
 
     read_id = entry(admin, "read")["id"]
-    assert admin.delete(f"{DONE}/{read_id}").status_code == 204
-    assert ledger(settings)[-1] == ("reopen", -1, read_id)  # only the balance
-    assert admin_stars(admin) == (0, 2, 2)  # the swapped stars stay swapped
+    assert admin.delete(f"{DONE}/{draw_id}").status_code == 204
+    # the bonus first, then the chapter's stars with what is left: nothing
+    assert ledger(settings)[-2:] == [("reopen", 0, read_id), ("reopen", -1, draw_id)]
+    assert admin_stars(admin) == (0, 3, 3)  # the swapped stars stay swapped
     assert rewards(admin, device_token)["stars"] == 0
 
-    draw_id = entry(admin, "draw")["id"]
     n = len(ledger(settings))
-    assert admin.delete(f"{DONE}/{draw_id}").status_code == 204
+    assert admin.delete(f"{DONE}/{read_id}").status_code == 204
     assert len(ledger(settings)) == n  # nothing to take back: no row
-    assert admin_stars(admin) == (0, 2, 2)
+    assert admin_stars(admin) == (0, 3, 3)
 
 
 def test_open_again_deletes_the_photos(
@@ -268,4 +348,4 @@ def test_mutations_need_csrf(admin: TestClient, device_token: str, settings: Set
     finally:
         admin.headers["X-CSRF-Token"] = token
     assert len(done_rows(settings)) == 1
-    assert [kind for kind, _, _ in ledger(settings)] == ["earn"]
+    assert ledger(settings) == []

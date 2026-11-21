@@ -1,6 +1,6 @@
 # Kids Media — Specification
 
-Status: draft v0.23 · 2026-11-19 (v0.23: example packs may bring their own recordings of the read-aloud texts, §13.5, §14.3 · v0.22: chapters open by doing ideas, not by date, §13.2; the version in the admin header, §9 · v0.21: full-screen button for video, §8 · v0.20: public code, family image with JOY, the story packs and the signed APK, §18 · v0.19: Done activities in the admin: bonus star per task, open again, §17 · v0.18: one language button, Home header on narrow screens, gems screen · v0.17: gems 💎, rules that unlock by gems instead of time, §16 · v0.16: no accidental done, photos of drawings and stories, maths problem sets, simple materials, §15 · v0.15: story language set per queued story, language flags for the child, §14.7 · v0.14: levels, reading, read aloud on the server, rewards, §14 · v0.13: pictures in story packs · v0.12: Greek as a third language, Greek mystery world · v0.11: activities, §13 · v0.10: volume cap per tablet · v0.9: covers without a MIME type · v0.8: release images carry their APK, silent self-update · v0.7: a session belongs to the day it started · v0.6: grace at the midnight rollover, grace per rule, final heartbeat · v0.5: #2/#3 decided · v0.2: open questions resolved, §12 · v0.3: thumbnails, §6.4 · v0.4: review fixes: grace on stream, evening-anchored lockouts, resume per group, cumulative heartbeats, cover fallback)
+Status: draft v0.24 · 2026-11-21 (v0.24: stars only for a chapter with every idea done, and the parent's bonus stars, §14.4 · v0.23: example packs may bring their own recordings of the read-aloud texts, §13.5, §14.3 · v0.22: chapters open by doing ideas, not by date, §13.2; the version in the admin header, §9 · v0.21: full-screen button for video, §8 · v0.20: public code, family image with JOY, the story packs and the signed APK, §18 · v0.19: Done activities in the admin: bonus star per task, open again, §17 · v0.18: one language button, Home header on narrow screens, gems screen · v0.17: gems 💎, rules that unlock by gems instead of time, §16 · v0.16: no accidental done, photos of drawings and stories, maths problem sets, simple materials, §15 · v0.15: story language set per queued story, language flags for the child, §14.7 · v0.14: levels, reading, read aloud on the server, rewards, §14 · v0.13: pictures in story packs · v0.12: Greek as a third language, Greek mystery world · v0.11: activities, §13 · v0.10: volume cap per tablet · v0.9: covers without a MIME type · v0.8: release images carry their APK, silent self-update · v0.7: a session belongs to the day it started · v0.6: grace at the midnight rollover, grace per rule, final heartbeat · v0.5: #2/#3 decided · v0.2: open questions resolved, §12 · v0.3: thumbnails, §6.4 · v0.4: review fixes: grace on stream, evening-anchored lockouts, resume per group, cumulative heartbeats, cover fallback)
 
 A self-hosted media server for a child's Android tablet. A parent uploads music, audiobooks and videos to a Docker web app on a public Linux server, puts them into groups, and sets usage rules. A dedicated Android app on the tablet streams the media and enforces the rules.
 
@@ -620,6 +620,7 @@ Implemented as a pure function `schedule(...)` in `server/src/kidsmedia/activiti
   "server_time": "2026-11-05T14:20:00+01:00",
   "next_unlock_at": null,
   "max_new_per_day": null,
+  "chapter_stars": 3,
   "opened_today": 1,
   "story_done": false,
   "world": {
@@ -649,10 +650,10 @@ The app caches the last `GET` (like the library) and queues `done` taps made off
 
 ### 13.4 Admin API
 
-- `GET /api/admin/activities` → `{settings: {level, windows, chapter_needed: 2, max_new_per_day: null}, queue: [{world_id, status: "running"|"upcoming", chapters, chapters_open, story_done, lang, langs}], worlds: [WorldSummary], log: [{date, world_id, position, kinds: ["draw"], done_at}], examples: [{slug, texts: {de: {name}, en: {name}}, imported: bool}]}`.
+- `GET /api/admin/activities` → `{settings: {level, windows, chapter_needed: 2, max_new_per_day: null, chapter_stars: 3}, queue: [{world_id, status: "running"|"upcoming", chapters, chapters_open, story_done, lang, langs}], worlds: [WorldSummary], log: [{date, world_id, position, kinds: ["draw"], done_at}], examples: [{slug, texts: {de: {name}, en: {name}}, imported: bool}]}`.
   - `WorldSummary`: `{id, slug, age_band, color, cover, texts, chapters, tasks, complete, warnings}`; `complete` = every chapter has all three kinds and every text block exists in all three languages; `warnings` = `[{code: "missing_translation"|"missing_kind", chapter, kind?, lang?}]`.
   - `log`: the done tasks of the last 14 days, newest first, one row per chapter and day.
-- `PUT /api/admin/activities/settings` `{level?, windows?, chapter_needed?, max_new_per_day?}`: omitted = kept; `chapter_needed` 1–4, `max_new_per_day` 1–12 or `null` (no limit). The days-off endpoints are gone (v0.22).
+- `PUT /api/admin/activities/settings` `{level?, windows?, chapter_needed?, max_new_per_day?, chapter_stars?}`: omitted = kept; `chapter_needed` 1–4, `max_new_per_day` 1–12 or `null` (no limit), `chapter_stars` 0–20 (§14.4). The days-off endpoints are gone (v0.22).
 - `PUT /api/admin/activities/queue` `{world_ids, langs?}` (each at most once; `langs` = `{"<world id>": "de"|"en"|"el"}`, the story language per queued world, §14.7) → the same as `GET` (rule 13.2/7). Queue entries in `GET` carry `lang` (the language the tablet tells the story in) and `langs` (the languages the world has).
 - `GET /api/admin/worlds/{id}` → the full world in pack format (§13.5) plus `id` and `cover`; easier/harder included.
 - `PUT /api/admin/worlds/{id}` (pack JSON without `cover`) → saves texts and chapters; slug can't change.
@@ -697,6 +698,7 @@ worlds(id, slug UNIQUE, age_band, color, cover_key NULL, cover_aspect NULL, cont
        -- content = the pack's texts + chapters (validated)
 activity_settings(profile_id PK → profiles, queue JSON [world ids],
                   chapter_needed INT DEFAULT 2, max_new_per_day INT NULL,   -- §13.2
+                  chapter_stars INT DEFAULT 3,                              -- §14.4, v0.24 (migration 0019)
                   progress JSON {world, opened: [dates], opens: {date: n}} DEFAULT '{}',
                   langs JSON {world id: lang} DEFAULT '{}')   -- §14.7, story language per queued world
                   -- v0.22 (migration 0018) dropped days, unlock_time, queue_start and activity_days_off;
@@ -767,7 +769,11 @@ A fourth kind next to draw, calc and write. A chapter offers 1–4 tasks with di
 
 ### 14.4 Rewards
 
-- **Stars:** a task's first done row (per profile, world, chapter and kind) earns 1 star; a `read` task done with `attempts = 1` earns 1 more. The server records them as one `earn` row in `reward_ledger` (`delta` +1 or +2, `ref_id` = the `activity_done` id) when it stores the done row; a repeated done earns nothing. Stars are taken away only by "Open again" in the admin (§17, a `reopen` row): deleting a world deletes its done rows and stickers but keeps its `earn` rows. Balance = the sum of the ledger; earned = `earn` + `bonus` + `reopen` rows, spent = minus the `swap` and `wish` rows.
+- **Stars** (v0.24): a done task earns **no** stars by itself. Stars come only from:
+  - **A finished chapter:** the done row that makes **every** idea of a chapter done (all its tasks, the extras beyond `needed` included) earns `chapter_stars` (per child in the admin, 0–20, default 3; 0 = none). The server records it as one `chapter` row in `reward_ledger` (`delta` = `chapter_stars` at that moment, `ref_id` = that `activity_done` id) when it stores the done row; a repeated done earns nothing. A chapter holds its stars once: it is awarded again only after "Open again" took them back (§17.3). Opening the next chapter (`needed` ideas, §13.2) earns nothing yet.
+  - **The parent's bonus star:** one per done task, any kind (§17.3, a `bonus` row).
+  - Before v0.24 every done task earned 1 star, and a `read` or `calc` task with `attempts = 1` one more (`earn` rows). Those rows stay, so stars already earned are kept; migration 0019 changes nothing in the ledger. A chapter half done before the update earns its `chapter_stars` when its last idea is done.
+  - Stars are taken away only by "Open again" in the admin (§17, `reopen` rows): deleting a world deletes its done rows and stickers but keeps its `earn` and `chapter` rows. Balance = the sum of the ledger; earned = `earn` + `chapter` + `bonus` + `reopen` rows, spent = minus the `swap` and `wish` rows.
 - **Atomic spending:** redeeming a swap, requesting a wish and approving or declining a request each run in one write transaction (`BEGIN IMMEDIATE`, §14.5): the balance and limit checks and the writes can't interleave with another request, so two taps at once can't spend the same stars twice.
 - **Sticker album:** a chapter with at least one done task unlocks its picture as a sticker; one page per world, in queue/done order.
 - **Swaps** (set per child in the admin): `{id, stars, rule_id, extra_items | extra_minutes, max_per_day, enabled}`, e.g. "5 stars → 1 more file today" for the audiobook rule, or "5 stars → 15 min" for the music rule. Redeeming adds a row to `adjustments` for today (the existing per-rule bonus, §3.5) and a ledger row. Lockouts and `block` still apply: a swap never opens a locked tablet. The swap's label on the tablet is built from the rule's groups and the amount.
@@ -776,8 +782,8 @@ A fourth kind next to draw, calc and write. A chapter offers 1–4 tasks with di
 - **Wishes** (set per child in the admin): `{id, texts: {de,en,el: {name}}, stars, enabled}`, e.g. "Choose dessert" for 10 stars. The child taps "I'd like this" → a pending request, only if the balance covers the wish's stars right now (else 409 `not_enough_stars` with `{stars, needed}`; nothing is deducted yet). The parent approves (stars deducted then; 409 `not_enough_stars` if the balance is too low by then, and the request stays pending) or declines in the admin. A request is decided once: deciding it again → 409 `request_decided` with `{status}` (a conditional update, so of two decisions at once only one counts). At most one pending request per wish, also enforced by a partial unique index (§14.5).
 - **Device API:** `GET /api/rewards` → `{stars, album: [{world_id, texts, cover, stickers: [{position, image, earned_on}]}], swaps: [{id, stars, rule_id, extra_items, extra_minutes, used_today, max_per_day, groups: [names]}], wishes: [{id, texts, stars, request: null | {id, status, created_at}}]}`; `POST /api/rewards/swaps/{id}` → the new `GET` body (409 `not_enough_stars`, `swap_limit_reached`; 404 `unknown_swap` for a swap that isn't offered); `POST /api/rewards/wishes/{id}/request` → the new `GET` body (409 `request_pending`, `not_enough_stars`).
 - **Admin API:** `GET /api/admin/rewards` → `{stars, earned, spent, swaps, wishes, requests: [{id, wish_id, status, created_at, decided_at}], ledger: [the last 50 spending rows (kind swap | wish), newest first]}`; CRUD `POST/PATCH/DELETE /api/admin/rewards/swaps[/{id}]` (422 `unknown_rule`, `swap_rule_unsuitable`) and `…/wishes[/{id}]`; `POST /api/admin/rewards/requests/{id}/approve|decline` (404 `unknown_request`, 409 `request_decided`, approve also 409 `not_enough_stars`).
-- **Tablet:** a star counter on Home and on the world tile; a Rewards screen with the album, the swaps ("Swap 5 stars") and the wishes ("I'd like this", then "Waiting for a grown-up" / "Yes!" / "Not this time").
-- **Admin:** a Rewards tab: balance, swaps editor (rule picker, amount, stars, max per day), wishes editor (name in de/en/el, stars), open requests with approve/decline, ledger.
+- **Tablet:** a star counter on Home and on the world tile; after a done task the done screen shows a ✓ and how many ideas of the chapter are still to do for its stars, or, once every idea is done, the star and "All ideas done: 3 stars for this chapter!" (only when `chapter_stars` > 0); a Rewards screen with the album, the swaps ("Swap 5 stars") and the wishes ("I'd like this", then "Waiting for a grown-up" / "Yes!" / "Not this time").
+- **Admin:** the stars for a finished chapter in Ideas → *How the story moves on*; a Rewards tab: balance, swaps editor (rule picker, amount, stars, max per day), wishes editor (name in de/en/el, stars), open requests with approve/decline, ledger.
 
 ### 14.4a Opening times for Ideas
 
@@ -800,7 +806,7 @@ reward_swaps(id, profile_id → profiles, stars, rule_id → rules ON DELETE CAS
 reward_wishes(id, profile_id → profiles, texts JSON, stars, enabled, created_at)
 wish_requests(id, profile_id, wish_id → reward_wishes ON DELETE CASCADE, status, created_at, decided_at)
 wish_requests: UNIQUE (profile_id, wish_id) WHERE status = 'pending'          -- migration 0013
-reward_ledger(id, profile_id, delta, kind 'earn'|'bonus'|'reopen'|'swap'|'wish', ref_id, created_at)
+reward_ledger(id, profile_id, delta, kind 'earn' (before v0.24)|'chapter'|'bonus'|'reopen'|'swap'|'wish', ref_id, created_at)
 ```
 Migration 0013 adds the partial unique index (older duplicate pending requests: the oldest stays pending, the others become `declined`), backfills one `earn` row per existing `activity_done` row (+1, +2 for a read task with `attempts = 1`, `created_at` = `done_at`) and, for a profile whose ledger would then sum below zero (stars of a world deleted before 0013 were already spent), one `earn` row (`ref_id` NULL) that brings it to zero. `ref_id` has no FK, so ledger rows outlive their done rows, swaps and requests.
 
@@ -814,7 +820,7 @@ Speech files are content-addressed under `data/media/_speech/` and need no table
 | 33 | Levels? | Per child; full texts per level in the packs; the tablet gets only its level (§14.1). |
 | 34 | Reading? | A fourth kind with a level-dependent text and 1–2 multiple-choice questions; Listen off for the text (§14.2). |
 | 35 | Pronunciation? | Server-side Piper audio with a spoken form per field; JOY for Greek, added by the private family image (§18, was: kept in the private repository); tablet TTS only as fallback. No own recordings for now (§14.3). |
-| 36 | Rewards? | Stars per done task (+1 for reading right first time), a sticker album, adjustable swaps into the existing per-rule bonus (e.g. 1 more audiobook), and wishes the parent approves (§14.4). |
+| 36 | Rewards? | Stars per done task (+1 for reading right first time), a sticker album, adjustable swaps into the existing per-rule bonus (e.g. 1 more audiobook), and wishes the parent approves (§14.4). v0.24: stars per finished chapter instead of per task (decision 57). |
 | 37 | When can the child use Ideas? | Opening-time windows per weekday in the Ideas settings (§14.4a); outside them the tile is visible but locked. Rewards stay usable. |
 | 38 | Story language vs. app language? | Separate (§14.7). The parent picks the language of each queued story in the admin; the child picks the app's language with flags on Home; the language setting behind the PIN was removed. |
 
@@ -854,7 +860,7 @@ There is no plain "I'm done!" button any more. Only where a task has no check (a
 - `complete` (§13.4) also needs problems for all three levels in every language of every `calc` task, with the same number of problems and the same answers across languages.
 - **Device:** a `calc` task carries `problems` for the child's level, including `answer` and `hint` (the tablet checks offline), and `audio` per problem: `{"text": url | null, "hint": url | null}` (§14.3: problems and hints are spoken and rendered like the other fields).
 - **Tablet flow:** the Calc card → the introduction (Listen) with the materials → "Let's start" → the problems one at a time: the story (large type, Listen), "Problem 2 of 4", a big answer box and an on-screen number pad (0–9, delete, ✓; at most 3 digits, no system keyboard). Right: a short "Right!" and the next problem. Wrong: "Not quite — try again", the box clears; after the **second** wrong answer on a problem its hint appears (with Listen) and stays until it is solved. There is no skipping and no showing the answer. All right: done. `attempts` = 1 + the number of wrong answers in the set (so 1 = everything right at the first try), at most 50 (the server's limit). A queued done tap the server refuses with 422 is dropped, like 404 and 409. Leaving starts the set again next time.
-- `POST /api/activities/done` stores `attempts` for `calc` tasks too (§14.2's rule now covers `read` and `calc`). **Stars:** 1 per done task as before; a `read` or `calc` task with `attempts = 1` earns 1 more.
+- `POST /api/activities/done` stores `attempts` for `calc` tasks too (§14.2's rule now covers `read` and `calc`). **Stars:** none per task since v0.24 (§14.4); `attempts` is shown to the parent (§17.2).
 
 ### 15.3 Photos of drawings and stories
 
@@ -887,7 +893,7 @@ Activities only need simple things: **paper, a pencil, coloured pencils, scissor
 | # | Question | Decision |
 |---|---|---|
 | 39 | Accidental "I'm done!"? | Gone: every kind has a check (photo, problems, questions); only a task without a check keeps a button that asks first. |
-| 40 | Stars for photos? | 1 star at once when the photo is sent; the parent can add 1 bonus star per photo in the admin. |
+| 40 | Stars for photos? | 1 star at once when the photo is sent; the parent can add 1 bonus star per photo in the admin. (v0.24: no star per photo any more, only the bonus star and the chapter's stars, §14.4.) |
 | 41 | Wrong maths answers? | Try again; the hint appears after the second wrong try; no skipping. |
 | 42 | Maths problems per level? | 3 / 4 / 5 (easier / normal / harder), with at least one harder problem in normal and harder. |
 | 43 | Materials? | Paper, pencil, coloured pencils, scissors, glue only (example packs). |
@@ -939,21 +945,21 @@ v0.19. Replaces the **Pictures** section of §15.3 (the photo storage, the uploa
 
 ### 17.1 What a chapter's state is (for reference)
 
-A chapter never closes: it opens when enough ideas of the chapter before are done (§13.2) and gets ✓ once `needed` of its tasks are done; its other tasks stay "Extra" and can still be done, each earning its own star. A done task can be opened again by the child, but earns nothing new. Ideas close only by the opening times (§14.4a), and a world ends when its last chapter is finished and the next one starts. "Open again" never closes a chapter that is open.
+A chapter never closes: it opens when enough ideas of the chapter before are done (§13.2) and gets ✓ once `needed` of its tasks are done; its other tasks stay "Extra" and can still be done; once every task of the chapter is done, the chapter earns its stars (§14.4). A done task can be opened again by the child, but earns nothing new. Ideas close only by the opening times (§14.4a), and a world ends when its last chapter is finished and the next one starts. "Open again" never closes a chapter that is open.
 
 ### 17.2 The list
 
 Ideas → **Done activities**: every done task (`activity_done` row) of the profile, newest first, 30 per page, "Load more".
-Each row: date and time, world, chapter, kind (Draw / Calculate / Write / Read), the task title (story language, §14.7), `attempts` for read and calc ("all right first time" / "3 tries"), the stars it earned (1, or 2 with the first-try extra, plus 1 with a bonus), and its **picture(s)** if any (small, tap → large, §15.3; "no picture" for draw/write without one).
+Each row: date and time, world, chapter, kind (Draw / Calculate / Write / Read), the task title (story language, §14.7), `attempts` for read and calc ("all right first time" / "3 tries"), the stars it holds (its bonus star, and the chapter's stars on the task that finished the chapter, marked "Finished the chapter"; before v0.24 also 1 or 2 per task), and its **picture(s)** if any (small, tap → large, §15.3; "no picture" for draw/write without one).
 Actions per row:
 - **Give a bonus star ⭐** — once per done task, for every kind (was: per photo). Then "Bonus star given".
-- **Open again** — asks first ("Open this task again? Its N stars are taken back and its picture is deleted."). The task is undone: the tablet shows it open again on its next refresh, and the child can do it again and earn its stars again.
+- **Open again** — asks first ("Open this task again? Its N stars are taken back and its picture is deleted."; N = `reopen_stars`, which includes the chapter's stars when the chapter holds them, whichever of its tasks is opened). The task is undone: the tablet shows it open again on its next refresh, and once the child has done every idea of the chapter again it earns the chapter's stars again.
 
 ### 17.3 API
 
-- `GET /api/admin/activities/done?before_id=&limit=` (default 30, max 100) → `{entries: [{id, world_id, world_name, position, kind, task_title, done_at, attempts, stars, bonus, photos: [{id, url_sm, url_lg, taken_at}]}], next_before_id}`; `stars` = what this task earned and still holds (earn + bonus rows with its id).
+- `GET /api/admin/activities/done?before_id=&limit=` (default 30, max 100) → `{entries: [{id, world_id, world_name, position, kind, task_title, done_at, attempts, stars, bonus, photos: [{id, url_sm, url_lg, taken_at}]}], next_before_id}`; `stars` = what this task earned and still holds (the `earn`, `chapter`, `bonus` and `reopen` rows with its id); `chapter` = it holds its chapter's stars; `reopen_stars` = what "open again" takes back (its `stars`, plus the chapter's stars held by another task of the chapter).
 - `POST /api/admin/activities/done/{id}/bonus` → the entry; ledger row `kind = "bonus"`, +1, `ref_id` = the done id; again → 409 `bonus_given`; unknown → 404 `unknown_done`.
-- `DELETE /api/admin/activities/done/{id}` ("open again") → 204. In one transaction: deletes the done row and its photos (rows and files), and books a ledger row `kind = "reopen"`, `delta = −min(stars, balance)`, `ref_id` = the done id, so the star balance never goes below 0 (stars already swapped stay swapped). The task's sticker (§14.4) goes when its chapter has no done task left.
+- `DELETE /api/admin/activities/done/{id}` ("open again") → 204. In one transaction: deletes the done row and its photos (rows and files), and books a ledger row `kind = "reopen"`, `delta = −min(stars, balance)`, `ref_id` = the done id, so the star balance never goes below 0 (stars already swapped stay swapped). If another task of the chapter holds the chapter's stars (§14.4), they go back too, in the same transaction: a second `reopen` row with `ref_id` = that task's id and `delta` = −min(its chapter stars, the balance left), booked **even when that is 0**, because it marks the chapter's stars as taken back, so finishing the chapter again earns them again (and only once). The task's sticker (§14.4) goes when its chapter has no done task left.
 - Removed: `GET /api/admin/activities/photos` and `POST …/photos/{id}/bonus`, `DELETE …/photos/{id}` (photos go with their task). `GET /api/admin/photos/{key}.webp` stays.
 - **Migration:** existing photo bonus rows (`ref_id` = photo id) get `ref_id` = that photo's done id (NULL when the photo or its done row is gone, so an old photo id is never read as a done id).
 
@@ -988,3 +994,4 @@ v0.20. The code is public under the MIT licence; what can't or shouldn't be publ
 | 54 | How fast may it go? | An optional "new chapters per day" limit in the admin (default: none). A limit holds the next chapter until 00:00. |
 | 55 | When does the next story start? | When the last chapter is finished; the finished story leaves the queue. |
 | 56 | Better voices than Piper? | Example packs may bring recordings made once outside the server (e.g. Voxtral for German and English, Chatterbox for Greek), as files keyed by language and text (§13.5, §14.3). The server stays CPU-only and offline; Piper covers what has no recording and every edited text. Replaces "no own recordings" in decision 35. |
+| 57 | Stars per task? (v0.24) | No. Stars only for a chapter with **every** idea done (`chapter_stars`, default 3, set in the admin) and the parent's bonus star per done task. A star for each task made quick, sloppy tasks pay; the whole chapter rewards finishing. Stars earned before stay (§14.4, §17.3). |

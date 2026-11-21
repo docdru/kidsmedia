@@ -77,6 +77,7 @@ export default function Ideas() {
 
 const MAX_WINDOWS = 14; // SPEC §14.4a, as the server
 const NEEDED = [1, 2, 3, 4]; // ideas per chapter (SPEC §13.2); a chapter has at most four
+const CHAPTER_STARS = Array.from({ length: 11 }, (_, i) => i); // stars for a finished chapter (SPEC §14.4)
 const PER_DAY = Array.from({ length: 12 }, (_, i) => i + 1); // new chapters per day, as the server
 const JOY_URL = "https://huggingface.co/Efso/joy-greek-tts";
 // Not in the public image (non-commercial licence); the hint to add JOY by hand shows while Greek uses another voice.
@@ -95,10 +96,14 @@ function dayLabel(day: string, lang: string): string {
   return new Date(`${day}T12:00:00`).toLocaleDateString(lang, { weekday: "short", day: "numeric", month: "short" });
 }
 
-/** How the story moves on (SPEC §13.2): ideas to do per chapter, and new chapters per day. */
+/**
+ * How the story moves on (SPEC §13.2): ideas to do per chapter, and new chapters per day; and
+ * the stars for a chapter with every idea done (§14.4).
+ */
 function ProgressCard({ data }: { data: ActivitiesAdmin }) {
   const { t } = useTranslation();
-  const { chapter_needed, max_new_per_day } = data.settings;
+  const { chapter_needed, max_new_per_day, chapter_stars } = data.settings;
+  const starChoices = CHAPTER_STARS.includes(chapter_stars) ? CHAPTER_STARS : [...CHAPTER_STARS, chapter_stars];
   const save = useStateMutation((body: SettingsIn) => api<ActivitiesAdmin>("PUT", "/api/admin/activities/settings", body));
 
   return (
@@ -145,6 +150,24 @@ function ProgressCard({ data }: { data: ActivitiesAdmin }) {
           </select>
           <p className="muted small">
             {max_new_per_day == null ? t("ideas.noLimitHelp") : t("ideas.perDayHelp", { count: max_new_per_day })}
+          </p>
+        </fieldset>
+        <fieldset className="grow">
+          <legend>{t("ideas.chapterStars")}</legend>
+          <select
+            aria-label={t("ideas.chapterStars")}
+            value={chapter_stars}
+            disabled={save.isPending}
+            onChange={(e) => save.mutate({ chapter_stars: Number(e.target.value) })}
+          >
+            {starChoices.map((n) => (
+              <option key={n} value={n}>
+                {n === 0 ? t("ideas.chapterStarsNone") : t("rewards.starCount", { count: n })}
+              </option>
+            ))}
+          </select>
+          <p className="muted small">
+            {chapter_stars === 0 ? t("ideas.chapterStarsNoneHelp") : t("ideas.chapterStarsHelp", { count: chapter_stars })}
           </p>
         </fieldset>
       </div>

@@ -138,6 +138,14 @@
     <string name="activity_done_button">Fertig!</string>
     <string name="activity_done_title">Kapitel %1$d geschafft!</string>
     <string name="activity_done_great">Gut gemacht!</string>
+    <plurals name="activity_chapter_stars_earned">
+        <item quantity="one">Alle Ideen geschafft: %1$d Stern für dieses Kapitel!</item>
+        <item quantity="other">Alle Ideen geschafft: %1$d Sterne für dieses Kapitel!</item>
+    </plurals>
+    <plurals name="activity_chapter_stars_todo">
+        <item quantity="one">Noch %1$d Idee hier, dann bekommst du die Sterne für dieses Kapitel.</item>
+        <item quantity="other">Noch %1$d Ideen hier, dann bekommst du die Sterne für dieses Kapitel.</item>
+    </plurals>
     <string name="activity_back_to_story">Zurück zur Geschichte</string>
     <!-- Lesen (SPEC §14.2) -->
     <string name="read_done_reading">Ich hab\'s gelesen</string>

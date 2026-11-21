@@ -347,6 +347,8 @@ activity_settings = Table(
     Column("level", String, nullable=False, server_default="normal"),  # easier|normal|harder
     Column("windows", JSON, nullable=False, server_default="[]"),  # opening times (§14.4a)
     Column("langs", JSON, nullable=False, server_default="{}"),  # story language (§14.7)
+    # Stars for a chapter with every idea done (§14.4); 0 = none
+    Column("chapter_stars", Integer, nullable=False, server_default="3"),
 )
 
 activity_done = Table(
@@ -436,9 +438,10 @@ reward_ledger = Table(
     Column("id", Integer, primary_key=True),
     Column("profile_id", Integer, ForeignKey("profiles.id", ondelete="CASCADE"), nullable=False),
     Column("delta", Integer, nullable=False),  # stars; earning is positive, spending negative
-    Column("kind", String, nullable=False),  # earn | bonus | reopen | swap | wish
-    # activity_done.id (earn, bonus and reopen, §17.3; an old bonus of a photo without a done
-    # row: activity_photos.id), reward_swaps.id or wish_requests.id; no FK: history stays
+    # earn (before v0.24) | chapter | bonus | reopen | swap | wish
+    Column("kind", String, nullable=False),
+    # activity_done.id (earn, chapter, bonus and reopen, §14.4, §17.3; a chapter row names the
+    # done task that finished the chapter), reward_swaps.id or wish_requests.id; no FK
     Column("ref_id", Integer),
     Column("created_at", DateTime, nullable=False),
 )

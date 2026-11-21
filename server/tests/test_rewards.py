@@ -6,13 +6,15 @@ from kidsmedia.rewards import (
     AlbumPage,
     DoneTask,
     Sticker,
+    active_chapter_award,
     album,
     balance,
+    chapter_complete,
     earned_stars,
+    held_stars,
     reopen_delta,
     rule_active_on,
     spent_stars,
-    stars_for,
     swap_refusal,
     swap_suits_rule,
 )
@@ -29,21 +31,33 @@ def done(
     return DoneTask(order, world, position, kind, day, attempts)
 
 
-@pytest.mark.parametrize(
-    ("kind", "attempts", "stars"),
-    [
-        ("draw", None, 1),
-        ("calc", None, 1),
-        ("calc", 1, 2),  # all problems right at the first try: 1 more (§15.2)
-        ("calc", 3, 1),
-        ("write", 1, 1),  # attempts only count for reading and maths
-        ("read", 1, 2),  # read right at the first try: 1 more
-        ("read", 2, 1),
-        ("read", None, 1),  # an old app without attempts
-    ],
-)
-def test_stars_per_done_task(kind: str, attempts: int | None, stars: int) -> None:
-    assert stars_for(kind, attempts) == stars
+def test_a_chapter_is_complete_when_every_idea_is_done() -> None:
+    """§14.4: stars only for a chapter with every idea done, extras included."""
+    kinds = ["draw", "calc", "write", "read"]
+    assert not chapter_complete(["draw", "calc"], kinds)  # enough to open the next one
+    assert not chapter_complete(["draw", "calc", "write"], kinds)
+    assert chapter_complete(["read", "write", "calc", "draw"], kinds)
+    assert not chapter_complete([], [])  # a chapter without tasks earns nothing
+
+
+def test_the_chapter_award_is_held_until_taken_back() -> None:
+    """§14.4, §17.3: a `chapter` row of one of the chapter's done tasks holds its stars
+    until a `reopen` row with that id takes them back."""
+    ledger = [("earn", 1, 1), ("chapter", 4, 3), ("bonus", 2, 1)]
+    assert active_chapter_award(ledger, [1, 2, 3, 4]) == 4
+    assert active_chapter_award(ledger, [5, 6]) is None  # another chapter
+    taken = [*ledger, ("reopen", 4, -3)]
+    assert active_chapter_award(taken, [1, 2, 3, 4]) is None
+    again = [*taken, ("chapter", 7, 3)]  # finished again after "open again"
+    assert active_chapter_award(again, [1, 2, 3, 7]) == 7
+    assert active_chapter_award([("chapter", 4, 3), ("reopen", 4, 0)], [4]) is None
+
+
+def test_held_stars_of_a_done_task() -> None:
+    ledger = [("earn", 1, 1), ("chapter", 4, 3), ("bonus", 4, 1), ("reopen", 4, -3)]
+    assert held_stars(ledger, 4) == 1  # the chapter's stars were taken back, the bonus stays
+    assert held_stars(ledger, 1) == 1  # an `earn` row from before v0.24
+    assert held_stars(ledger, 9) == 0
 
 
 def test_earned_spent_and_balance_come_from_the_ledger() -> None:

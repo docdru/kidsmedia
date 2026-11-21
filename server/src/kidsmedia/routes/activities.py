@@ -1,7 +1,7 @@
 """Device: activities, the off-screen ideas (SPEC §13.3, §14, §15). Shared loaders for the
 admin too."""
 
-from collections.abc import Mapping
+from collections.abc import Iterable, Mapping
 from dataclasses import dataclass
 from datetime import date, datetime, timedelta
 from typing import Any
@@ -51,7 +51,14 @@ from kidsmedia.db import (
 from kidsmedia.deps import Device, get_clock, get_conn, get_settings, require_device
 from kidsmedia.errors import ApiError
 from kidsmedia.library import ThumbRef, thumb_ref
-from kidsmedia.rewards import CHECKED_KINDS, EARNING_KINDS, stars_for
+from kidsmedia.rewards import (
+    CHAPTER_KIND,
+    CHECKED_KINDS,
+    EARNING_KINDS,
+    RefRow,
+    active_chapter_award,
+    chapter_complete,
+)
 from kidsmedia.speech import (
     AudioLookup,
     ProblemAudio,
@@ -258,6 +265,7 @@ class ActivitiesOut(BaseModel):
     # For the tablet's offline unlock (§13.3): the daily limit (None = none) and how many
     # chapters opened by finishing today.
     max_new_per_day: int | None
+    chapter_stars: int  # stars for a chapter with every idea done (§14.4); 0 = none
     opened_today: int
     story_done: bool  # the last chapter is done and no story is queued after it
     # Opening times (§14.4a): the tablet re-evaluates `windows` with its trusted clock.
@@ -399,6 +407,7 @@ def activities_out(
         level=level,
         next_unlock_at=sched.next_unlock_at,
         max_new_per_day=st.max_new_per_day,
+        chapter_stars=st.chapter_stars,
         opened_today=sched.opened_today,
         story_done=sched.story_done,
         windows=windows,
@@ -431,6 +440,7 @@ class JudgedTask:
     content: WorldContent
     task: PackTask
     moment: datetime
+    position: int
 
 
 def judge_done(
@@ -468,7 +478,7 @@ def judge_done(
         )
     if sched.current != world_id or not sched.chapters[position - 1].unlocked:
         raise ApiError(409, "activity_locked")
-    return JudgedTask(row, content, task, moment)
+    return JudgedTask(row, content, task, moment, position)
 
 
 def next_done_id(conn: Connection) -> int:
@@ -483,6 +493,39 @@ def next_done_id(conn: Connection) -> int:
     return max(int(top_done or 0), int(top_ref or 0)) + 1
 
 
+def chapter_done(conn: Connection, profile_id: int, world_id: int, position: int) -> dict[str, int]:
+    """{kind: done id} of a chapter's done tasks."""
+    return {
+        r.kind: r.id
+        for r in conn.execute(
+            select(activity_done.c.kind, activity_done.c.id).where(
+                activity_done.c.profile_id == profile_id,
+                activity_done.c.world_id == world_id,
+                activity_done.c.position == position,
+            )
+        ).all()
+    }
+
+
+def star_rows(conn: Connection, profile_id: int, done_ids: Iterable[int]) -> list[RefRow]:
+    """The earning ledger rows (§14.4, §17.3) of these done ids, as (kind, ref_id, delta)."""
+    ids = list(done_ids)
+    if not ids:
+        return []
+    return [
+        (r.kind, r.ref_id, r.delta)
+        for r in conn.execute(
+            select(reward_ledger.c.kind, reward_ledger.c.ref_id, reward_ledger.c.delta)
+            .where(
+                reward_ledger.c.profile_id == profile_id,
+                reward_ledger.c.kind.in_(EARNING_KINDS),
+                reward_ledger.c.ref_id.in_(ids),
+            )
+            .order_by(reward_ledger.c.id)
+        ).all()
+    ]
+
+
 def store_done(
     conn: Connection,
     device: Device,
@@ -491,13 +534,17 @@ def store_done(
     kind: Kind,
     moment: datetime,
     attempts: int | None,
+    task_kinds: Iterable[str],
 ) -> int:
     """Store a done row (idempotent) and return its id. `attempts` is kept for read and calc
-    tasks only, and a repeated done keeps the first value (§14.2, §15.2). The first done row
-    of a task earns its stars as a ledger row (§14.4); its `day` and `done_at` are those of
-    `moment`. After "open again" (§17.3) the task is done anew and earns again."""
+    tasks only, and a repeated done keeps the first value (§14.2, §15.2). A done task earns
+    no stars itself (§14.4): the done row that makes every idea of the chapter (`task_kinds`)
+    done earns `chapter_stars` as a `chapter` row in the ledger (`ref_id` = that done id),
+    unless the chapter already holds its stars. Its `day` and `done_at` are those of
+    `moment`. After "open again" (§17.3) took the chapter's stars back, finishing the chapter
+    again earns them again."""
     attempts = attempts if kind in CHECKED_KINDS else None
-    begin_immediate(conn)  # next_done_id and the insert are one step
+    begin_immediate(conn)  # next_done_id, the insert and the chapter check are one step
     result = conn.execute(
         sqlite_insert(activity_done)
         .values(
@@ -515,16 +562,24 @@ def store_done(
         .returning(activity_done.c.id)
     )
     done_id = result.scalar()
-    if done_id is not None:  # the first done of this task: its stars (§14.4)
-        conn.execute(
-            insert(reward_ledger).values(
-                profile_id=device.profile_id,
-                delta=stars_for(kind, attempts),
-                kind="earn",
-                ref_id=done_id,
-                created_at=to_db(moment),
+    if done_id is not None:  # a new done row: does it finish the chapter? (§14.4)
+        done = chapter_done(conn, device.profile_id, world_id, position)
+        stars = int(ensure_settings(conn, device.profile_id).chapter_stars)
+        ledger = star_rows(conn, device.profile_id, done.values())
+        if (
+            stars > 0
+            and chapter_complete(done, task_kinds)
+            and active_chapter_award(ledger, done.values()) is None
+        ):
+            conn.execute(
+                insert(reward_ledger).values(
+                    profile_id=device.profile_id,
+                    delta=stars,
+                    kind=CHAPTER_KIND,
+                    ref_id=done_id,
+                    created_at=to_db(moment),
+                )
             )
-        )
         return int(done_id)
     existing: int = conn.execute(
         select(activity_done.c.id).where(
@@ -537,6 +592,12 @@ def store_done(
     return existing
 
 
+def task_kinds_of(judged: JudgedTask) -> list[str]:
+    """The kinds of the judged task's chapter."""
+    position = judged.position
+    return [t.kind for t in judged.content.chapters[position - 1].tasks]
+
+
 @router.post("/activities/done", response_model=ActivitiesOut)
 def mark_done(
     body: DoneIn,
@@ -547,14 +608,23 @@ def mark_done(
 ) -> ActivitiesOut:
     """One task done. Idempotent; judged by `judge_done` (404 unknown_task, 409
     activities_closed / activity_locked / activity_too_old, SPEC §13.3, §14.4a). `attempts`
-    is stored for read and calc tasks (§14.2, §15.2). The first done row of a task earns its
-    stars (§14.4, +1 for read or calc right at the first try). Draw and write may still be
+    is stored for read and calc tasks (§14.2, §15.2). The done that makes every idea of the
+    chapter done earns the chapter's stars (§14.4). Draw and write may still be
     done without a photo (older apps, §15.3)."""
     now = local_now(clock, settings)
     judged = judge_done(
         conn, device.profile_id, now, body.world_id, body.position, body.kind, body.done_at
     )
-    store_done(conn, device, body.world_id, body.position, body.kind, judged.moment, body.attempts)
+    store_done(
+        conn,
+        device,
+        body.world_id,
+        body.position,
+        body.kind,
+        judged.moment,
+        body.attempts,
+        task_kinds_of(judged),
+    )
     return activities_out(
         conn, device.profile_id, now, AudioLookup(settings), settings.default_locale
     )
@@ -600,7 +670,7 @@ async def upload_photo(
     photo_too_large). Only draw and write (422 photo_not_allowed). Judged exactly like `done`
     (`done_at` = when the photo was taken), then the photo is stored (EXIF-rotated, without
     any metadata, WebP lg/sm) and the task is marked done. A second photo of a done task is
-    stored too but earns nothing. 422 bad_image for a body that doesn't decode. World name
+    stored too. 422 bad_image for a body that doesn't decode. World name
     and task title are kept as snapshots in the story language (§14.7)."""
     if kind not in PHOTO_KINDS:
         raise ApiError(422, "photo_not_allowed", kind=kind)
@@ -613,7 +683,9 @@ async def upload_photo(
         img = await run_in_threadpool(photos.decode, data)
     except thumbs.MediaError as exc:
         raise ApiError(422, "bad_image") from exc
-    done_id = store_done(conn, device, world_id, position, kind, judged.moment, None)
+    done_id = store_done(
+        conn, device, world_id, position, kind, judged.moment, None, task_kinds_of(judged)
+    )
     lang = story_lang(
         langs_of(ensure_settings(conn, device.profile_id)).get(world_id),
         judged.content.texts,

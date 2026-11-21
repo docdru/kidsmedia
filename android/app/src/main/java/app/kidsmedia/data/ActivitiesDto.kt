@@ -112,6 +112,8 @@ data class Activities(
     @SerialName("next_unlock_at") val nextUnlockAt: String? = null,
     /** Most chapters opened by finishing per day (SPEC §13.2); null = no limit. */
     @SerialName("max_new_per_day") val maxNewPerDay: Int? = null,
+    /** Stars for a chapter with every idea done (SPEC §14.4); 0 = none, also for older servers. */
+    @SerialName("chapter_stars") val chapterStars: Int = 0,
     /** Chapters opened by finishing on the server's day of [serverTime]. */
     @SerialName("opened_today") val openedToday: Int = 0,
     /** The last chapter is done and no story is queued after it. */

@@ -50,6 +50,20 @@ class ActivityLogicTest {
     // ---- unlocking offline (SPEC §13.2, §13.3) ----
 
     @Test
+    fun aChapterEarnsItsStarsOnlyWithEveryIdeaDone() {
+        // SPEC §14.4: enough ideas open the next chapter, but stars need all of them.
+        val c = StoryChapter(position = 1, needed = 2, tasks = tasks)
+        val two = c.copy(doneKinds = listOf("draw", "calc"))
+        assertTrue(ActivityLogic.finished(two))
+        assertFalse(ActivityLogic.complete(two))
+        assertEquals(2, ActivityLogic.notDone(two))
+        val all = c.copy(doneKinds = listOf("read", "write", "calc", "draw"))
+        assertTrue(ActivityLogic.complete(all))
+        assertEquals(0, ActivityLogic.notDone(all))
+        assertFalse(ActivityLogic.complete(StoryChapter(position = 1)))
+    }
+
+    @Test
     fun aChapterIsFinishedWithEnoughIdeas() {
         val c = StoryChapter(position = 1, needed = 2, tasks = tasks)
         assertFalse(ActivityLogic.finished(c.copy(doneKinds = listOf("draw"))))
@@ -287,7 +301,8 @@ class ActivityLogicTest {
         val json =
             """
             {"server_time":"2026-11-05T14:20:00+01:00","unlock_time":"00:00","today_is_activity_day":true,
-             "next_unlock_at":null,"max_new_per_day":1,"opened_today":1,"story_done":false,"extra":"ignored",
+             "next_unlock_at":null,"max_new_per_day":1,"chapter_stars":3,"opened_today":1,"story_done":false,
+             "extra":"ignored",
              "world":{"id":1,"slug":"lighthouse-island","color":"#B84A12","cover":null,
                "texts":{"de":{"name":"Leuchtturm-Insel","guide":"mit Mira"}},
                "chapters":[{"position":1,"date":"2026-11-02","unlocked":true,"done_kinds":["draw"],"needed":2,
@@ -298,6 +313,8 @@ class ActivityLogicTest {
             """.trimIndent()
         val a = ApiJson.decodeFromString(Activities.serializer(), json)
         assertEquals(1, a.maxNewPerDay)
+        assertEquals(3, a.chapterStars)
+        assertEquals(0, ApiJson.decodeFromString(Activities.serializer(), "{}").chapterStars)
         assertEquals(1, a.openedToday)
         assertEquals(2, a.world!!.chapters[0].needed)
         assertEquals("Leuchtturm-Insel", a.world!!.texts["de"]!!.name)

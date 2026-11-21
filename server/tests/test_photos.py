@@ -104,7 +104,7 @@ def test_a_photo_is_stored_clean_and_upright_and_finishes_the_task(
     assert row.key.startswith(f"p{row.id}-")
     assert (row.width, row.height) == (400, 800)  # EXIF orientation 6: turned upright
     assert row.taken_at == done.done_at
-    assert ledger(settings) == [("earn", 1, done.id)]
+    assert ledger(settings) == []  # stars come with the whole chapter (§14.4)
 
     assert photo_files(settings) == {f"{row.key}-lg.webp", f"{row.key}-sm.webp"}
     for size, expected in (("lg", (400, 800)), ("sm", (160, 320))):
@@ -136,7 +136,7 @@ def test_a_second_photo_is_stored_but_earns_nothing(
     assert first.key != second.key
     assert (second.width, second.height) == (300, 200)
     assert len(done_rows(settings)) == 1
-    assert [kind for kind, _, _ in ledger(settings)] == ["earn"]
+    assert ledger(settings) == []
     assert len(photo_files(settings)) == 4
 
 
@@ -155,7 +155,7 @@ def test_a_photo_of_a_task_done_without_one(
     [row] = photo_rows(settings)
     assert row.done_id == done.id
     assert row.task_title == "T"
-    assert ledger(settings) == [("earn", 1, done.id)]
+    assert ledger(settings) == []  # stars come with the whole chapter (§14.4)
 
 
 @pytest.mark.parametrize("kind", ["calc", "read"])

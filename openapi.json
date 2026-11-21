@@ -47,6 +47,10 @@
       },
       "ActivitiesOut": {
         "properties": {
+          "chapter_stars": {
+            "title": "Chapter Stars",
+            "type": "integer"
+          },
           "level": {
             "enum": [
               "easier",
@@ -141,6 +145,7 @@
           "level",
           "next_unlock_at",
           "max_new_per_day",
+          "chapter_stars",
           "opened_today",
           "story_done",
           "windows",
@@ -1030,6 +1035,10 @@
             "title": "Bonus",
             "type": "boolean"
           },
+          "chapter": {
+            "title": "Chapter",
+            "type": "boolean"
+          },
           "done_at": {
             "format": "date-time",
             "title": "Done At",
@@ -1060,6 +1069,10 @@
             "title": "Position",
             "type": "integer"
           },
+          "reopen_stars": {
+            "title": "Reopen Stars",
+            "type": "integer"
+          },
           "stars": {
             "title": "Stars",
             "type": "integer"
@@ -1088,6 +1101,8 @@
           "attempts",
           "stars",
           "bonus",
+          "chapter",
+          "reopen_stars",
           "photos"
         ],
         "title": "DoneOut",
@@ -3985,6 +4000,19 @@
             ],
             "title": "Chapter Needed"
           },
+          "chapter_stars": {
+            "anyOf": [
+              {
+                "maximum": 20.0,
+                "minimum": 0.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Chapter Stars"
+          },
           "level": {
             "anyOf": [
               {
@@ -4039,6 +4067,10 @@
             "title": "Chapter Needed",
             "type": "integer"
           },
+          "chapter_stars": {
+            "title": "Chapter Stars",
+            "type": "integer"
+          },
           "level": {
             "enum": [
               "easier",
@@ -4071,7 +4103,8 @@
           "level",
           "windows",
           "chapter_needed",
-          "max_new_per_day"
+          "max_new_per_day",
+          "chapter_stars"
         ],
         "title": "SettingsOut",
         "type": "object"
@@ -5527,7 +5560,7 @@
     },
     "/api/activities/done": {
       "post": {
-        "description": "One task done. Idempotent; judged by `judge_done` (404 unknown_task, 409\nactivities_closed / activity_locked / activity_too_old, SPEC §13.3, §14.4a). `attempts`\nis stored for read and calc tasks (§14.2, §15.2). The first done row of a task earns its\nstars (§14.4, +1 for read or calc right at the first try). Draw and write may still be\ndone without a photo (older apps, §15.3).",
+        "description": "One task done. Idempotent; judged by `judge_done` (404 unknown_task, 409\nactivities_closed / activity_locked / activity_too_old, SPEC §13.3, §14.4a). `attempts`\nis stored for read and calc tasks (§14.2, §15.2). The done that makes every idea of the\nchapter done earns the chapter's stars (§14.4). Draw and write may still be\ndone without a photo (older apps, §15.3).",
         "operationId": "mark_done_api_activities_done_post",
         "requestBody": {
           "content": {
@@ -5569,7 +5602,7 @@
     },
     "/api/activities/photo": {
       "post": {
-        "description": "A photo of a drawing or a story (§15.3): raw JPEG body, at most 15 MB (413\nphoto_too_large). Only draw and write (422 photo_not_allowed). Judged exactly like `done`\n(`done_at` = when the photo was taken), then the photo is stored (EXIF-rotated, without\nany metadata, WebP lg/sm) and the task is marked done. A second photo of a done task is\nstored too but earns nothing. 422 bad_image for a body that doesn't decode. World name\nand task title are kept as snapshots in the story language (§14.7).",
+        "description": "A photo of a drawing or a story (§15.3): raw JPEG body, at most 15 MB (413\nphoto_too_large). Only draw and write (422 photo_not_allowed). Judged exactly like `done`\n(`done_at` = when the photo was taken), then the photo is stored (EXIF-rotated, without\nany metadata, WebP lg/sm) and the task is marked done. A second photo of a done task is\nstored too. 422 bad_image for a body that doesn't decode. World name\nand task title are kept as snapshots in the story language (§14.7).",
         "operationId": "upload_photo_api_activities_photo_post",
         "parameters": [
           {
@@ -5739,7 +5772,7 @@
     },
     "/api/admin/activities/done/{done_id}": {
       "delete": {
-        "description": "Open again (§17.3): in one transaction, deletes the done row and its photo rows and\nbooks a `reopen` row of -min(its stars, the balance), `ref_id` = the done id (none for 0),\nso the balance never goes below 0. The photo files go after the commit (best effort: a\nleftover file is harmless, a missing one for a kept row would not be). The tablet sees\nthe task open on its next refresh; its sticker goes with the chapter's last done task.\n404 unknown_done.",
+        "description": "Open again (§17.3): in one transaction, deletes the done row and its photo rows and\nbooks a `reopen` row of -min(its stars, the balance), `ref_id` = the done id (none for 0),\nso the balance never goes below 0. When another task of the chapter holds the chapter's\nstars (§14.4), they go back too: a `reopen` row with that task's id (also for 0 stars,\nso the chapter is awarded again once it is finished again). The photo files go after the\ncommit (best effort: a leftover file is harmless, a missing one for a kept row would not\nbe). The tablet sees the task open on its next refresh; its sticker goes with the\nchapter's last done task. 404 unknown_done.",
         "operationId": "reopen_done_api_admin_activities_done__done_id__delete",
         "parameters": [
           {
@@ -5860,7 +5893,7 @@
     },
     "/api/admin/activities/settings": {
       "put": {
-        "description": "The child's level (§14.1), the opening times (§14.4a), the ideas per chapter and the\ndaily limit of new chapters (§13.2); omitted = kept, `max_new_per_day: null` = no limit.\nChapters already open stay open; a change applies from the next idea on.",
+        "description": "The child's level (§14.1), the opening times (§14.4a), the ideas per chapter, the\ndaily limit of new chapters (§13.2) and the stars for a finished chapter (§14.4); omitted\n= kept, `max_new_per_day: null` = no limit.\nChapters already open stay open; a change applies from the next idea on.",
         "operationId": "put_settings_api_admin_activities_settings_put",
         "requestBody": {
           "content": {
