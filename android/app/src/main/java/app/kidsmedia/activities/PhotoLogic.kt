@@ -53,7 +53,7 @@ object PhotoLogic {
      * (![fromServer]): it didn't come from Kids Media but from something in front of it (a
      * misrouted nginx location, nginx's own 413), and the photo is sent again once that is fixed.
      */
-    fun outcome(status: Int, fromServer: Boolean = true): PhotoOutcome = when {
+    fun outcome(status: Int, fromServer: Boolean): PhotoOutcome = when {
         status in 200..299 -> PhotoOutcome.SENT
         !fromServer -> PhotoOutcome.KEEP
         status == 408 || status == 429 -> PhotoOutcome.KEEP
