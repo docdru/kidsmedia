@@ -425,7 +425,13 @@
     "chapterStarsNoneHelp": "Finished chapters earn nothing; stars come only as your bonus stars.",
     "finishedChapter": "Finished the chapter",
     "confirmOpenAgain_zero": "Open this task again?",
-    "confirmOpenAgainPicture_zero": "Open this task again? Its picture is deleted."
+    "confirmOpenAgainPicture_zero": "Open this task again? Its picture is deleted.",
+    "webdav": "Story packs on WebDAV",
+    "webdavHelp": "The pack zips in the WebDAV folder set in the server's .env (PACKS_WEBDAV_URL). Each one is checked before anything is saved.",
+    "webdavRefresh": "Refresh",
+    "webdavEmpty": "No .zip files in the folder.",
+    "webdavCheck": "Check",
+    "webdavSize": "{{mb}} MB"
   },
   "status": {
     "lockout": "Locked until {{until}}",
@@ -516,7 +522,14 @@
     "lang_not_in_world": "This world has no texts in that language.",
     "lang_not_queued": "That world isn't in the queue.",
     "bonus_given": "The bonus star for this task was already given.",
-    "unknown_done": "This task isn't done any more: it was opened again."
+    "unknown_done": "This task isn't done any more: it was opened again.",
+    "invalid_name": "That is not a pack file name.",
+    "webdav_not_configured": "No WebDAV folder is set up (PACKS_WEBDAV_URL).",
+    "webdav_unreachable": "The WebDAV server can't be reached.",
+    "webdav_auth_failed": "The WebDAV server refused the login (PACKS_WEBDAV_USER, PACKS_WEBDAV_PASSWORD).",
+    "webdav_error": "The WebDAV server answered with error {{status}}.",
+    "webdav_bad_listing": "The WebDAV server sent a folder listing that can't be read.",
+    "webdav_pack_not_found": "{{name}} is no longer in the WebDAV folder."
   },
   "pickers": {
     "thumbTitle": "Thumbnail for \"{{title}}\"",

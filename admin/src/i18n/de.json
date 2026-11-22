@@ -425,7 +425,13 @@
     "chapterStarsNoneHelp": "Fertige Kapitel bringen nichts; Sterne gibt es nur als deine Extrasterne.",
     "finishedChapter": "Kapitel fertig gemacht",
     "confirmOpenAgain_zero": "Diese Aufgabe wieder öffnen?",
-    "confirmOpenAgainPicture_zero": "Diese Aufgabe wieder öffnen? Ihr Bild wird gelöscht."
+    "confirmOpenAgainPicture_zero": "Diese Aufgabe wieder öffnen? Ihr Bild wird gelöscht.",
+    "webdav": "Geschichten-Pakete auf WebDAV",
+    "webdavHelp": "Die Paket-Zips im WebDAV-Ordner aus der .env des Servers (PACKS_WEBDAV_URL). Jedes wird geprüft, bevor etwas gespeichert wird.",
+    "webdavRefresh": "Aktualisieren",
+    "webdavEmpty": "Keine .zip-Dateien im Ordner.",
+    "webdavCheck": "Prüfen",
+    "webdavSize": "{{mb}} MB"
   },
   "status": {
     "lockout": "Gesperrt bis {{until}}",
@@ -516,7 +522,14 @@
     "lang_not_in_world": "Diese Welt hat keine Texte in dieser Sprache.",
     "lang_not_queued": "Diese Welt ist nicht in der Reihe.",
     "bonus_given": "Der Extrastern für diese Aufgabe wurde schon gegeben.",
-    "unknown_done": "Diese Aufgabe ist nicht mehr erledigt: Sie wurde wieder geöffnet."
+    "unknown_done": "Diese Aufgabe ist nicht mehr erledigt: Sie wurde wieder geöffnet.",
+    "invalid_name": "Das ist kein Paket-Dateiname.",
+    "webdav_not_configured": "Es ist kein WebDAV-Ordner eingerichtet (PACKS_WEBDAV_URL).",
+    "webdav_unreachable": "Der WebDAV-Server ist nicht erreichbar.",
+    "webdav_auth_failed": "Der WebDAV-Server hat die Anmeldung abgelehnt (PACKS_WEBDAV_USER, PACKS_WEBDAV_PASSWORD).",
+    "webdav_error": "Der WebDAV-Server hat mit Fehler {{status}} geantwortet.",
+    "webdav_bad_listing": "Der WebDAV-Server hat eine Ordnerliste geschickt, die nicht lesbar ist.",
+    "webdav_pack_not_found": "{{name}} ist nicht mehr im WebDAV-Ordner."
   },
   "pickers": {
     "thumbTitle": "Vorschaubild für „{{title}}“",

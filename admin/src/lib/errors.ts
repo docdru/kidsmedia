@@ -33,6 +33,13 @@ const KNOWN = new Set([
   "speech_not_found",
   "bonus_given",
   "unknown_done",
+  "invalid_name",
+  "webdav_not_configured",
+  "webdav_unreachable",
+  "webdav_auth_failed",
+  "webdav_error",
+  "webdav_bad_listing",
+  "webdav_pack_not_found",
 ]);
 
 /** The server sends reason codes; the admin turns them into text (SPEC §3.2). */

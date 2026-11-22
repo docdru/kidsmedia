@@ -5,7 +5,10 @@ from pathlib import Path
 from typing import Literal
 from zoneinfo import ZoneInfo
 
+from pydantic import field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
+
+from kidsmedia.webdav import check_url
 
 
 class Settings(BaseSettings):
@@ -29,6 +32,10 @@ class Settings(BaseSettings):
     # image (the family image) sets this to /app/packs; a pack here wins over a bundled one
     # with the same slug.
     extra_packs_dir: Path | None = None
+    # Story pack zips on a WebDAV folder (SPEC §13.5a), e.g. a Seafile library. Empty = off.
+    packs_webdav_url: str = ""
+    packs_webdav_user: str = ""
+    packs_webdav_password: str = ""
     voice_de: str = ""
     voice_en: str = ""
     voice_el: str = ""
@@ -39,6 +46,11 @@ class Settings(BaseSettings):
     admin_user: str = "admin"
     admin_password: str = ""
     session_days: int = 30
+
+    @field_validator("packs_webdav_url")
+    @classmethod
+    def _webdav_url(cls, value: str) -> str:
+        return check_url(value.strip()) if value.strip() else ""
 
     @property
     def zone(self) -> ZoneInfo:

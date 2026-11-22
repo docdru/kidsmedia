@@ -188,8 +188,6 @@ export function ImportCard({ onImported }: { onImported: (id: number) => void })
   });
   const report = check.data;
   const error = check.error ?? run.error;
-  const packErrors =
-    error instanceof ApiError && Array.isArray(error.params.errors) ? (error.params.errors as unknown[]).map(String) : [];
 
   return (
     <section className="card stack" aria-labelledby="ideas-import">
@@ -219,41 +217,71 @@ export function ImportCard({ onImported }: { onImported: (id: number) => void })
         </p>
       )}
       {report && file && (
-        <div className="stack" role="status">
-          <p>
-            <strong>{report.slug}</strong>{" "}
-            {t("ideas.reportCounts", { chapters: report.chapters, tasks: report.tasks })}
-          </p>
-          {report.recordings > 0 && (
-            <p className="small">{t("ideas.reportRecordings", { count: report.recordings })}</p>
-          )}
-          {report.complete ? (
-            <p className="ok">{t("ideas.reportComplete")}</p>
-          ) : (
-            <ul className="small warnlist">
-              {report.warnings.map((w, i) => (
-                <li key={i}>{warningText(w, t)}</li>
-              ))}
-            </ul>
-          )}
-          {report.replaced && <p className="muted small">{t("ideas.replacesExisting")}</p>}
-          <div className="row">
-            <button type="button" className="primary" disabled={run.isPending} onClick={() => run.mutate(file)}>
-              {report.replaced ? t("ideas.replace") : t("ideas.doImport")}
-            </button>
-            <button
-              type="button"
-              onClick={() => {
-                setFile(null);
-                check.reset();
-              }}
-            >
-              {t("common.cancel")}
-            </button>
-          </div>
-        </div>
+        <PackReport
+          report={report}
+          pending={run.isPending}
+          onImport={() => run.mutate(file)}
+          onCancel={() => {
+            setFile(null);
+            check.reset();
+          }}
+        />
       )}
-      {error && <p className="error">{errorText(error, t)}</p>}
+      <PackError error={error} />
+    </section>
+  );
+}
+
+/** The dry-run report of a pack, with Import (or Replace) and Cancel (SPEC §13.4). */
+export function PackReport({
+  report,
+  pending,
+  onImport,
+  onCancel,
+}: {
+  report: ImportReport;
+  pending: boolean;
+  onImport: () => void;
+  onCancel: () => void;
+}) {
+  const { t } = useTranslation();
+  return (
+    <div className="stack" role="status">
+      <p>
+        <strong>{report.slug}</strong> {t("ideas.reportCounts", { chapters: report.chapters, tasks: report.tasks })}
+      </p>
+      {report.recordings > 0 && <p className="small">{t("ideas.reportRecordings", { count: report.recordings })}</p>}
+      {report.complete ? (
+        <p className="ok">{t("ideas.reportComplete")}</p>
+      ) : (
+        <ul className="small warnlist">
+          {report.warnings.map((w, i) => (
+            <li key={i}>{warningText(w, t)}</li>
+          ))}
+        </ul>
+      )}
+      {report.replaced && <p className="muted small">{t("ideas.replacesExisting")}</p>}
+      <div className="row">
+        <button type="button" className="primary" disabled={pending} onClick={onImport}>
+          {report.replaced ? t("ideas.replace") : t("ideas.doImport")}
+        </button>
+        <button type="button" onClick={onCancel}>
+          {t("common.cancel")}
+        </button>
+      </div>
+    </div>
+  );
+}
+
+/** An import error, with the pack's problems listed (422 invalid_pack). */
+export function PackError({ error }: { error: Error | null }) {
+  const { t } = useTranslation();
+  if (!error) return null;
+  const packErrors =
+    error instanceof ApiError && Array.isArray(error.params.errors) ? (error.params.errors as unknown[]).map(String) : [];
+  return (
+    <>
+      <p className="error">{errorText(error, t)}</p>
       {packErrors.length > 0 && (
         <ul className="small warnlist">
           {packErrors.slice(0, 10).map((m, i) => (
@@ -261,7 +289,7 @@ export function ImportCard({ onImported }: { onImported: (id: number) => void })
           ))}
         </ul>
       )}
-    </section>
+    </>
   );
 }
 
