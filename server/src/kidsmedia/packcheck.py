@@ -136,12 +136,13 @@ def _recordings(folder: Path, p: Pack) -> list[str]:
     files: dict[str, int] = {}
     top: set[str] = set()
     for entry in root.iterdir():
-        if entry.name == speech.RECORDED_VOICES:
+        if entry.name == speech.RECORDED_VOICES or speech.os_junk(entry.name):
             continue
         top.add(entry.name)
         children = entry.iterdir() if entry.is_dir() else ()
         for child in children:
-            files[f"{entry.name}/{child.name}"] = child.stat().st_size
+            if not speech.os_junk(child.name):
+                files[f"{entry.name}/{child.name}"] = child.stat().st_size
     return speech.check_recordings(p.content(), voices, files, top)
 
 

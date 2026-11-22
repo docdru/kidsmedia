@@ -395,6 +395,22 @@ def install_recorded(settings: Settings, folder: Path, content: WorldContent) ->
     return copied
 
 
+# Files a desktop adds by itself (macOS Finder and Archive Utility, Windows Explorer). A pack
+# zip or folder may carry them; they are skipped as if they weren't there (§13.5).
+OS_JUNK_NAMES = frozenset({".DS_Store", "Thumbs.db", "desktop.ini"})
+OS_JUNK_DIRS = frozenset({"__MACOSX"})
+
+
+def os_junk(path: str) -> bool:
+    """True for a file or folder the OS adds by itself: `.DS_Store`, `._*` (AppleDouble),
+    anything below `__MACOSX/`, `Thumbs.db`, `desktop.ini`."""
+    parts = [p for p in path.replace("\\", "/").split("/") if p]
+    if any(p in OS_JUNK_DIRS for p in parts):
+        return True
+    name = parts[-1] if parts else ""
+    return name in OS_JUNK_NAMES or name.startswith("._")
+
+
 def check_recordings(
     content: WorldContent,
     voices: object,
