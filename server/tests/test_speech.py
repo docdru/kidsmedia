@@ -936,3 +936,19 @@ def test_a_pack_over_the_limit_is_refused(
     r = upload(admin, b"PK" + b"\0" * (1024 * 1024))
     assert r.status_code == 413
     assert r.json() == {"reason": "pack_too_large", "params": {"max_mb": 1}}
+
+
+def test_recordings_of_a_failed_import_are_pruned_at_start_up(
+    app: FastAPI, settings: Settings, tmp_path: Path
+) -> None:
+    """Recordings are stored before the world is saved; if no world ends up speaking their
+    texts (the save failed), the start-up prune deletes them."""
+    from kidsmedia.routes import activities_admin
+
+    folder = recorded_pack(tmp_path, "rec-world")
+    with activities_admin.open_pack(io.BytesIO(zip_folder(folder))) as parsed:
+        assert activities_admin.install_recordings(settings, parsed) > 0
+    assert list(settings.speech_dir.glob("*.m4a"))
+    with make_engine(settings.db_path).connect() as conn:  # no world was saved
+        worker_of(app).prune(conn)
+    assert not list(settings.speech_dir.glob("*.m4a"))

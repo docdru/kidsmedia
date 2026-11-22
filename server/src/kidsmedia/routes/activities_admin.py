@@ -96,8 +96,8 @@ from kidsmedia.usage import local_now
 router = APIRouter(prefix="/api/admin", tags=["admin: activities"])
 
 PACKS_DIR = Path(__file__).resolve().parent.parent / "packs"
-# A pack zip may bring its recordings (speech/, §13.5): about 20 MB and 400 files per language
-# for a six-chapter pack, so three languages and the pictures fit with room to spare.
+# A pack zip may bring its recordings (speech/, §13.5). A six-chapter pack has about 20 MB and
+# 400 files per language, so three languages and the pictures fit these limits with room to spare.
 MAX_PACK_BYTES = 200 * 1024 * 1024
 MAX_UNZIPPED_BYTES = 210 * 1024 * 1024
 MAX_ZIP_ENTRIES = 5000
