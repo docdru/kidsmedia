@@ -2,10 +2,12 @@
 speech endpoints. Piper and ffmpeg are faked: nothing is synthesised here."""
 
 import hashlib
+import io
 import json
 import subprocess
 import sys
 import wave
+import zipfile
 from pathlib import Path
 from typing import Any
 
@@ -803,3 +805,134 @@ def test_packcheck_checks_recordings(tmp_path: Path) -> None:
     ]
     (root / "voices.json").write_text("not json")
     assert problems(folder)[0].startswith("speech: voices.json is missing or not JSON")
+
+
+# ---- recordings in an uploaded pack zip (§13.5) ------------------------------------------
+
+
+def zip_folder(folder: Path, inside: str = "") -> bytes:
+    """A pack folder as a zip, with its files at the top or below `inside/`."""
+    out = io.BytesIO()
+    with zipfile.ZipFile(out, "w") as zf:
+        for path in sorted(folder.rglob("*")):
+            if path.is_file():
+                name = path.relative_to(folder).as_posix()
+                zf.write(path, f"{inside}/{name}" if inside else name)
+    return out.getvalue()
+
+
+def upload(admin: TestClient, body: bytes, dry_run: bool = False) -> Any:
+    flag = "true" if dry_run else "false"
+    return admin.put(f"/api/admin/worlds/import?dry_run={flag}", content=body)
+
+
+@pytest.mark.parametrize("inside", ["", "rec-world"])
+def test_an_uploaded_zip_brings_its_recordings(
+    app: FastAPI,
+    admin: TestClient,
+    device_token: str,
+    settings: Settings,
+    tmp_path: Path,
+    inside: str,
+) -> None:
+    """Like an example pack: the recordings are stored under their keys, served, and their
+    texts aren't rendered; the other languages are. A dry run only checks them."""
+    folder = recorded_pack(tmp_path, "rec-world")
+    body = pack("rec-world", chapters=1)
+    recorded = {speech.recorded_key("en", t) for t in spoken_of(body, "en")}
+    worker = worker_of(app)
+
+    r = upload(admin, zip_folder(folder, inside), dry_run=True)
+    assert r.status_code == 200, r.text
+    assert r.json()["recordings"] == len(recorded)
+    assert not list(settings.speech_dir.glob("*.m4a"))
+
+    r = upload(admin, zip_folder(folder, inside))
+    assert r.status_code == 200, r.text
+    assert r.json()["recordings"] == len(recorded)
+    assert {p.stem for p in settings.speech_dir.glob("*.m4a")} == recorded
+    queued = set(worker.queued())
+    assert not queued & {speech_key(BUNDLED["en"], t) for t in spoken_of(body, "en")}
+    assert {speech_key(BUNDLED["de"], t) for t in spoken_of(body, "de")} <= queued
+
+    admin.put("/api/admin/activities/queue", json={"world_ids": [r.json()["world_id"]]})
+    world = admin.get("/api/activities", headers=bearer(device_token)).json()["world"]
+    name = speech.recorded_key("en", "World")
+    assert world["texts"]["en"]["audio"] == {"name": f"/api/speech/{name}.m4a"}
+    served = admin.get(f"/api/speech/{name}.m4a", headers=bearer(device_token))
+    assert served.content == b"rec World"
+
+    # They stay over a restart: the start-up prune keeps recordings of spoken texts.
+    with make_engine(settings.db_path).connect() as conn:
+        worker.prune(conn)
+    assert {p.stem for p in settings.speech_dir.glob("*.m4a")} >= recorded
+
+
+def test_a_zip_without_recordings_reports_none(admin: TestClient, tmp_path: Path) -> None:
+    folder = example_folder(tmp_path, "plain-world", pack("plain-world", chapters=1), {})
+    r = upload(admin, zip_folder(folder))
+    assert r.status_code == 200, r.text
+    assert r.json()["recordings"] == 0
+
+
+def test_a_zip_with_broken_recordings_is_rejected(
+    admin: TestClient, settings: Settings, tmp_path: Path
+) -> None:
+    """The same rules as packcheck, and nothing is stored or saved."""
+
+    def errors(folder: Path) -> list[str]:
+        r = upload(admin, zip_folder(folder))
+        assert r.status_code == 422, r.text
+        assert r.json()["reason"] == "invalid_pack"
+        result: list[str] = r.json()["params"]["errors"]
+        return result
+
+    folder = recorded_pack(tmp_path / "a", "rec-world")
+    next((folder / "speech" / "en").iterdir()).unlink()
+    (folder / "speech" / "en" / "0123456789abcdef0123.m4a").write_bytes(b"x")
+    (folder / "speech" / "notes.txt").write_text("hi")
+    assert errors(folder) == [
+        "speech/notes.txt: not a language in voices.json",
+        errors(folder)[1],
+        "speech/en: 1 files no text speaks, e.g. 0123456789abcdef0123.m4a",
+    ]
+    assert errors(folder)[1].startswith("speech/en: 1 spoken texts have no recording")
+
+    folder = recorded_pack(tmp_path / "b", "rec-world")
+    (folder / "speech" / "voices.json").unlink()
+    assert errors(folder) == ["speech: voices.json is missing"]
+
+    folder = recorded_pack(tmp_path / "c", "rec-world")
+    (folder / "speech" / "voices.json").write_text("not json")
+    assert errors(folder) == ["speech: voices.json is not JSON"]
+
+    folder = recorded_pack(tmp_path / "d", "rec-world")
+    one = next((folder / "speech" / "en").iterdir())
+    one.write_bytes(b"x" * (speech.MAX_RECORDED_BYTES + 1))
+    assert errors(folder) == [f"speech/en/{one.name}: {speech.MAX_RECORDED_BYTES + 1} bytes"]
+
+    assert not list(settings.speech_dir.glob("*.m4a"))
+    assert admin.get("/api/admin/activities").json()["worlds"] == []
+
+
+def test_a_big_pack_is_spooled_to_disk_and_still_imports(
+    admin: TestClient, settings: Settings, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    from kidsmedia.routes import activities_admin
+
+    monkeypatch.setattr(activities_admin, "SPOOL_IN_MEMORY", 1024)
+    folder = recorded_pack(tmp_path, "rec-world", ("en", "de"))
+    r = upload(admin, zip_folder(folder))
+    assert r.status_code == 200, r.text
+    assert r.json()["recordings"] > 0
+
+
+def test_a_pack_over_the_limit_is_refused(
+    admin: TestClient, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    from kidsmedia.routes import activities_admin
+
+    monkeypatch.setattr(activities_admin, "MAX_PACK_BYTES", 1024 * 1024)
+    r = upload(admin, b"PK" + b"\0" * (1024 * 1024))
+    assert r.status_code == 413
+    assert r.json() == {"reason": "pack_too_large", "params": {"max_mb": 1}}

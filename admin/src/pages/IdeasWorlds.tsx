@@ -224,6 +224,9 @@ export function ImportCard({ onImported }: { onImported: (id: number) => void })
             <strong>{report.slug}</strong>{" "}
             {t("ideas.reportCounts", { chapters: report.chapters, tasks: report.tasks })}
           </p>
+          {report.recordings > 0 && (
+            <p className="small">{t("ideas.reportRecordings", { count: report.recordings })}</p>
+          )}
           {report.complete ? (
             <p className="ok">{t("ideas.reportComplete")}</p>
           ) : (

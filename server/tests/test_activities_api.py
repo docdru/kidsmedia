@@ -476,6 +476,7 @@ def test_import_dry_run_then_real_then_replace(admin: TestClient, device_token: 
         "tasks": 24,
         "complete": True,
         "warnings": [],
+        "recordings": 0,
     }
     assert admin.get("/api/admin/activities").json()["worlds"] == []
 
