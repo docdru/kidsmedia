@@ -425,7 +425,13 @@
     "chapterStarsNoneHelp": "Τα ολοκληρωμένα κεφάλαια δεν δίνουν τίποτα· αστέρια υπάρχουν μόνο ως επιπλέον αστέρια από σένα.",
     "finishedChapter": "Ολοκλήρωσε το κεφάλαιο",
     "confirmOpenAgain_zero": "Να ανοίξει ξανά αυτή η δραστηριότητα;",
-    "confirmOpenAgainPicture_zero": "Να ανοίξει ξανά αυτή η δραστηριότητα; Η εικόνα της διαγράφεται."
+    "confirmOpenAgainPicture_zero": "Να ανοίξει ξανά αυτή η δραστηριότητα; Η εικόνα της διαγράφεται.",
+    "webdav": "Πακέτα ιστοριών σε WebDAV",
+    "webdavHelp": "Τα zip πακέτων στον φάκελο WebDAV που ορίζεται στο .env του διακομιστή (PACKS_WEBDAV_URL). Το καθένα ελέγχεται πριν αποθηκευτεί οτιδήποτε.",
+    "webdavRefresh": "Ανανέωση",
+    "webdavEmpty": "Δεν υπάρχουν αρχεία .zip στον φάκελο.",
+    "webdavCheck": "Έλεγχος",
+    "webdavSize": "{{mb}} MB"
   },
   "status": {
     "lockout": "Κλειδωμένο έως τις {{until}}",
@@ -516,7 +522,14 @@
     "lang_not_in_world": "Αυτός ο κόσμος δεν έχει κείμενα σε αυτή τη γλώσσα.",
     "lang_not_queued": "Αυτός ο κόσμος δεν είναι στη σειρά.",
     "bonus_given": "Το έξτρα αστέρι για αυτή τη δραστηριότητα έχει ήδη δοθεί.",
-    "unknown_done": "Αυτή η δραστηριότητα δεν είναι πια ολοκληρωμένη: άνοιξε ξανά."
+    "unknown_done": "Αυτή η δραστηριότητα δεν είναι πια ολοκληρωμένη: άνοιξε ξανά.",
+    "invalid_name": "Αυτό δεν είναι όνομα αρχείου πακέτου.",
+    "webdav_not_configured": "Δεν έχει οριστεί φάκελος WebDAV (PACKS_WEBDAV_URL).",
+    "webdav_unreachable": "Ο διακομιστής WebDAV δεν είναι προσβάσιμος.",
+    "webdav_auth_failed": "Ο διακομιστής WebDAV απέρριψε τη σύνδεση (PACKS_WEBDAV_USER, PACKS_WEBDAV_PASSWORD).",
+    "webdav_error": "Ο διακομιστής WebDAV απάντησε με σφάλμα {{status}}.",
+    "webdav_bad_listing": "Ο διακομιστής WebDAV έστειλε λίστα φακέλου που δεν διαβάζεται.",
+    "webdav_pack_not_found": "Το {{name}} δεν υπάρχει πια στον φάκελο WebDAV."
   },
   "pickers": {
     "thumbTitle": "Μικρογραφία για «{{title}}»",

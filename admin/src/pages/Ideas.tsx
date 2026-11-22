@@ -6,9 +6,11 @@ import {
   api,
   thumbSrc,
   type ActivitiesAdmin,
+  type ImportReport,
   type Level,
   type SettingsIn,
   type SpeechStatus,
+  type WebDavPacks,
   type Window,
 } from "../api/client";
 import { errorText } from "../lib/errors";
@@ -27,7 +29,7 @@ import {
   type Lang,
 } from "../lib/ideas";
 import { DoneCard } from "./IdeasDone";
-import { ImportCard, WorldEditor, WorldList } from "./IdeasWorlds";
+import { ImportCard, PackError, PackReport, WorldEditor, WorldList } from "./IdeasWorlds";
 
 /** Off-screen ideas: story worlds whose chapters open by doing ideas (SPEC §13.2, §13.4, §13.7, §14). */
 export default function Ideas() {
@@ -54,6 +56,7 @@ export default function Ideas() {
           <WorldList data={data} selected={editing} onSelect={setEditing} />
           <ImportCard onImported={(id) => setEditing(id)} />
           <ExamplesCard data={data} lang={lang} onImported={(id) => setEditing(id)} />
+          {data.webdav && <WebDavCard onImported={(id) => setEditing(id)} />}
         </aside>
         <section className="grow stack">
           {editing != null && data.worlds.some((w) => w.id === editing) ? (
@@ -449,6 +452,98 @@ function ExamplesCard({ data, lang, onImported }: { data: ActivitiesAdmin; lang:
         ))}
       </ul>
       {add.error && <p className="error">{errorText(add.error, t)}</p>}
+    </section>
+  );
+}
+
+const WEBDAV_KEY = ["webdav-packs"];
+
+/** Pack zips on the WebDAV folder set in .env (SPEC §13.5a): check one, then import it. */
+function WebDavCard({ onImported }: { onImported: (id: number) => void }) {
+  const { t } = useTranslation();
+  const queryClient = useQueryClient();
+  const [chosen, setChosen] = useState<string | null>(null);
+  const [done, setDone] = useState<string | null>(null);
+  const packs = useQuery({
+    queryKey: WEBDAV_KEY,
+    queryFn: () => api<WebDavPacks>("GET", "/api/admin/worlds/webdav"),
+  });
+  const path = (name: string, dryRun: boolean) =>
+    `/api/admin/worlds/webdav/import?name=${encodeURIComponent(name)}&dry_run=${dryRun ? "true" : "false"}`;
+  const check = useMutation({
+    mutationFn: (name: string) => api<ImportReport>("POST", path(name, true)),
+  });
+  const run = useMutation({
+    mutationFn: (name: string) => api<ImportReport>("POST", path(name, false)),
+    onSuccess: (report, name) => {
+      setChosen(null);
+      setDone(name);
+      check.reset();
+      void queryClient.invalidateQueries({ queryKey: IDEAS_KEY });
+      if (report.world_id != null) {
+        void queryClient.invalidateQueries({ queryKey: ["world", report.world_id] });
+        onImported(report.world_id);
+      }
+    },
+  });
+  const busy = check.isPending || run.isPending;
+  return (
+    <section className="card stack" aria-labelledby="ideas-webdav">
+      <div className="row spread wrap">
+        <h3 id="ideas-webdav">{t("ideas.webdav")}</h3>
+        <button type="button" className="small" disabled={packs.isFetching} onClick={() => void packs.refetch()}>
+          {t("ideas.webdavRefresh")}
+        </button>
+      </div>
+      <p className="muted small">{t("ideas.webdavHelp")}</p>
+      {packs.isPending && <p className="muted">{t("common.loading")}</p>}
+      {packs.isError && <p className="error">{errorText(packs.error, t)}</p>}
+      {packs.data && packs.data.packs.length === 0 && <p className="muted">{t("ideas.webdavEmpty")}</p>}
+      {packs.data && packs.data.packs.length > 0 && (
+        <ul className="plainlist">
+          {packs.data.packs.map((p) => (
+            <li key={p.name} className="stack">
+              <div className="row spread">
+                <span>
+                  {p.name}
+                  {p.size != null && <span className="muted small"> · {t("ideas.webdavSize", { mb: (p.size / 1048576).toFixed(1) })}</span>}
+                </span>
+                <button
+                  type="button"
+                  className="small"
+                  disabled={busy}
+                  onClick={() => {
+                    setChosen(p.name);
+                    setDone(null);
+                    run.reset();
+                    check.mutate(p.name);
+                  }}
+                >
+                  {t("ideas.webdavCheck")}
+                </button>
+              </div>
+              {chosen === p.name && check.isPending && <p className="muted">{t("ideas.checking")}</p>}
+              {chosen === p.name && check.data && (
+                <PackReport
+                  report={check.data}
+                  pending={run.isPending}
+                  onImport={() => run.mutate(p.name)}
+                  onCancel={() => {
+                    setChosen(null);
+                    check.reset();
+                  }}
+                />
+              )}
+              {chosen === p.name && <PackError error={check.error ?? run.error} />}
+              {done === p.name && (
+                <p role="status" className="ok">
+                  {t("ideas.imported")}
+                </p>
+              )}
+            </li>
+          ))}
+        </ul>
+      )}
     </section>
   );
 }

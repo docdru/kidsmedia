@@ -159,10 +159,13 @@ function doneResponse(url: string): Response | null {
 }
 
 let calls: { url: string; init?: RequestInit }[] = [];
+let webdav = false;
+const DAV_PACKS = { packs: [{ name: "ghost clock.zip", size: 20971520, modified: "2026-11-22T09:00:00Z" }] };
 
 beforeEach(async () => {
   await i18n.changeLanguage("en");
   calls = [];
+  webdav = false;
   vi.stubGlobal(
     "fetch",
     vi.fn(async (url: string, init?: RequestInit) => {
@@ -172,7 +175,9 @@ beforeEach(async () => {
       if (url === "/api/admin/activities/done/12/bonus" && method === "POST")
         return new Response(JSON.stringify({ ...DONE.entries[0], stars: 2, bonus: true }));
       if (url === "/api/admin/activities/done/12" && method === "DELETE") return new Response(null, { status: 204 });
-      if (url === "/api/admin/activities") return new Response(JSON.stringify(STATE));
+      if (url === "/api/admin/activities") return new Response(JSON.stringify({ ...STATE, webdav }));
+      if (url === "/api/admin/worlds/webdav") return new Response(JSON.stringify(DAV_PACKS));
+      if (url.startsWith("/api/admin/worlds/webdav/import")) return new Response(JSON.stringify(REPORT));
       if (url === "/api/admin/speech") return new Response(JSON.stringify(SPEECH));
       if (url === "/api/admin/activities/settings") {
         const body = JSON.parse(String(init?.body)) as Partial<typeof STATE.settings>;
@@ -444,6 +449,26 @@ it("checks a story pack before importing it", async () => {
   expect(sent("/api/admin/worlds/import?dry_run=false", "PUT")).toBeUndefined();
   fireEvent.click(screen.getByRole("button", { name: "Import" }));
   await waitFor(() => expect(sent("/api/admin/worlds/import?dry_run=false", "PUT")).toBeDefined());
+});
+
+it("hides the WebDAV card when no folder is set up", async () => {
+  renderPage();
+  await screen.findByText("Example worlds");
+  expect(screen.queryByText("Story packs on WebDAV")).toBeNull();
+  expect(calls.some((c) => c.url === "/api/admin/worlds/webdav")).toBe(false);
+});
+
+it("checks a pack on WebDAV before importing it", async () => {
+  webdav = true;
+  renderPage();
+  expect(await screen.findByText("ghost clock.zip")).toBeInTheDocument();
+  expect(screen.getByText("· 20.0 MB")).toBeInTheDocument();
+  fireEvent.click(screen.getByRole("button", { name: "Check" }));
+  expect(await screen.findByText("Chapter 4: no Write task")).toBeInTheDocument();
+  expect(sent("/api/admin/worlds/webdav/import?name=ghost%20clock.zip&dry_run=true", "POST")).toBeDefined();
+  fireEvent.click(screen.getByRole("button", { name: "Import" }));
+  await waitFor(() => expect(sent("/api/admin/worlds/webdav/import?name=ghost%20clock.zip&dry_run=false", "POST")).toBeDefined());
+  expect(await screen.findByText("Imported.")).toBeInTheDocument();
 });
 
 it("v0.14: warnings for missing level texts and questions read like sentences", () => {

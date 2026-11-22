@@ -18,7 +18,7 @@ from PIL import Image
 from pydantic import BaseModel, Field, ValidationError
 from sqlalchemy import Connection, Row, delete, insert, select, update
 
-from kidsmedia import photos, speech, thumbs
+from kidsmedia import photos, speech, thumbs, webdav
 from kidsmedia.activities import (
     LANGS,
     MAX_NEEDED,
@@ -191,6 +191,17 @@ class ActivitiesAdminOut(BaseModel):
     worlds: list[WorldSummary]
     log: list[LogRow]
     examples: list[ExampleOut]
+    webdav: bool = False  # a WebDAV folder of pack zips is set up (§13.5a)
+
+
+class WebDavPack(BaseModel):
+    name: str  # the zip's file name in the folder
+    size: int | None
+    modified: datetime | None
+
+
+class WebDavPacksOut(BaseModel):
+    packs: list[WebDavPack]
 
 
 # The editor's text blocks: pack format plus `audio` (§14.3), {field: url} for the spoken fields
@@ -473,6 +484,7 @@ def admin_state(conn: Connection, now: datetime, settings: Settings) -> Activiti
         worlds=[world_summary(r) for r in sorted(rows.values(), key=lambda r: r.id)],
         log=log,
         examples=examples,
+        webdav=bool(settings.packs_webdav_url),
     )
 
 
@@ -951,6 +963,36 @@ def put_queue(
 # ---- worlds -------------------------------------------------------------------------------
 
 
+def get_pack_folder(settings: Settings = Depends(get_settings)) -> webdav.PackFolder | None:
+    """The WebDAV folder of pack zips (§13.5a), or None when PACKS_WEBDAV_URL is empty."""
+    if not settings.packs_webdav_url:
+        return None
+    return webdav.PackFolder(
+        settings.packs_webdav_url, settings.packs_webdav_user, settings.packs_webdav_password
+    )
+
+
+def _folder(folder: webdav.PackFolder | None) -> webdav.PackFolder:
+    if folder is None:
+        raise ApiError(409, "webdav_not_configured")
+    return folder
+
+
+@router.get("/worlds/webdav", response_model=WebDavPacksOut)
+async def list_webdav_packs(
+    _: Admin = Depends(require_admin),
+    folder: webdav.PackFolder | None = Depends(get_pack_folder),
+) -> WebDavPacksOut:
+    """The pack zips in the WebDAV folder (§13.5a), by name. Nothing is imported."""
+    try:
+        files = await _folder(folder).list()
+    except webdav.WebDavError as exc:
+        raise ApiError(exc.status_code, exc.reason, **exc.params) from exc
+    return WebDavPacksOut(
+        packs=[WebDavPack(name=f.name, size=f.size, modified=f.modified) for f in files]
+    )
+
+
 @router.get("/worlds/{world_id}", response_model=WorldFull)
 def get_world(
     world_id: int,
@@ -977,13 +1019,53 @@ async def import_world(
     existing slug is replaced in place. The recordings are stored, and the spoken texts
     without one are queued for rendering (§14.3)."""
     body = await spool_body(request, settings, MAX_PACK_BYTES, "pack_too_large")
-    with body, open_pack(body) as parsed:
+    with body:
+        return _import_spooled(body, conn, settings, clock, worker, dry_run)
+
+
+def _import_spooled(
+    body: IO[bytes],
+    conn: Connection,
+    settings: Settings,
+    clock: Clock,
+    worker: speech.SpeechWorker,
+    dry_run: bool,
+) -> ImportReport:
+    """Check and (unless dry_run) import a pack zip or world.json, from an upload or from
+    the WebDAV folder."""
+    with open_pack(body) as parsed:
         if not dry_run:
             install_recordings(settings, parsed)
         report = import_pack(conn, settings, clock.now(), parsed.pack, parsed.pictures, dry_run)
     if not dry_run:
         worker.enqueue_world(parsed.pack.content())
     return report.model_copy(update={"recordings": len(parsed.recordings)})
+
+
+@router.post("/worlds/webdav/import", response_model=ImportReport)
+async def import_webdav_pack(
+    name: str = Query(max_length=webdav.MAX_NAME),
+    dry_run: bool = Query(default=False),
+    _: Admin = Depends(require_admin_csrf),
+    conn: Connection = Depends(get_conn, scope="function"),
+    clock: Clock = Depends(get_clock),
+    settings: Settings = Depends(get_settings),
+    worker: speech.SpeechWorker = Depends(get_worker),
+    folder: webdav.PackFolder | None = Depends(get_pack_folder),
+) -> ImportReport:
+    """Download one pack zip from the WebDAV folder and check or import it exactly like an
+    upload to `/worlds/import` (§13.4, §13.5a): same limits, same report."""
+    source = _folder(folder)
+    settings.data_dir.mkdir(parents=True, exist_ok=True)
+    body: tempfile.SpooledTemporaryFile[bytes] = tempfile.SpooledTemporaryFile(  # noqa: SIM115
+        max_size=SPOOL_IN_MEMORY, dir=str(settings.data_dir)
+    )
+    with body:
+        try:
+            await source.download(name, body, MAX_PACK_BYTES)
+        except webdav.WebDavError as exc:
+            raise ApiError(exc.status_code, exc.reason, **exc.params) from exc
+        return _import_spooled(body, conn, settings, clock, worker, dry_run)
 
 
 @router.post("/worlds/examples/{slug}", response_model=ImportReport)

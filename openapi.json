@@ -27,6 +27,11 @@
           "settings": {
             "$ref": "#/components/schemas/SettingsOut"
           },
+          "webdav": {
+            "default": false,
+            "title": "Webdav",
+            "type": "boolean"
+          },
           "worlds": {
             "items": {
               "$ref": "#/components/schemas/WorldSummary"
@@ -5127,6 +5132,60 @@
         "title": "ValidationError",
         "type": "object"
       },
+      "WebDavPack": {
+        "properties": {
+          "modified": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Modified"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "size": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Size"
+          }
+        },
+        "required": [
+          "name",
+          "size",
+          "modified"
+        ],
+        "title": "WebDavPack",
+        "type": "object"
+      },
+      "WebDavPacksOut": {
+        "properties": {
+          "packs": {
+            "items": {
+              "$ref": "#/components/schemas/WebDavPack"
+            },
+            "title": "Packs",
+            "type": "array"
+          }
+        },
+        "required": [
+          "packs"
+        ],
+        "title": "WebDavPacksOut",
+        "type": "object"
+      },
       "Window": {
         "additionalProperties": false,
         "description": "An opening window for Ideas: on `days` (Mon=0) from `from` to `to`, same day; `to` is\nexclusive.",
@@ -8377,6 +8436,82 @@
           }
         },
         "summary": "Import World",
+        "tags": [
+          "admin: activities"
+        ]
+      }
+    },
+    "/api/admin/worlds/webdav": {
+      "get": {
+        "description": "The pack zips in the WebDAV folder (§13.5a), by name. Nothing is imported.",
+        "operationId": "list_webdav_packs_api_admin_worlds_webdav_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WebDavPacksOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "List Webdav Packs",
+        "tags": [
+          "admin: activities"
+        ]
+      }
+    },
+    "/api/admin/worlds/webdav/import": {
+      "post": {
+        "description": "Download one pack zip from the WebDAV folder and check or import it exactly like an\nupload to `/worlds/import` (§13.4, §13.5a): same limits, same report.",
+        "operationId": "import_webdav_pack_api_admin_worlds_webdav_import_post",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "name",
+            "required": true,
+            "schema": {
+              "maxLength": 200,
+              "title": "Name",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "dry_run",
+            "required": false,
+            "schema": {
+              "default": false,
+              "title": "Dry Run",
+              "type": "boolean"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ImportReport"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Import Webdav Pack",
         "tags": [
           "admin: activities"
         ]

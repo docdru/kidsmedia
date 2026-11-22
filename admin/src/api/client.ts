@@ -26,6 +26,7 @@ export type PackTask = Schemas["PackTask"];
 export type PackWarning = Schemas["PackWarning"];
 export type ImportReport = Schemas["ImportReport"];
 export type ExampleOut = Schemas["ExampleOut"];
+export type WebDavPacks = Schemas["WebDavPacksOut"];
 export type TaskKind = PackTask["kind"];
 export type SettingsIn = Schemas["SettingsIn"];
 export type Level = Schemas["SettingsOut"]["level"];
