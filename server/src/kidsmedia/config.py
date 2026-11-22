@@ -52,6 +52,38 @@ class Settings(BaseSettings):
     def _webdav_url(cls, value: str) -> str:
         return check_url(value.strip()) if value.strip() else ""
 
+    # Single sign-on with OpenID Connect, e.g. Authelia (SPEC §7.1). Setting OIDC_ISSUER turns
+    # it on and the password login off. Everyone who may sign in is a full admin: an account
+    # listed in OIDC_ALLOWED_USERS or a member of a group in OIDC_ALLOWED_GROUPS (both
+    # comma-separated). Both empty = nobody.
+    oidc_issuer: str = ""
+    oidc_client_id: str = "kidsmedia"
+    oidc_client_secret: str = ""
+    oidc_allowed_users: str = ""
+    oidc_allowed_groups: str = ""
+    # Name on the sign-in button.
+    oidc_label: str = "Authelia"
+
+    @property
+    def oidc_enabled(self) -> bool:
+        return bool(self.oidc_issuer.strip())
+
+    @property
+    def oidc_users(self) -> frozenset[str]:
+        return _csv(self.oidc_allowed_users)
+
+    @property
+    def oidc_groups(self) -> frozenset[str]:
+        return _csv(self.oidc_allowed_groups)
+
+    @property
+    def oidc_redirect_uri(self) -> str:
+        return self.public_url.rstrip("/") + "/api/admin/oidc/callback"
+
+    def oidc_allows(self, username: str, groups: frozenset[str] | set[str]) -> bool:
+        """Whether an SSO account may use the admin. There are no roles: allowed = admin."""
+        return username in self.oidc_users or bool(self.oidc_groups & set(groups))
+
     @property
     def zone(self) -> ZoneInfo:
         return ZoneInfo(self.tz)
@@ -90,6 +122,10 @@ class Settings(BaseSettings):
     @property
     def secure_cookies(self) -> bool:
         return self.public_url.startswith("https://")
+
+
+def _csv(value: str) -> frozenset[str]:
+    return frozenset(part.strip() for part in value.split(",") if part.strip())
 
 
 @lru_cache

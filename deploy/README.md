@@ -16,6 +16,55 @@ for p in "POST /api/activities/photo?world_id=1&position=1&kind=draw" \
 done
 ```
 
+## Single sign-on with Authelia (SPEC §7.1)
+
+The admin can sign in through Authelia's OpenID Connect provider. Once it is on, the password login is off; tablets are not affected.
+
+1. Make a client secret and its hash (on the Authelia host):
+
+   ```bash
+   docker run --rm authelia/authelia:latest authelia crypto hash generate pbkdf2 --variant sha512 --random --random.length 72 --random.charset rfc3986
+   ```
+
+   It prints the random password (goes to Kids Media) and its digest (goes to Authelia).
+
+2. Add the client to Authelia's `configuration.yml` (under `identity_providers.oidc`, which needs its `hmac_secret` and `jwks` set up already) and restart Authelia:
+
+   ```yaml
+   identity_providers:
+     oidc:
+       clients:
+         - client_id: 'kidsmedia'
+           client_name: 'Kids Media'
+           client_secret: '$pbkdf2-sha512$...'      # the digest from step 1
+           public: false
+           authorization_policy: 'one_factor'      # or two_factor
+           require_pkce: true
+           pkce_challenge_method: 'S256'
+           redirect_uris:
+             - 'https://YOUR-DOMAIN/api/admin/oidc/callback'
+           scopes: ['openid', 'profile', 'groups']
+           grant_types: ['authorization_code']
+           response_types: ['code']
+           token_endpoint_auth_method: 'client_secret_basic'
+           userinfo_signed_response_alg: 'none'
+   ```
+
+3. In `/opt/kidsmedia/.env`:
+
+   ```bash
+   OIDC_ISSUER=https://auth.example.com
+   OIDC_CLIENT_SECRET=<the random password from step 1>
+   OIDC_ALLOWED_USERS=mama,papa          # Authelia user names …
+   OIDC_ALLOWED_GROUPS=                  # … and/or groups, e.g. kidsmedia-admins
+   ```
+
+   Then `cd /opt/kidsmedia && sudo docker compose up -d`. The log says `Single sign-on with … is on`, or names what is missing.
+
+To give someone access, add their account (or add them to an allowed group in Authelia) and restart the container. To take it away, remove them and restart: their open sessions end at once. To go back to the password, empty `OIDC_ISSUER` and restart; the first admin account from `ADMIN_PASSWORD` still exists.
+
+nginx needs no change: the sign-in routes are under `/api/`. The server must reach Authelia over HTTPS (`OIDC_ISSUER`); if both run on the same host behind the host nginx, check that the container can resolve and reach that address.
+
 ## Read-aloud voices (SPEC §14.3)
 
 The server reads the activity texts aloud with [Piper](https://github.com/OHF-Voice/piper1-gpl) and stores the result as `data/media/_speech/<key>.m4a`. nginx serves these files through the existing `/_media/` location, so its configuration doesn't change. A background worker renders what is missing at start-up and after an import, an example add or a world save, worlds in the queue first. Texts without a file yet use the tablet's own TextToSpeech. Admin → Activities shows the voice of each language, its licence and how many files are rendered, pending or failed. Failed texts are tried again after the next restart (`docker compose restart kidsmedia`).

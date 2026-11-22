@@ -37,7 +37,10 @@
     "login": "Log in",
     "logout": "Log out",
     "wrong": "Wrong user name or password.",
-    "rateLimited": "Too many attempts. Please wait a minute."
+    "rateLimited": "Too many attempts. Please wait a minute.",
+    "sso": "Sign in with {{name}}",
+    "ssoNotAllowed": "This account has no access to the parent admin. Ask the family admin to add it.",
+    "ssoFailed": "Sign-in didn't work. Please try again."
   },
   "kind": {
     "audiobook": "Audiobooks",

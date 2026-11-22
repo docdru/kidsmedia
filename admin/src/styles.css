@@ -57,6 +57,7 @@ button.inline:hover { text-decoration: underline dotted; }
 .content { padding: 20px 24px; max-width: 1200px; margin: 0 auto; }
 
 .login { max-width: 380px; margin: 14vh auto; display: flex; flex-direction: column; gap: 12px; }
+.login .sso { justify-content: center; text-decoration: none; background: var(--accent); border-color: var(--accent); color: #fff; font-weight: 700; }
 
 .split { display: flex; gap: 20px; align-items: flex-start; }
 .sidebar { width: 300px; flex-shrink: 0; }

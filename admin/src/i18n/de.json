@@ -37,7 +37,10 @@
     "login": "Anmelden",
     "logout": "Abmelden",
     "wrong": "Benutzername oder Passwort falsch.",
-    "rateLimited": "Zu viele Versuche. Bitte warte eine Minute."
+    "rateLimited": "Zu viele Versuche. Bitte warte eine Minute.",
+    "sso": "Mit {{name}} anmelden",
+    "ssoNotAllowed": "Dieses Konto hat keinen Zugang zur Eltern-Verwaltung. Bitte den Familien-Admin, es freizuschalten.",
+    "ssoFailed": "Die Anmeldung hat nicht geklappt. Bitte versuch es noch einmal."
   },
   "kind": {
     "audiobook": "Hörbücher",

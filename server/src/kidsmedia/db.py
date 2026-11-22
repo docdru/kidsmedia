@@ -64,6 +64,10 @@ admin_sessions = Table(
     Column("csrf_token", String, nullable=False),
     Column("created_at", DateTime, nullable=False),
     Column("expires_at", DateTime, nullable=False),
+    # How the session was opened (SPEC §7.1): "password" or "sso". With SSO on, only "sso"
+    # sessions count, and they are checked against the allowed accounts on every request.
+    Column("method", String, nullable=False, server_default="password"),
+    Column("sso_groups", JSON),  # the account's groups at sign-in, for that check
 )
 
 groups = Table(

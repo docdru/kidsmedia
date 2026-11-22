@@ -3,6 +3,7 @@ import type { components } from "./schema";
 /** Server types, generated from openapi.json (SPEC §4.2). */
 export type Schemas = components["schemas"];
 export type Me = Schemas["Me"];
+export type AuthConfig = Schemas["AuthConfig"];
 export type Group = Schemas["GroupOut"];
 export type GroupIn = Schemas["GroupIn"];
 export type GroupPatch = Schemas["GroupPatch"];

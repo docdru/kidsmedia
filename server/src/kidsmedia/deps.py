@@ -44,7 +44,9 @@ class Admin:
     locale: str | None
 
 
-def _admin_from_cookie(request: Request, conn: Connection, clock: Clock) -> Admin | None:
+def _admin_from_cookie(
+    request: Request, conn: Connection, clock: Clock, settings: Settings
+) -> Admin | None:
     token = request.cookies.get(SESSION_COOKIE)
     if not token:
         return None
@@ -53,6 +55,8 @@ def _admin_from_cookie(request: Request, conn: Connection, clock: Clock) -> Admi
             admin_sessions.c.id,
             admin_sessions.c.csrf_token,
             admin_sessions.c.expires_at,
+            admin_sessions.c.method,
+            admin_sessions.c.sso_groups,
             admin_users.c.id.label("user_id"),
             admin_users.c.username,
             admin_users.c.locale,
@@ -62,6 +66,13 @@ def _admin_from_cookie(request: Request, conn: Connection, clock: Clock) -> Admi
     ).first()
     if row is None or row.expires_at <= to_db(clock.now()):
         return None
+    if settings.oidc_enabled:
+        # SSO on (SPEC §7.1): password sessions no longer count, and an account taken off
+        # OIDC_ALLOWED_USERS / _GROUPS loses access at the next request after a restart.
+        if row.method != "sso":
+            return None
+        if not settings.oidc_allows(row.username, set(row.sso_groups or [])):
+            return None
     return Admin(row.user_id, row.username, row.id, row.csrf_token, row.locale)
 
 
@@ -69,8 +80,9 @@ def require_admin(
     request: Request,
     conn: Connection = Depends(get_conn, scope="function"),
     clock: Clock = Depends(get_clock),
+    settings: Settings = Depends(get_settings),
 ) -> Admin:
-    admin = _admin_from_cookie(request, conn, clock)
+    admin = _admin_from_cookie(request, conn, clock, settings)
     if admin is None:
         raise ApiError(401, "not_authenticated")
     return admin
@@ -129,10 +141,11 @@ def require_viewer(
     request: Request,
     conn: Connection = Depends(get_conn, scope="function"),
     clock: Clock = Depends(get_clock),
+    settings: Settings = Depends(get_settings),
 ) -> Viewer:
     if request.headers.get("Authorization"):
         return Viewer(require_device(request, conn, clock), None)
-    admin = _admin_from_cookie(request, conn, clock)
+    admin = _admin_from_cookie(request, conn, clock, settings)
     if admin is None:
         raise ApiError(401, "not_authenticated")
     return Viewer(None, admin)

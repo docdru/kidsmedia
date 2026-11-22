@@ -112,3 +112,27 @@ it("labels release versions with a v and other builds as they are", () => {
   expect(versionLabel("main-27b5f9f")).toBe("main-27b5f9f");
   expect(versionLabel("dev")).toBe("dev");
 });
+
+it("offers only single sign-on when the server has it (SPEC §7.1)", async () => {
+  serve((url) =>
+    url === "/api/admin/auth"
+      ? json({ password: false, sso_label: "Authelia" })
+      : json({ reason: "not_authenticated", params: {} }, 401),
+  );
+  renderApp();
+  const link = await screen.findByRole("link", { name: "Sign in with Authelia" });
+  expect(link).toHaveAttribute("href", "/api/admin/oidc/login");
+  expect(screen.queryByLabelText("Password")).not.toBeInTheDocument();
+});
+
+it("explains a refused single sign-on and cleans the URL", async () => {
+  window.history.replaceState(null, "", "/?sso_error=not_allowed");
+  serve((url) =>
+    url === "/api/admin/auth"
+      ? json({ password: false, sso_label: "Authelia" })
+      : json({ reason: "not_authenticated", params: {} }, 401),
+  );
+  renderApp();
+  expect(await screen.findByRole("alert")).toHaveTextContent("This account has no access");
+  expect(window.location.search).toBe("");
+});

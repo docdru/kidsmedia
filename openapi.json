@@ -221,6 +221,32 @@
         "title": "ApplyThumb",
         "type": "object"
       },
+      "AuthConfig": {
+        "description": "What the login page offers (SPEC §7.1).",
+        "properties": {
+          "password": {
+            "title": "Password",
+            "type": "boolean"
+          },
+          "sso_label": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sso Label"
+          }
+        },
+        "required": [
+          "password",
+          "sso_label"
+        ],
+        "title": "AuthConfig",
+        "type": "object"
+      },
       "BatchIn": {
         "properties": {
           "events": {
@@ -6080,6 +6106,28 @@
         "summary": "Upload Apk",
         "tags": [
           "app update"
+        ]
+      }
+    },
+    "/api/admin/auth": {
+      "get": {
+        "description": "Open to everyone: the login page asks which sign-in to show.",
+        "operationId": "auth_config_api_admin_auth_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthConfig"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Auth Config",
+        "tags": [
+          "admin: auth"
         ]
       }
     },
