@@ -4,12 +4,13 @@
 import contextlib
 import io
 import json
+import tempfile
 import zipfile
-from collections.abc import Callable
+from collections.abc import Callable, Iterator
 from dataclasses import dataclass
 from datetime import datetime, timedelta
 from pathlib import Path, PurePosixPath
-from typing import Any, ClassVar, Literal
+from typing import IO, Any, ClassVar, Literal
 
 from fastapi import APIRouter, Depends, Query, Request, Response
 from fastapi.responses import FileResponse
@@ -95,9 +96,13 @@ from kidsmedia.usage import local_now
 router = APIRouter(prefix="/api/admin", tags=["admin: activities"])
 
 PACKS_DIR = Path(__file__).resolve().parent.parent / "packs"
-MAX_PACK_BYTES = 50 * 1024 * 1024
-MAX_UNZIPPED_BYTES = 60 * 1024 * 1024
-MAX_ZIP_ENTRIES = 200
+# A pack zip may bring its recordings (speech/, §13.5). A six-chapter pack has about 20 MB and
+# 400 files per language, so three languages and the pictures fit these limits with room to spare.
+MAX_PACK_BYTES = 200 * 1024 * 1024
+MAX_UNZIPPED_BYTES = 210 * 1024 * 1024
+MAX_ZIP_ENTRIES = 5000
+MAX_VOICES_JSON_BYTES = 64 * 1024
+SPOOL_IN_MEMORY = 8 * 1024 * 1024  # a bigger upload is spooled to a file on the data disk
 LOG_DAYS = 14
 MAX_CHAPTER_STARS = 20  # highest "stars for a finished chapter" (§14.4)
 # Decision 31: the order of the example worlds; unknown slugs follow alphabetically. Most of
@@ -245,6 +250,7 @@ class ImportReport(BaseModel):
     tasks: int
     complete: bool
     warnings: list[PackWarning]
+    recordings: int = 0  # read-aloud files the zip brings (speech/, §13.5)
 
 
 class DonePhotoOut(BaseModel):
@@ -566,13 +572,82 @@ def read_pictures(pack: Pack, read: PictureReader, source: str) -> PackPictures:
     )
 
 
-def parse_pack(body: bytes) -> tuple[Pack, PackPictures]:
-    """A zip with world.json (+ pictures), or world.json alone. Entries are read by name only,
-    never extracted to disk (§13.5)."""
-    if body[:2] != b"PK":
-        return _validate(body), PackPictures()
+@dataclass(frozen=True)
+class ParsedPack:
+    """An uploaded pack: world.json, its pictures, and the recordings it brings (key → zip
+    entry, §13.5), read with `read` while the zip is open (`open_pack`)."""
+
+    pack: Pack
+    pictures: PackPictures
+    recordings: dict[str, zipfile.ZipInfo]
+    read: Callable[[zipfile.ZipInfo], bytes]
+
+
+class _Budget:
+    """What may still be unpacked from one zip: the declared sizes may lie, so every read
+    counts what it really got."""
+
+    def __init__(self, zf: zipfile.ZipFile, left: int) -> None:
+        self.zf, self.left = zf, left
+
+    def read(self, info: zipfile.ZipInfo, cap: int) -> bytes:
+        data = _read_entry(self.zf, info, min(self.left, cap))
+        self.left -= len(data)
+        return data
+
+
+def _no_recording(info: zipfile.ZipInfo) -> bytes:
+    raise AssertionError(info.filename)  # a pack without a zip has no recordings
+
+
+def _relative(name: str, base: PurePosixPath) -> str | None:
+    """A zip entry's path below the folder of world.json; None outside it."""
+    if str(base) == ".":
+        return name
+    prefix = f"{base}/"
+    return name[len(prefix) :] if name.startswith(prefix) else None
+
+
+def _zip_recordings(
+    infos: list[zipfile.ZipInfo], base: PurePosixPath, pack: Pack, budget: _Budget
+) -> dict[str, zipfile.ZipInfo]:
+    """The `speech/` folder of a pack zip, checked like an example pack's (§13.5, §14.3):
+    key → entry of every recording. Any problem rejects the whole pack."""
+    prefix = f"{speech.RECORDED_DIR}/"
+    entries: dict[str, zipfile.ZipInfo] = {}
+    for info in infos:
+        name = _relative(info.filename, base)
+        if name is not None and name.startswith(prefix):
+            entries[name[len(prefix) :]] = info
+    if not entries:
+        return {}
+    voices_entry = entries.pop(speech.RECORDED_VOICES, None)
+    if voices_entry is None:
+        raise _invalid(f"speech: {speech.RECORDED_VOICES} is missing")
     try:
-        zf = zipfile.ZipFile(io.BytesIO(body))
+        voices = json.loads(budget.read(voices_entry, MAX_VOICES_JSON_BYTES))
+    except ValueError as exc:  # also a UnicodeDecodeError
+        raise _invalid(f"speech: {speech.RECORDED_VOICES} is not JSON") from exc
+    content = pack.content()
+    files = {name: info.file_size for name, info in entries.items()}
+    problems = speech.check_recordings(content, voices, files)
+    if problems:
+        raise _invalid(*problems[:50])
+    return {key: entries[path] for path, key in speech.recorded_files(content, voices).items()}
+
+
+@contextlib.contextmanager
+def open_pack(body: IO[bytes]) -> Iterator[ParsedPack]:
+    """A zip with world.json (+ pictures, + recordings), or world.json alone. Entries are read
+    by name only, never extracted to disk (§13.5). The zip stays open inside the block, so
+    the recordings can be read once the pack has passed."""
+    head = body.read(2)
+    body.seek(0)
+    if head != b"PK":
+        yield ParsedPack(_validate(body.read()), PackPictures(), {}, _no_recording)
+        return
+    try:
+        zf = zipfile.ZipFile(body)
     except zipfile.BadZipFile as exc:
         raise _invalid("zip: not a valid zip file") from exc
     with zf:
@@ -590,19 +665,53 @@ def parse_pack(body: bytes) -> tuple[Pack, PackPictures]:
         base = PurePosixPath(candidates[0].filename).parent
         raw = _read_entry(zf, candidates[0], MAX_UNZIPPED_BYTES)
         pack = _validate(raw)
-        budget = MAX_UNZIPPED_BYTES - len(raw)  # the declared sizes may lie
+        budget = _Budget(zf, MAX_UNZIPPED_BYTES - len(raw))
 
         def read(name: str) -> bytes | None:
-            nonlocal budget
             wanted = str(base / name) if str(base) != "." else name
             entry = next((i for i in infos if i.filename == wanted), None)
             if entry is None:
                 return None
-            data = _read_entry(zf, entry, min(budget, thumbs.MAX_IMAGE_UPLOAD_BYTES))
-            budget -= len(data)
-            return data
+            return budget.read(entry, thumbs.MAX_IMAGE_UPLOAD_BYTES)
 
-        return pack, read_pictures(pack, read, "zip")
+        pictures = read_pictures(pack, read, "zip")
+        recordings = _zip_recordings(infos, base, pack, budget)
+        yield ParsedPack(
+            pack, pictures, recordings, lambda info: budget.read(info, speech.MAX_RECORDED_BYTES)
+        )
+
+
+def install_recordings(settings: Settings, parsed: ParsedPack) -> int:
+    """Store the recordings of an uploaded pack under their keys, like an example pack's
+    (§14.3). They don't depend on the world's id, so this runs before the world is saved: if
+    the import fails afterwards, the files are pruned at the next start."""
+    for key, info in parsed.recordings.items():
+        speech.write_recording(settings, key, parsed.read(info))
+    return len(parsed.recordings)
+
+
+async def spool_body(
+    request: Request, settings: Settings, limit: int, reason: str
+) -> "tempfile.SpooledTemporaryFile[bytes]":
+    """A raw request body, at most `limit` bytes (413 `reason` with `max_mb` beyond), kept in
+    memory up to 8 MB and in a nameless temporary file on the data disk above that, so a pack
+    with recordings never sits in memory whole. The caller closes it."""
+    settings.data_dir.mkdir(parents=True, exist_ok=True)
+    f: tempfile.SpooledTemporaryFile[bytes] = tempfile.SpooledTemporaryFile(  # noqa: SIM115
+        max_size=SPOOL_IN_MEMORY, dir=str(settings.data_dir)
+    )
+    try:
+        size = 0
+        async for chunk in request.stream():
+            size += len(chunk)
+            if size > limit:
+                raise ApiError(413, reason, max_mb=limit // (1024 * 1024))
+            f.write(chunk)
+        f.seek(0)
+    except BaseException:
+        f.close()
+        raise
+    return f
 
 
 def folder_reader(folder: Path) -> PictureReader:
@@ -863,15 +972,18 @@ async def import_world(
     settings: Settings = Depends(get_settings),
     worker: speech.SpeechWorker = Depends(get_worker),
 ) -> ImportReport:
-    """A story pack: a zip with world.json and pictures, or world.json alone (§13.5).
-    With dry_run=true it is only checked. An existing slug is replaced in place. Its spoken
-    texts are queued for rendering (§14.3)."""
-    body = await read_body(request, MAX_PACK_BYTES, "pack_too_large")
-    pack, pictures = parse_pack(body)
-    report = import_pack(conn, settings, clock.now(), pack, pictures, dry_run)
+    """A story pack: a zip with world.json, pictures and optionally its recordings
+    (`speech/`), or world.json alone (§13.5). With dry_run=true it is only checked. An
+    existing slug is replaced in place. The recordings are stored, and the spoken texts
+    without one are queued for rendering (§14.3)."""
+    body = await spool_body(request, settings, MAX_PACK_BYTES, "pack_too_large")
+    with body, open_pack(body) as parsed:
+        if not dry_run:
+            install_recordings(settings, parsed)
+        report = import_pack(conn, settings, clock.now(), parsed.pack, parsed.pictures, dry_run)
     if not dry_run:
-        worker.enqueue_world(pack.content())
-    return report
+        worker.enqueue_world(parsed.pack.content())
+    return report.model_copy(update={"recordings": len(parsed.recordings)})
 
 
 @router.post("/worlds/examples/{slug}", response_model=ImportReport)

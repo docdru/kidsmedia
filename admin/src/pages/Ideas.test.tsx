@@ -38,6 +38,7 @@ const REPORT = {
   tasks: 17,
   complete: false,
   warnings: [{ code: "missing_kind", chapter: 4, kind: "write", lang: null }],
+  recordings: 1059,
 };
 
 const PICTURE = { url: "/api/thumbs/w1c1-9e4f20.webp", aspect: 1.0 };
@@ -438,6 +439,7 @@ it("checks a story pack before importing it", async () => {
   const file = new File(["{}"], "world.json", { type: "application/json" });
   fireEvent.change(input, { target: { files: [file] } });
   expect(await screen.findByText("Chapter 4: no Write task")).toBeInTheDocument();
+  expect(screen.getByText("1059 read-aloud recordings come with it and replace the computer voice.")).toBeInTheDocument();
   expect(sent("/api/admin/worlds/import?dry_run=true", "PUT")).toBeDefined();
   expect(sent("/api/admin/worlds/import?dry_run=false", "PUT")).toBeUndefined();
   fireEvent.click(screen.getByRole("button", { name: "Import" }));

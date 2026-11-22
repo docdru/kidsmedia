@@ -2082,6 +2082,11 @@
             "title": "Complete",
             "type": "boolean"
           },
+          "recordings": {
+            "default": 0,
+            "title": "Recordings",
+            "type": "integer"
+          },
           "replaced": {
             "title": "Replaced",
             "type": "boolean"
@@ -8335,7 +8340,7 @@
     },
     "/api/admin/worlds/import": {
       "put": {
-        "description": "A story pack: a zip with world.json and pictures, or world.json alone (§13.5).\nWith dry_run=true it is only checked. An existing slug is replaced in place. Its spoken\ntexts are queued for rendering (§14.3).",
+        "description": "A story pack: a zip with world.json, pictures and optionally its recordings\n(`speech/`), or world.json alone (§13.5). With dry_run=true it is only checked. An\nexisting slug is replaced in place. The recordings are stored, and the spoken texts\nwithout one are queued for rendering (§14.3).",
         "operationId": "import_world_api_admin_worlds_import_put",
         "parameters": [
           {

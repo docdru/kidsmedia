@@ -20,6 +20,7 @@ import subprocess
 import sys
 import tempfile
 import threading
+from collections import defaultdict
 from collections.abc import Iterable, Iterator, Mapping
 from dataclasses import dataclass
 from pathlib import Path
@@ -392,6 +393,79 @@ def install_recorded(settings: Settings, folder: Path, content: WorldContent) ->
         finally:
             tmp.unlink(missing_ok=True)
     return copied
+
+
+def check_recordings(
+    content: WorldContent,
+    voices: object,
+    files: Mapping[str, int],
+    top: Iterable[str] = (),
+) -> list[str]:
+    """§13.5, §14.3: the rules for a pack's `speech/` folder, for a pack folder (packcheck)
+    and an uploaded zip alike. `voices` is the parsed `voices.json`; `files` maps every file
+    below `speech/` except `voices.json` (`"<lang>/<name>"`) to its size; `top` adds names
+    directly in `speech/` that hold no file (an empty folder). Each language in `voices.json`
+    names a voice and a licence, has a recording of every text it speaks and no other files.
+    Returns the problems; empty when the folder passes."""
+    if not isinstance(voices, dict):
+        return [f"speech: {RECORDED_VOICES} isn't an object"]
+    texts: dict[str, list[str]] = defaultdict(list)
+    for lang, text in spoken_texts(content):
+        texts[lang].append(text)
+    out: list[str] = []
+    names = {path.split("/", 1)[0] for path in files} | set(top)
+    for name in sorted(names - {RECORDED_VOICES} - set(voices)):
+        out.append(f"speech/{name}: not a language in {RECORDED_VOICES}")
+    for lang, entry in sorted(voices.items()):
+        where = f"speech/{lang}"
+        if lang not in texts:
+            out.append(f"{where}: the pack has no {lang} texts")
+            continue
+        if not isinstance(entry, dict) or not all(
+            isinstance(entry.get(k), str) and entry[k].strip() for k in ("voice", "license")
+        ):
+            out.append(f"{where}: {RECORDED_VOICES} needs a voice and a license")
+        wanted = {f"{recorded_key(lang, t)}.m4a": t for t in texts[lang]}
+        have = {
+            path.split("/", 1)[1]: size
+            for path, size in files.items()
+            if "/" in path and path.split("/", 1)[0] == lang
+        }
+        missing = [t for name, t in wanted.items() if name not in have]
+        if missing:
+            out.append(
+                f"{where}: {len(missing)} spoken texts have no recording, e.g. {missing[0]!r}"
+            )
+        extra = sorted(set(have) - set(wanted))
+        if extra:
+            out.append(f"{where}: {len(extra)} files no text speaks, e.g. {extra[0]}")
+        for name in sorted(set(have) & set(wanted)):
+            if not 0 < have[name] <= MAX_RECORDED_BYTES:
+                out.append(f"{where}/{name}: {have[name]} bytes")
+    return out
+
+
+def recorded_files(content: WorldContent, voices: Mapping[str, object]) -> dict[str, str]:
+    """`"<lang>/<key>.m4a"` → key, for every text the world speaks in a language that
+    `voices.json` lists: the files a checked `speech/` folder holds."""
+    return {
+        f"{lang}/{recorded_key(lang, text)}.m4a": recorded_key(lang, text)
+        for lang, text in spoken_texts(content)
+        if lang in voices
+    }
+
+
+def write_recording(settings: Settings, key: str, data: bytes) -> None:
+    """Store one recording under its key in `data/media/_speech/` (temporary file, then
+    rename), where it is served like a rendered file and wins over Piper."""
+    dest = speech_file(settings, key)
+    dest.parent.mkdir(parents=True, exist_ok=True)
+    tmp = dest.with_name(f".{key}.tmp")
+    try:
+        tmp.write_bytes(data)
+        tmp.replace(dest)
+    finally:
+        tmp.unlink(missing_ok=True)
 
 
 def install_all_recorded(conn: Connection, settings: Settings, folders: Mapping[str, Path]) -> int:
