@@ -25,6 +25,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.sizeIn
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
@@ -67,6 +68,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -910,66 +912,105 @@ fun TaskDoneScreen(base: String, view: ActivitiesView, position: Int, onBack: ()
         chapter == world.chapters.last() -> pluralStringResource(R.plurals.activity_choose_more_last, left, left)
         else -> pluralStringResource(R.plurals.activity_choose_more, left, left)
     }
+    // The button is measured first and always stays on screen; the picture gives way when the
+    // screen is short (a small tablet in landscape), and the texts scroll if even that isn't enough.
     Column(
-        Modifier.fillMaxSize().background(Ember).padding(56.dp),
-        verticalArrangement = Arrangement.spacedBy(26.dp, Alignment.CenterVertically),
+        Modifier.fillMaxSize().background(Ember).padding(horizontal = 56.dp, vertical = 32.dp),
+        verticalArrangement = Arrangement.spacedBy(24.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        if (picture != null) {
-            // The chapter's picture with the star pinned to its corner.
-            Box(Modifier.size(260.dp)) {
-                Cover(
-                    base,
-                    world,
-                    picture,
-                    "md",
+        Column(
+            Modifier.weight(1f).fillMaxWidth(),
+            verticalArrangement = Arrangement.spacedBy(20.dp, Alignment.CenterVertically),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            if (picture != null) {
+                // The chapter's picture with the star pinned to its corner.
+                BoxWithConstraints(
                     Modifier
-                        .padding(top = 20.dp, end = 20.dp)
-                        .fillMaxSize()
-                        .clip(RoundedCornerShape(32.dp))
-                        .border(6.dp, Color.White, RoundedCornerShape(32.dp)),
-                    iconSize = 48
-                )
-                Box(
-                    Modifier.align(Alignment.TopEnd).size(84.dp).clip(CircleShape).background(Color.White),
+                        .weight(1f, fill = false)
+                        .sizeIn(maxWidth = 260.dp, maxHeight = 260.dp)
+                        .aspectRatio(1f)
+                ) {
+                    val scale = (maxWidth / 260.dp).coerceIn(0f, 1f)
+                    Cover(
+                        base,
+                        world,
+                        picture,
+                        "md",
+                        Modifier
+                            .padding(top = 20.dp * scale, end = 20.dp * scale)
+                            .fillMaxSize()
+                            .clip(RoundedCornerShape(32.dp * scale))
+                            .border(6.dp * scale, Color.White, RoundedCornerShape(32.dp * scale)),
+                        iconSize = 48
+                    )
+                    Box(
+                        Modifier
+                            .align(Alignment.TopEnd)
+                            .size(84.dp * scale)
+                            .clip(CircleShape)
+                            .background(Color.White),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            if (earned) Icons.Filled.Star else Icons.Filled.Check,
+                            contentDescription = null,
+                            tint = if (earned) Color(0xFFFFB800) else DoneGreen,
+                            modifier = Modifier.size(60.dp * scale)
+                        )
+                    }
+                }
+            } else {
+                BoxWithConstraints(
+                    Modifier
+                        .weight(1f, fill = false)
+                        .sizeIn(maxWidth = 190.dp, maxHeight = 190.dp)
+                        .aspectRatio(1f)
+                        .clip(CircleShape)
+                        .background(Color.White.copy(alpha = 0.16f)),
                     contentAlignment = Alignment.Center
                 ) {
                     Icon(
                         if (earned) Icons.Filled.Star else Icons.Filled.Check,
                         contentDescription = null,
-                        tint = if (earned) Color(0xFFFFB800) else DoneGreen,
-                        modifier = Modifier.size(60.dp)
+                        tint = if (earned) Color(0xFFFFD34D) else Color.White,
+                        modifier = Modifier.size(maxWidth * 0.63f)
                     )
                 }
             }
-        } else {
-            Box(
-                Modifier.size(190.dp).clip(CircleShape).background(Color.White.copy(alpha = 0.16f)),
-                contentAlignment = Alignment.Center
+            // Not weighted: the texts take the height they need first, the picture gets the rest.
+            Column(
+                Modifier.verticalScroll(rememberScrollState()),
+                verticalArrangement = Arrangement.spacedBy(20.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Icon(
-                    if (earned) Icons.Filled.Star else Icons.Filled.Check,
-                    contentDescription = null,
-                    tint = if (earned) Color(0xFFFFD34D) else Color.White,
-                    modifier = Modifier.size(120.dp)
+                Text(
+                    title,
+                    fontSize = 54.sp,
+                    fontWeight = FontWeight.Black,
+                    color = Color.White,
+                    textAlign = TextAlign.Center
                 )
+                Text(
+                    text,
+                    fontSize = 28.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color.White,
+                    lineHeight = 38.sp,
+                    textAlign = TextAlign.Center
+                )
+                starsLine?.let {
+                    Text(
+                        it,
+                        fontSize = 28.sp,
+                        fontWeight = FontWeight.Black,
+                        color = Color(0xFFFFD34D),
+                        lineHeight = 38.sp,
+                        textAlign = TextAlign.Center
+                    )
+                }
             }
-        }
-        Text(
-            title,
-            fontSize = 54.sp,
-            fontWeight = FontWeight.Black,
-            color = Color.White
-        )
-        Text(text, fontSize = 28.sp, fontWeight = FontWeight.Bold, color = Color.White, lineHeight = 38.sp)
-        starsLine?.let {
-            Text(
-                it,
-                fontSize = 28.sp,
-                fontWeight = FontWeight.Black,
-                color = Color(0xFFFFD34D),
-                lineHeight = 38.sp
-            )
         }
         Surface(onClick = onBack, shape = RoundedCornerShape(46.dp), color = Color.White) {
             Box(Modifier.height(92.dp).padding(horizontal = 40.dp), contentAlignment = Alignment.Center) {
