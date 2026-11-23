@@ -868,6 +868,47 @@ def test_an_uploaded_zip_brings_its_recordings(
     assert {p.stem for p in settings.speech_dir.glob("*.m4a")} >= recorded
 
 
+@pytest.mark.parametrize("inside", ["", "rec-world"])
+def test_a_zip_made_on_a_mac_imports(admin: TestClient, tmp_path: Path, inside: str) -> None:
+    """Finder and Archive Utility add .DS_Store, ._* and __MACOSX/: they are skipped."""
+    folder = recorded_pack(tmp_path, "rec-world")
+    out = io.BytesIO(zip_folder(folder, inside))
+    pre = f"{inside}/" if inside else ""
+    with zipfile.ZipFile(out, "a") as zf:
+        for name in ("speech/.DS_Store", "speech/en/.DS_Store", ".DS_Store", "speech/Thumbs.db"):
+            zf.writestr(pre + name, b"\0\0\0\1Bud1")
+        zf.writestr(f"{pre}speech/en/._x.m4a", b"apple double")
+        zf.writestr(f"__MACOSX/{pre}speech/._voices.json", b"apple double")
+        zf.writestr(f"__MACOSX/{pre}._world.json", b"apple double")
+    r = upload(admin, out.getvalue(), dry_run=True)
+    assert r.status_code == 200, r.text
+    assert r.json()["recordings"] > 0
+
+
+def test_packcheck_skips_mac_files(tmp_path: Path) -> None:
+    folder = recorded_pack(tmp_path, "rec-world", ("en", "de"))
+    (folder / "speech" / ".DS_Store").write_bytes(b"x")
+    (folder / "speech" / "de" / ".DS_Store").write_bytes(b"x")
+    (folder / "speech" / "en" / "._a.m4a").write_bytes(b"x")
+    assert [p for p in packcheck.check_pack(folder) if p.startswith("speech")] == []
+
+
+@pytest.mark.parametrize(
+    ("path", "junk"),
+    [
+        ("speech/.DS_Store", True),
+        ("a/b/._x.m4a", True),
+        ("__MACOSX/pack/world.json", True),
+        ("Thumbs.db", True),
+        ("speech/en/abc.m4a", False),
+        ("world.json", False),
+        ("speech/.well/x", False),
+    ],
+)
+def test_os_junk(path: str, junk: bool) -> None:
+    assert speech.os_junk(path) is junk
+
+
 def test_a_zip_without_recordings_reports_none(admin: TestClient, tmp_path: Path) -> None:
     folder = example_folder(tmp_path, "plain-world", pack("plain-world", chapters=1), {})
     r = upload(admin, zip_folder(folder))

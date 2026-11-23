@@ -663,7 +663,7 @@ def open_pack(body: IO[bytes]) -> Iterator[ParsedPack]:
     except zipfile.BadZipFile as exc:
         raise _invalid("zip: not a valid zip file") from exc
     with zf:
-        infos = [i for i in zf.infolist() if not i.is_dir()]
+        infos = [i for i in zf.infolist() if not i.is_dir() and not speech.os_junk(i.filename)]
         if len(infos) > MAX_ZIP_ENTRIES:
             raise _invalid("zip: too many files")
         if sum(i.file_size for i in infos) > MAX_UNZIPPED_BYTES:
