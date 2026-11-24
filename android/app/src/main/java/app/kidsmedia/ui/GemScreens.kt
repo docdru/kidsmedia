@@ -6,11 +6,12 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
@@ -18,6 +19,8 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -43,8 +46,12 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import app.kidsmedia.R
+import app.kidsmedia.activities.GemNews
+import app.kidsmedia.data.GemLog
+import app.kidsmedia.data.GemLogEntry
 import app.kidsmedia.data.LibraryGroup
 import coil3.compose.AsyncImage
+import kotlin.math.abs
 
 /** Gems 💎 on the tablet (SPEC §16.4). */
 private const val GEM = "💎"
@@ -155,10 +162,18 @@ fun GemPictures(need: Int, have: Int, modifier: Modifier = Modifier) {
 /**
  * The gems screen, a tap on the balance on Home (SPEC §16.4): the gems owned as pictures, what
  * they open (every group whose new files cost gems, with the price, bright when there are
- * enough), and where gems come from. A tap on a group opens it.
+ * enough), where gems come from, and what happened to them (§16.6). A tap on a group opens it.
  */
 @Composable
-fun GemsScreen(base: String, balance: Int, groups: List<LibraryGroup>, onBack: () -> Unit, onGroup: (Int) -> Unit) {
+fun GemsScreen(
+    base: String,
+    balance: Int,
+    groups: List<LibraryGroup>,
+    log: GemLog?,
+    offline: Boolean,
+    onBack: () -> Unit,
+    onGroup: (Int) -> Unit
+) {
     val priced = groups.filter { it.status.gemCost != null }
     Column(
         Modifier.fillMaxSize().background(Ground).padding(horizontal = 40.dp, vertical = 28.dp),
@@ -168,34 +183,137 @@ fun GemsScreen(base: String, balance: Int, groups: List<LibraryGroup>, onBack: (
             BackButton(onBack)
             Text(stringResource(R.string.gems_title), fontSize = 36.sp, fontWeight = FontWeight.Black, color = Ink)
         }
-        val owned = pluralStringResource(R.plurals.gems_count, balance, balance)
-        Column(
-            Modifier.fillMaxWidth().semantics(mergeDescendants = true) { contentDescription = owned },
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(8.dp)
+        LazyColumn(
+            Modifier.weight(1f),
+            verticalArrangement = Arrangement.spacedBy(12.dp),
+            contentPadding = PaddingValues(bottom = 120.dp)
         ) {
-            when {
-                balance == 0 -> GemPictures(need = 1, have = 0)
-                balance <= MAX_PICTURES -> GemPictures(need = balance, have = balance)
-                else -> Text("$GEM $balance", fontSize = 64.sp, fontWeight = FontWeight.Black, color = GemInk)
+            item(key = "owned") { OwnedGems(balance) }
+            if (priced.isNotEmpty()) {
+                item(key = "opens") {
+                    Text(
+                        stringResource(R.string.gems_opens),
+                        fontSize = 24.sp,
+                        fontWeight = FontWeight.Black,
+                        color = Ink,
+                        modifier = Modifier.padding(top = 12.dp)
+                    )
+                }
+                items(priced, key = { "group-${it.id}" }) { g -> GemGroupRow(base, g, balance) { onGroup(g.id) } }
             }
-            Text(
-                if (balance == 0) stringResource(R.string.gems_none) else owned,
-                fontSize = 26.sp,
-                fontWeight = FontWeight.Bold,
-                color = GemInk
-            )
-        }
-        if (priced.isNotEmpty()) {
-            Text(stringResource(R.string.gems_opens), fontSize = 24.sp, fontWeight = FontWeight.Black, color = Ink)
-            LazyColumn(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                items(priced, key = { it.id }) { g -> GemGroupRow(base, g, balance) { onGroup(g.id) } }
+            item(key = "from") {
+                Text(stringResource(R.string.gems_from), fontSize = 20.sp, color = Muted)
             }
-        } else {
-            Spacer(Modifier.weight(1f))
+            val entries = log?.entries.orEmpty()
+            item(key = "log") {
+                LogHeader(empty = log != null && entries.isEmpty(), unavailable = log == null && offline)
+            }
+            items(entries, key = { "entry-${it.id}" }) { entry -> GemLogRow(base, entry) }
         }
-        Text(stringResource(R.string.gems_from), fontSize = 20.sp, color = Muted)
     }
+}
+
+@Composable
+private fun OwnedGems(balance: Int) {
+    val owned = pluralStringResource(R.plurals.gems_count, balance, balance)
+    Column(
+        Modifier.fillMaxWidth().semantics(mergeDescendants = true) { contentDescription = owned },
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        when {
+            balance == 0 -> GemPictures(need = 1, have = 0)
+            balance <= MAX_PICTURES -> GemPictures(need = balance, have = balance)
+            else -> Text("$GEM $balance", fontSize = 64.sp, fontWeight = FontWeight.Black, color = GemInk)
+        }
+        Text(
+            if (balance == 0) stringResource(R.string.gems_none) else owned,
+            fontSize = 26.sp,
+            fontWeight = FontWeight.Bold,
+            color = GemInk
+        )
+    }
+}
+
+/**
+ * Why the gems changed (SPEC §16.6): a grown-up's change shows the note they wrote (or
+ * "A grown-up gave you gems"), a spend shows the file it opened with its picture.
+ */
+@Composable
+private fun GemLogRow(base: String, entry: GemLogEntry) {
+    val spend = entry.kind == "spend"
+    val note = entry.note?.takeIf { it.isNotBlank() }
+    val title = when {
+        spend -> entry.title?.takeIf { it.isNotBlank() } ?: stringResource(R.string.log_gems_file)
+        note != null -> note
+        entry.delta >= 0 -> stringResource(R.string.log_gems_given)
+        else -> stringResource(R.string.log_gems_taken)
+    }
+    val subtitle = when {
+        spend -> stringResource(R.string.log_gems_spent)
+        note != null -> stringResource(R.string.log_gems_from)
+        else -> null
+    }
+    LogRow(title, subtitle, entry.createdAt, entry.delta, unit = { Text(GEM, fontSize = 24.sp) }) {
+        val picture = if (spend) thumbUrl(base, entry.thumb, "sm") else null
+        if (picture != null) {
+            AsyncImage(
+                model = picture,
+                contentDescription = null,
+                contentScale = ContentScale.Crop,
+                modifier = Modifier.fillMaxSize()
+            )
+        } else {
+            Box(Modifier.fillMaxSize().background(GemGround), contentAlignment = Alignment.Center) {
+                Text(GEM, fontSize = 40.sp)
+            }
+        }
+    }
+}
+
+/**
+ * The popup on Home after a grown-up gave or took gems (SPEC §16.6), shown once: the change
+ * as gem pictures (bright for gained, faded for taken), a sentence, and each note.
+ */
+@Composable
+fun GemNewsDialog(news: GemNews, onDismiss: () -> Unit) {
+    val total = news.total
+    val headline = when {
+        total > 0 -> pluralStringResource(R.plurals.gems_news_got, total, total)
+        total < 0 -> pluralStringResource(R.plurals.gems_news_lost, -total, -total)
+        else -> stringResource(R.string.gems_news_changed)
+    }
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = {
+            Text(headline, fontSize = 32.sp, fontWeight = FontWeight.Black, color = Ink, lineHeight = 40.sp)
+        },
+        text = {
+            Column(
+                verticalArrangement = Arrangement.spacedBy(16.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                if (total != 0) {
+                    val count = minOf(abs(total), MAX_PICTURES)
+                    GemPictures(need = count, have = if (total > 0) count else 0)
+                }
+                news.entries.forEach { entry ->
+                    val note = entry.note?.takeIf { it.isNotBlank() }
+                    Text(
+                        listOfNotNull("${signed(entry.delta)} $GEM", note).joinToString("  "),
+                        fontSize = 24.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = GemInk
+                    )
+                }
+            }
+        },
+        confirmButton = {
+            Button(onClick = onDismiss, modifier = Modifier.heightIn(min = 72.dp)) {
+                Text(stringResource(R.string.ok), fontSize = 26.sp, fontWeight = FontWeight.Black)
+            }
+        }
+    )
 }
 
 @Composable

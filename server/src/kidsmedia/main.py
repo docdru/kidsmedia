@@ -24,6 +24,7 @@ from kidsmedia.routes import (
     devices,
     gems_admin,
     groups,
+    logs,
     media,
     offline,
     play,
@@ -115,6 +116,7 @@ def create_app(settings: Settings | None = None, clock: Clock | None = None) -> 
         rewards,
         rewards_admin,
         gems_admin,
+        logs,
         speech_routes,
     ):
         app.include_router(module.router)

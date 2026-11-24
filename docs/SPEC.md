@@ -1,6 +1,6 @@
 # Kids Media — Specification
 
-Status: draft v0.27 · 2026-11-22 (v0.27: single sign-on for the admin with OpenID Connect, e.g. Authelia, §7.1 · v0.26: story pack zips from a WebDAV folder, §13.5a · v0.25: an uploaded pack zip may bring its recordings, §13.5 · v0.24: stars only for a chapter with every idea done, and the parent's bonus stars, §14.4 · v0.23: example packs may bring their own recordings of the read-aloud texts, §13.5, §14.3 · v0.22: chapters open by doing ideas, not by date, §13.2; the version in the admin header, §9 · v0.21: full-screen button for video, §8 · v0.20: public code, family image with JOY, the story packs and the signed APK, §18 · v0.19: Done activities in the admin: bonus star per task, open again, §17 · v0.18: one language button, Home header on narrow screens, gems screen · v0.17: gems 💎, rules that unlock by gems instead of time, §16 · v0.16: no accidental done, photos of drawings and stories, maths problem sets, simple materials, §15 · v0.15: story language set per queued story, language flags for the child, §14.7 · v0.14: levels, reading, read aloud on the server, rewards, §14 · v0.13: pictures in story packs · v0.12: Greek as a third language, Greek mystery world · v0.11: activities, §13 · v0.10: volume cap per tablet · v0.9: covers without a MIME type · v0.8: release images carry their APK, silent self-update · v0.7: a session belongs to the day it started · v0.6: grace at the midnight rollover, grace per rule, final heartbeat · v0.5: #2/#3 decided · v0.2: open questions resolved, §12 · v0.3: thumbnails, §6.4 · v0.4: review fixes: grace on stream, evening-anchored lockouts, resume per group, cumulative heartbeats, cover fallback)
+Status: draft v0.28 · 2026-11-24 (v0.28: why the gems and stars changed: a log on the tablet, and a popup when a grown-up gave or took gems, §16.6, §14.4b · v0.27: single sign-on for the admin with OpenID Connect, e.g. Authelia, §7.1 · v0.26: story pack zips from a WebDAV folder, §13.5a · v0.25: an uploaded pack zip may bring its recordings, §13.5 · v0.24: stars only for a chapter with every idea done, and the parent's bonus stars, §14.4 · v0.23: example packs may bring their own recordings of the read-aloud texts, §13.5, §14.3 · v0.22: chapters open by doing ideas, not by date, §13.2; the version in the admin header, §9 · v0.21: full-screen button for video, §8 · v0.20: public code, family image with JOY, the story packs and the signed APK, §18 · v0.19: Done activities in the admin: bonus star per task, open again, §17 · v0.18: one language button, Home header on narrow screens, gems screen · v0.17: gems 💎, rules that unlock by gems instead of time, §16 · v0.16: no accidental done, photos of drawings and stories, maths problem sets, simple materials, §15 · v0.15: story language set per queued story, language flags for the child, §14.7 · v0.14: levels, reading, read aloud on the server, rewards, §14 · v0.13: pictures in story packs · v0.12: Greek as a third language, Greek mystery world · v0.11: activities, §13 · v0.10: volume cap per tablet · v0.9: covers without a MIME type · v0.8: release images carry their APK, silent self-update · v0.7: a session belongs to the day it started · v0.6: grace at the midnight rollover, grace per rule, final heartbeat · v0.5: #2/#3 decided · v0.2: open questions resolved, §12 · v0.3: thumbnails, §6.4 · v0.4: review fixes: grace on stream, evening-anchored lockouts, resume per group, cumulative heartbeats, cover fallback)
 
 A self-hosted media server for a child's Android tablet. A parent uploads music, audiobooks and videos to a Docker web app on a public Linux server, puts them into groups, and sets usage rules. A dedicated Android app on the tablet streams the media and enforces the rules.
 
@@ -818,6 +818,17 @@ A fourth kind next to draw, calc and write. A chapter offers 1–4 tasks with di
 - **Admin:** `GET/PUT /api/admin/activities/settings` carry `windows`; the editor lists windows with weekday pills and from/to times.
 - Examples (tests): windows `[{days: Mon–Fri, 15:00–18:30}, {days: Sat–Sun, 09:00–18:00}]` → Tue 07:30 closed, opens Tue 15:00; Tue 16:00 open; Fri 19:00 closed, opens Sat 09:00; Sun 18:10 closed, opens Mon 15:00; Tue 18:40 done for a task opened at 18:20 → accepted; Tue 18:50 → 409. A tap queued offline at Tue 18:40 (`done_at`) and sent at Tue 21:00 → accepted with day Tue; one at Tue 18:50 sent at 21:00 → 409 `activities_closed`; a tap at Sun 06:30 for Sunday's chapter (unlock 07:00) sent on Monday → 409 `activity_locked`; `done_at` 40 s ahead of the server → counts as now; `done_at` 7 days and 1 minute ago → 409 `activity_too_old`.
 
+### 14.4b Why the stars changed
+
+v0.28. The child sees where its stars came from and where they went.
+
+- **Device API:** `GET /api/rewards/log?limit=` (default 30, max 100) → `{stars, entries: [{id, delta, kind, task, swap, wish, created_at}]}`, the ledger newest first. `kind` is the ledger's (`earn` before v0.24, `chapter`, `bonus`, `reopen`, `swap`, `wish`).
+  - `task` for `earn`, `chapter` and `bonus` while that task is done: `{world_id, world_name, position, kind, title, picture}`, names in the story language (§14.7), `picture` = the chapter's picture. Null once the task was opened again (§17.3), and always for `reopen`.
+  - `swap` for `swap` while the swap exists: `{extra_items, extra_minutes, groups}` (group names, as in §14.4).
+  - `wish` for `wish` while the wish exists: its `texts` (`{de,en,el: {name}}`).
+  - A deleted swap, wish or world keeps its row with what is left (the `delta`, the `kind`): the ledger never loses history.
+- **Tablet:** the Rewards screen ends with **What happened**: one row per entry with a picture (the chapter's, else a star), what happened ("Chapter 2 finished!" + world, "A bonus star from a grown-up" + task, "A grown-up opened an idea again", the swap's label, the wish's name), when ("Today, 14:20", "Yesterday, 08:10", a date) and the change in big numbers, green "+3 ⭐" or red "−2 ⭐". Offline (nothing loaded yet): "No connection right now." No popup for stars: the done screen already shows the chapter's stars (§14.4).
+
 ### 14.5 Data
 
 ```
@@ -961,6 +972,21 @@ v0.17. A second currency next to the stars of §14.4, for unlocking media: a rul
 | 45 | What do gems buy? | One listen: a file counted today, within `replay_percent`; tomorrow it costs again. |
 | 46 | Scope? | The rule's groups, like the other rules; the cost is per file. |
 | 47 | Who gives gems? | The parent in the admin first; later the app (e.g. morning routine). |
+| 60 | Can the child see why gems and stars changed? (v0.28) | Yes: a log on the gems screen and on the Rewards screen (§16.6, §14.4b), with pictures for children who can't read yet. |
+| 61 | Which changes pop up? (v0.28) | A grown-up's gem changes, once each, on Home (§16.6). Not spends (the child caused them and saw "💎 −2"), and not stars (the done screen shows them). Seen is kept on the tablet, not on the server. |
+
+### 16.6 Why the gems changed, and the popup
+
+v0.28.
+
+- **Device API:** `GET /api/gems/log?limit=` (default 30, max 100) → `{balance, entries: [{id, delta, kind, note, title, thumb, created_at}]}`, newest first. `note` only for `admin` rows (the parent's note, as written, so the parent can say why: "Room tidied"); `title` (the snapshot) and `thumb` (the file's picture or its group's, null once the file is deleted) only for `spend` rows.
+- `GET /api/library` → `gems.news_id`: the id of the newest `admin` row of the profile, null = none yet. Spends don't change it.
+- **Popup (tablet):** the tablet keeps the newest `news_id` the child has seen (per pairing, in its preferences). When the library brings a higher one while gems are `used`, it fetches the log and shows, on Home, one popup with every `admin` row newer than the seen one: "You got 3 💎!" / "2 💎 were taken away" (net of all new rows; "Your gems changed" if they cancel out), the gems as pictures (bright for gained, faded for taken), and each change with its note ("+2 💎 Room tidied"). "OK" marks them seen; the popup shows once per change, also if the app was closed in between.
+  - A tablet without a seen marker (first start, a new pairing, the update to v0.28) starts at the current `news_id`, so old history never pops up; with no admin rows yet it starts at 0, so the first gems ever given do.
+  - While no gem rule is on (`used` false, no balance on Home), a change is marked seen without a popup.
+  - Spends get no popup: the child just listened, and the balance showed "💎 −2" then (§16.4).
+- **Gems screen:** below "A grown-up gives you gems." the **What happened** list: a grown-up's change shows the note (else "A grown-up gave you gems" / "A grown-up took gems away") with a 💎 picture; a spend shows the file's title and picture with "You opened it with gems"; each with when and the change ("+2 💎" green, "−2 💎" red).
+- i18n in en, de, el.
 
 ## 17. Done activities in the admin
 

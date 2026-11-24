@@ -25,7 +25,7 @@ from kidsmedia.deps import (
     require_viewer,
 )
 from kidsmedia.errors import ApiError
-from kidsmedia.gems import uses_gems
+from kidsmedia.gems import latest_admin_id, uses_gems
 from kidsmedia.library import THUMB_KEY_RE, ThumbRef, group_cover, item_thumb
 from kidsmedia.security import RateLimiter, hash_token, new_token
 from kidsmedia.usage import (
@@ -92,6 +92,9 @@ class Gems(BaseModel):
 
     balance: int
     used: bool
+    # §16.6: the newest change by a grown-up (gem_ledger id), null = none yet. The tablet
+    # shows a popup once for every change newer than the one it has seen.
+    news_id: int | None = None
 
 
 class Library(BaseModel):
@@ -224,7 +227,11 @@ def library(
     return Library(
         server_time=clock.local(settings.zone),
         groups=out,
-        gems=Gems(balance=ev.usage.gem_balance, used=uses_gems(ev.rules)),
+        gems=Gems(
+            balance=ev.usage.gem_balance,
+            used=uses_gems(ev.rules),
+            news_id=latest_admin_id(conn, device.profile_id),
+        ),
         max_volume_percent=device.max_volume_percent,
     )
 

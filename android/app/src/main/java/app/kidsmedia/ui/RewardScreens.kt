@@ -47,6 +47,8 @@ import app.kidsmedia.activities.StickerSlot
 import app.kidsmedia.activities.SwapState
 import app.kidsmedia.data.AlbumPage
 import app.kidsmedia.data.Rewards
+import app.kidsmedia.data.StarLog
+import app.kidsmedia.data.StarLogEntry
 import app.kidsmedia.data.Swap
 import app.kidsmedia.data.Wish
 import coil3.compose.AsyncImage
@@ -110,6 +112,7 @@ fun StarChip(stars: Int, modifier: Modifier = Modifier) {
 fun RewardsScreen(
     base: String,
     rewards: Rewards,
+    log: StarLog?,
     activities: ActivitiesView?,
     offline: Boolean,
     notice: RewardNotice?,
@@ -169,6 +172,11 @@ fun RewardsScreen(
                     WishRow(wish, rewards.stars, enabled = !cantAct && !busy) { onWish(wish.id) }
                 }
             }
+            val entries = log?.entries.orEmpty()
+            item(key = "log") {
+                LogHeader(empty = log != null && entries.isEmpty(), unavailable = log == null && offline)
+            }
+            items(entries, key = { "entry-${it.id}" }) { entry -> StarLogRow(base, entry) }
         }
     }
 }
@@ -191,6 +199,69 @@ private fun Notice(text: String, ground: Color) {
 @Composable
 private fun SectionTitle(text: String) {
     Text(text, fontSize = 28.sp, fontWeight = FontWeight.Black, color = Ink, modifier = Modifier.padding(top = 8.dp))
+}
+
+// ---- why the stars changed (SPEC §14.4b) -------------------------------------------
+
+@Composable
+private fun StarLogRow(base: String, entry: StarLogEntry) {
+    val task = entry.task
+    val resources = LocalResources.current
+    val title = when (entry.kind) {
+        "chapter" ->
+            if (task != null) {
+                stringResource(R.string.log_stars_chapter, task.position)
+            } else {
+                stringResource(R.string.log_stars_chapter_any)
+            }
+        "bonus" -> stringResource(R.string.log_stars_bonus)
+        "reopen" -> stringResource(R.string.log_stars_reopen)
+        "swap" -> entry.swap?.let { swap ->
+            RewardLogic.swapLabel(
+                Swap(
+                    id = 0,
+                    stars = -entry.delta,
+                    extraItems = swap.extraItems,
+                    extraMinutes = swap.extraMinutes,
+                    groups = swap.groups
+                ),
+                items = { resources.getQuantityString(R.plurals.reward_swap_items, it, it) },
+                minutes = { resources.getQuantityString(R.plurals.reward_swap_minutes, it, it) },
+                join = { amount, groups -> resources.getString(R.string.reward_swap_label, amount, groups) }
+            )
+        } ?: stringResource(R.string.log_stars_swap)
+        "wish" -> entry.wish?.let { ActivityLogic.pick(it, language())?.second?.name }?.takeIf { it.isNotBlank() }
+            ?: stringResource(R.string.log_stars_wish)
+        else -> stringResource(R.string.log_stars_earn)
+    }
+    val subtitle = when (entry.kind) {
+        "chapter" -> task?.worldName
+        "bonus", "earn" -> task?.title
+        "swap" -> stringResource(R.string.log_stars_swap)
+        "wish" -> stringResource(R.string.log_stars_wish)
+        else -> null
+    }
+    val star = @Composable {
+        Icon(Icons.Filled.Star, contentDescription = null, tint = StarGold, modifier = Modifier.size(28.dp))
+    }
+    LogRow(title, subtitle, entry.createdAt, entry.delta, unit = star) {
+        val picture = thumbUrl(base, task?.picture, "sm")
+        if (picture != null) {
+            AsyncImage(
+                model = picture,
+                contentDescription = null,
+                contentScale = ContentScale.Crop,
+                modifier = Modifier.fillMaxSize()
+            )
+        } else {
+            Box(
+                Modifier.fillMaxSize().background(if (entry.delta >= 0) StarGround else SilhouetteGround),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(Icons.Filled.Star, contentDescription = null, tint = StarGold, modifier = Modifier.size(44.dp))
+            }
+        }
+    }
 }
 
 // ---- album --------------------------------------------------------------------------

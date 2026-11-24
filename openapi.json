@@ -1608,12 +1608,112 @@
         "title": "GemEntry",
         "type": "object"
       },
+      "GemLogEntry": {
+        "properties": {
+          "created_at": {
+            "format": "date-time",
+            "title": "Created At",
+            "type": "string"
+          },
+          "delta": {
+            "title": "Delta",
+            "type": "integer"
+          },
+          "id": {
+            "title": "Id",
+            "type": "integer"
+          },
+          "kind": {
+            "enum": [
+              "admin",
+              "spend"
+            ],
+            "title": "Kind",
+            "type": "string"
+          },
+          "note": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Note"
+          },
+          "thumb": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ThumbRef"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "title": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Title"
+          }
+        },
+        "required": [
+          "id",
+          "delta",
+          "kind",
+          "note",
+          "title",
+          "thumb",
+          "created_at"
+        ],
+        "title": "GemLogEntry",
+        "type": "object"
+      },
+      "GemLogOut": {
+        "properties": {
+          "balance": {
+            "title": "Balance",
+            "type": "integer"
+          },
+          "entries": {
+            "items": {
+              "$ref": "#/components/schemas/GemLogEntry"
+            },
+            "title": "Entries",
+            "type": "array"
+          }
+        },
+        "required": [
+          "balance",
+          "entries"
+        ],
+        "title": "GemLogOut",
+        "type": "object"
+      },
       "Gems": {
         "description": "§16.3: the child's gem balance; `used` = an enabled gem rule exists.",
         "properties": {
           "balance": {
             "title": "Balance",
             "type": "integer"
+          },
+          "news_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "News Id"
           },
           "used": {
             "title": "Used",
@@ -4499,6 +4599,180 @@
           "attribution"
         ],
         "title": "SpeechVoiceOut",
+        "type": "object"
+      },
+      "StarLogEntry": {
+        "properties": {
+          "created_at": {
+            "format": "date-time",
+            "title": "Created At",
+            "type": "string"
+          },
+          "delta": {
+            "title": "Delta",
+            "type": "integer"
+          },
+          "id": {
+            "title": "Id",
+            "type": "integer"
+          },
+          "kind": {
+            "enum": [
+              "earn",
+              "chapter",
+              "bonus",
+              "reopen",
+              "swap",
+              "wish"
+            ],
+            "title": "Kind",
+            "type": "string"
+          },
+          "swap": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/StarSwap"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "task": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/StarTask"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "wish": {
+            "anyOf": [
+              {
+                "additionalProperties": {
+                  "$ref": "#/components/schemas/WishTexts"
+                },
+                "propertyNames": {
+                  "enum": [
+                    "de",
+                    "en",
+                    "el"
+                  ]
+                },
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Wish"
+          }
+        },
+        "required": [
+          "id",
+          "delta",
+          "kind",
+          "task",
+          "swap",
+          "wish",
+          "created_at"
+        ],
+        "title": "StarLogEntry",
+        "type": "object"
+      },
+      "StarLogOut": {
+        "properties": {
+          "entries": {
+            "items": {
+              "$ref": "#/components/schemas/StarLogEntry"
+            },
+            "title": "Entries",
+            "type": "array"
+          },
+          "stars": {
+            "title": "Stars",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "stars",
+          "entries"
+        ],
+        "title": "StarLogOut",
+        "type": "object"
+      },
+      "StarSwap": {
+        "description": "What a swap gave, while the swap exists.",
+        "properties": {
+          "extra_items": {
+            "title": "Extra Items",
+            "type": "integer"
+          },
+          "extra_minutes": {
+            "title": "Extra Minutes",
+            "type": "integer"
+          },
+          "groups": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Groups",
+            "type": "array"
+          }
+        },
+        "required": [
+          "extra_items",
+          "extra_minutes",
+          "groups"
+        ],
+        "title": "StarSwap",
+        "type": "object"
+      },
+      "StarTask": {
+        "description": "The done task a star row is about, while it is done (§14.4b).",
+        "properties": {
+          "kind": {
+            "title": "Kind",
+            "type": "string"
+          },
+          "picture": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ThumbRef"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "position": {
+            "title": "Position",
+            "type": "integer"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          },
+          "world_id": {
+            "title": "World Id",
+            "type": "integer"
+          },
+          "world_name": {
+            "title": "World Name",
+            "type": "string"
+          }
+        },
+        "required": [
+          "world_id",
+          "world_name",
+          "position",
+          "kind",
+          "title",
+          "picture"
+        ],
+        "title": "StarTask",
         "type": "object"
       },
       "StartIn": {
@@ -8956,6 +9230,52 @@
         ]
       }
     },
+    "/api/gems/log": {
+      "get": {
+        "description": "The gem balance and why it changed, newest first (§16.6).",
+        "operationId": "get_gem_log_api_gems_log_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 30,
+              "maximum": 100,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GemLogOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get Gem Log",
+        "tags": [
+          "device: logs"
+        ]
+      }
+    },
     "/api/library": {
       "get": {
         "operationId": "library_api_library_get",
@@ -9290,6 +9610,52 @@
         "summary": "Get Rewards",
         "tags": [
           "device: rewards"
+        ]
+      }
+    },
+    "/api/rewards/log": {
+      "get": {
+        "description": "The stars and why they changed, newest first (§14.4b).",
+        "operationId": "get_star_log_api_rewards_log_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 30,
+              "maximum": 100,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StarLogOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get Star Log",
+        "tags": [
+          "device: logs"
         ]
       }
     },

@@ -42,6 +42,7 @@ import app.kidsmedia.activities.SpeechLogic
 import app.kidsmedia.playback.PlaybackService
 import app.kidsmedia.ui.AppViewModel
 import app.kidsmedia.ui.CalcScreen
+import app.kidsmedia.ui.GemNewsDialog
 import app.kidsmedia.ui.GemsScreen
 import app.kidsmedia.ui.Ground
 import app.kidsmedia.ui.GroupScreen
@@ -174,6 +175,9 @@ private fun App(vm: AppViewModel, speaker: Speaker) {
     val activities by vm.activities.collectAsStateWithLifecycle()
     val speaking by speaker.speaking.collectAsStateWithLifecycle()
     val rewards by vm.rewards.collectAsStateWithLifecycle()
+    val starLog by vm.starLog.collectAsStateWithLifecycle()
+    val gemLog by vm.gemLog.collectAsStateWithLifecycle()
+    val gemNews by vm.gemNews.collectAsStateWithLifecycle()
     val rewardNotice by vm.rewardNotice.collectAsStateWithLifecycle()
     val rewardBusy by vm.rewardBusy.collectAsStateWithLifecycle()
     val reading by vm.reading.collectAsStateWithLifecycle()
@@ -339,6 +343,7 @@ private fun App(vm: AppViewModel, speaker: Speaker) {
                     RewardsScreen(
                         base,
                         shown,
+                        starLog,
                         activities,
                         offline,
                         rewardNotice,
@@ -365,11 +370,13 @@ private fun App(vm: AppViewModel, speaker: Speaker) {
                     PlayerScreen(base, playing, player, vm::back, vm::togglePlay, vm::seekBy, vm::seekTo, gems)
                 }
             }
-            Screen.Gems -> GemsScreen(base, gemState.balance, groups, vm::back, vm::tapGroup)
+            Screen.Gems -> GemsScreen(base, gemState.balance, groups, gemLog, offline, vm::back, vm::tapGroup)
             Screen.ParentGate, Screen.Settings -> Unit
         }
         if (screen == Screen.Home) {
             SettingsDot(vm::openParentGate, Modifier.align(Alignment.TopEnd).padding(8.dp))
+            // A grown-up gave or took gems: shown once, on Home (SPEC §16.6).
+            gemNews?.let { GemNewsDialog(it, vm::dismissGemNews) }
         }
         val playing = now
         // Not over a task's big "I'm done!" button, nor over the camera.

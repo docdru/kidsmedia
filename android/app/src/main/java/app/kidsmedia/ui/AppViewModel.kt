@@ -12,6 +12,8 @@ import app.kidsmedia.activities.ActivityLogic
 import app.kidsmedia.activities.CalcLogic
 import app.kidsmedia.activities.CalcProgress
 import app.kidsmedia.activities.CalcStep
+import app.kidsmedia.activities.GemNews
+import app.kidsmedia.activities.LogLogic
 import app.kidsmedia.activities.OpenLogic
 import app.kidsmedia.activities.OpenState
 import app.kidsmedia.activities.PhotoLogic
@@ -25,6 +27,7 @@ import app.kidsmedia.data.AppRelease
 import app.kidsmedia.data.CalcProblem
 import app.kidsmedia.data.DeviceMe
 import app.kidsmedia.data.DoneRequest
+import app.kidsmedia.data.GemLog
 import app.kidsmedia.data.Gems
 import app.kidsmedia.data.Library
 import app.kidsmedia.data.PairRequest
@@ -35,6 +38,7 @@ import app.kidsmedia.data.PinAttempts
 import app.kidsmedia.data.ReadQuestion
 import app.kidsmedia.data.Rewards
 import app.kidsmedia.data.ServerUrl
+import app.kidsmedia.data.StarLog
 import app.kidsmedia.playback.Block
 import app.kidsmedia.update.UpdateException
 import app.kidsmedia.update.Updater
@@ -130,6 +134,18 @@ class AppViewModel(private val graph: Graph) : ViewModel() {
     /** The gem balance shown on Home (SPEC §16.4); offline the snapshot's minus the gems spent since. */
     private val _gems = MutableStateFlow(Gems())
     val gems: StateFlow<Gems> = _gems.asStateFlow()
+
+    /** Why the gems changed, for the gems screen (SPEC §16.6); null until loaded or offline. */
+    private val _gemLog = MutableStateFlow<GemLog?>(null)
+    val gemLog: StateFlow<GemLog?> = _gemLog.asStateFlow()
+
+    /** Gem changes by a grown-up not seen yet: the popup on Home (SPEC §16.6). */
+    private val _gemNews = MutableStateFlow<GemNews?>(null)
+    val gemNews: StateFlow<GemNews?> = _gemNews.asStateFlow()
+
+    /** Why the stars changed, for the Rewards screen (SPEC §14.4b); null until loaded or offline. */
+    private val _starLog = MutableStateFlow<StarLog?>(null)
+    val starLog: StateFlow<StarLog?> = _starLog.asStateFlow()
 
     private val _activities = MutableStateFlow<ActivitiesView?>(null)
     val activities: StateFlow<ActivitiesView?> = _activities.asStateFlow()
@@ -253,6 +269,7 @@ class AppViewModel(private val graph: Graph) : ViewModel() {
             _library.value = library
             _gems.value = library.gems
             _offline.value = false
+            checkGemNews(library.gems)
             graph.prefs.saveMaxVolume(library.maxVolumePercent)
             // Offline mode (M7): send queued plays, refresh the snapshot and the copies.
             viewModelScope.launch {
@@ -626,13 +643,66 @@ class AppViewModel(private val graph: Graph) : ViewModel() {
 
     fun openGems() {
         _screen.value = Screen.Gems
+        viewModelScope.launch { refreshGemLog() }
     }
 
     fun openRewards() {
         if (_rewards.value == null) return
         _rewardNotice.value = null
         _screen.value = Screen.Rewards
-        viewModelScope.launch { refreshRewards() }
+        viewModelScope.launch {
+            refreshRewards()
+            refreshStarLog()
+        }
+    }
+
+    // ---- why the gems and stars changed (SPEC §16.6, §14.4b) ----
+
+    /** Fetch the gem log; offline, the last one stays (or none: the screen says so). */
+    private suspend fun refreshGemLog(): GemLog? = try {
+        graph.api.gemLog().also { _gemLog.value = it }
+    } catch (e: IOException) {
+        // ApiException too (a server without the log answers 404): keep what is shown.
+        Log.i("kidsmedia", "gem log: $e")
+        null
+    }
+
+    private suspend fun refreshStarLog() {
+        try {
+            _starLog.value = graph.api.starLog()
+        } catch (e: IOException) {
+            Log.i("kidsmedia", "star log: $e")
+        }
+    }
+
+    /**
+     * A grown-up gave or took gems since the child last saw it: show the popup once (SPEC
+     * §16.6). A tablet without a marker yet starts from the newest change, so old history
+     * never pops up. While no gem rule is on, Home shows no gems: the change is marked seen.
+     */
+    private suspend fun checkGemNews(gems: Gems) {
+        val seen = graph.prefs.gemNewsSeen()
+        if (seen == null) {
+            graph.prefs.saveGemNewsSeen(LogLogic.firstSeen(gems.newsId))
+            return
+        }
+        val newsId = gems.newsId
+        if (newsId == null || !LogLogic.hasNews(newsId, seen) || _gemNews.value != null) return
+        if (!gems.used) {
+            graph.prefs.saveGemNewsSeen(newsId)
+            return
+        }
+        val log = refreshGemLog() ?: return
+        _gemNews.value = LogLogic.news(log.entries, seen)
+        // Older than the log's page (many changes at once): don't ask again for those.
+        if (_gemNews.value == null) graph.prefs.saveGemNewsSeen(newsId)
+    }
+
+    /** The child closed the popup: these changes are seen. */
+    fun dismissGemNews() {
+        val news = _gemNews.value ?: return
+        _gemNews.value = null
+        viewModelScope.launch { graph.prefs.saveGemNewsSeen(news.lastId) }
     }
 
     /** "Swap N stars": the bonus is the server's (§3.5), so the library is refreshed for the new limits. */
@@ -823,6 +893,9 @@ class AppViewModel(private val graph: Graph) : ViewModel() {
         _library.value = null
         _activities.value = null
         _rewards.value = null
+        _gemLog.value = null
+        _starLog.value = null
+        _gemNews.value = null
         viewModelScope.launch { graph.prefs.clear() }
     }
 

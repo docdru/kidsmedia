@@ -36,6 +36,7 @@ class Prefs(private val context: Context, scope: CoroutineScope) : Credentials {
     private val autoCheckedKey = longPreferencesKey("auto_update_checked_at")
     private val autoAttemptedKey = intPreferencesKey("auto_update_attempted_code")
     private val maxVolumeKey = intPreferencesKey("max_volume_percent")
+    private val gemNewsSeenKey = intPreferencesKey("gem_news_seen_id")
 
     /** False until DataStore has been read once, so the UI doesn't flash the setup screen. */
     val loaded: StateFlow<Boolean> =
@@ -67,6 +68,7 @@ class Prefs(private val context: Context, scope: CoroutineScope) : Credentials {
         context.dataStore.edit {
             it[urlKey] = pairing.baseUrl
             it[tokenKey] = pairing.token
+            it.remove(gemNewsSeenKey) // another server's ids mean nothing here
         }
     }
 
@@ -84,6 +86,16 @@ class Prefs(private val context: Context, scope: CoroutineScope) : Credentials {
                 it[maxVolumeKey] = percent
             }
         }
+    }
+
+    /**
+     * The newest gem change by a grown-up the child has seen in the popup (SPEC §16.6), or
+     * null before the first library on this pairing.
+     */
+    suspend fun gemNewsSeen(): Int? = context.dataStore.data.first()[gemNewsSeenKey]
+
+    suspend fun saveGemNewsSeen(id: Int) {
+        context.dataStore.edit { it[gemNewsSeenKey] = id }
     }
 
     suspend fun autoUpdate(): AutoUpdateState = context.dataStore.data.first().let {
