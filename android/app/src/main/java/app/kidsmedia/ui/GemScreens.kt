@@ -298,10 +298,9 @@ fun GemNewsDialog(news: GemNews, onDismiss: () -> Unit) {
                     GemPictures(need = count, have = if (total > 0) count else 0)
                 }
                 news.entries.forEach { entry ->
-                    val sign = if (entry.delta > 0) "+" else "−"
                     val note = entry.note?.takeIf { it.isNotBlank() }
                     Text(
-                        listOfNotNull("$sign${abs(entry.delta)} $GEM", note).joinToString("  "),
+                        listOfNotNull("${signed(entry.delta)} $GEM", note).joinToString("  "),
                         fontSize = 24.sp,
                         fontWeight = FontWeight.Bold,
                         color = GemInk

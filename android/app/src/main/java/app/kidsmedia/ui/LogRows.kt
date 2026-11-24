@@ -68,8 +68,7 @@ fun LogRow(
     picture: @Composable () -> Unit
 ) {
     val time = logTimeText(createdAt)
-    val sign = if (delta > 0) "+" else if (delta < 0) "−" else ""
-    val description = listOfNotNull(title, subtitle, time, "$sign${abs(delta)}").joinToString(", ")
+    val description = listOfNotNull(title, subtitle, time, signed(delta)).joinToString(", ")
     Surface(
         shape = RoundedCornerShape(24.dp),
         color = Color.White,
@@ -108,13 +107,20 @@ private fun DeltaChip(delta: Int, unit: @Composable () -> Unit) {
         horizontalArrangement = Arrangement.spacedBy(6.dp)
     ) {
         Text(
-            (if (delta > 0) "+" else if (delta < 0) "−" else "") + abs(delta),
+            signed(delta),
             fontSize = 28.sp,
             fontWeight = FontWeight.Black,
             color = if (gained) Gained else Lost
         )
         unit()
     }
+}
+
+/** "+3", "−2" (a real minus sign) or "0". */
+fun signed(delta: Int): String = when {
+    delta > 0 -> "+$delta"
+    delta < 0 -> "−${abs(delta)}"
+    else -> "0"
 }
 
 /** The log's heading, and a line when there is nothing to show yet or no connection. */

@@ -118,8 +118,7 @@ class KidsApi(private val client: OkHttpClient, private val credentials: Credent
     suspend fun starLog(): StarLog =
         call(Request.Builder().url(url("/api/rewards/log")).get().build(), StarLog.serializer())
 
-    suspend fun gemLog(): GemLog =
-        call(Request.Builder().url(url("/api/gems/log")).get().build(), GemLog.serializer())
+    suspend fun gemLog(): GemLog = call(Request.Builder().url(url("/api/gems/log")).get().build(), GemLog.serializer())
 
     suspend fun redeemSwap(swapId: Int): Rewards =
         call(postEmpty(url("/api/rewards/swaps/$swapId")), Rewards.serializer())
