@@ -120,6 +120,29 @@ it("adds and removes gems, with an optional note (SPEC §16.4)", async () => {
   await waitFor(() => expect(gemPosts()).toEqual([{ delta: 1 }, { delta: 5, note: "Teeth brushed" }, { delta: -1 }]));
 });
 
+it("adds or removes any amount from 1 to 20", async () => {
+  renderRules();
+  expect(await screen.findByText("3 💎")).toBeInTheDocument();
+  const amount = screen.getByLabelText("Other amount");
+  expect(amount).toHaveValue(5);
+  expect(screen.getByRole("button", { name: "−5 💎" })).toBeDisabled(); // the balance is 3
+  fireEvent.change(amount, { target: { value: "12" } });
+  fireEvent.click(screen.getByRole("button", { name: "+12 💎" }));
+  await waitFor(() => expect(gemPosts()).toEqual([{ delta: 12 }]));
+  fireEvent.change(amount, { target: { value: "2" } });
+  await waitFor(() => expect(screen.getByRole("button", { name: "−2 💎" })).toBeEnabled());
+  fireEvent.click(screen.getByRole("button", { name: "−2 💎" }));
+  await waitFor(() => expect(gemPosts()).toEqual([{ delta: 12 }, { delta: -2 }]));
+  // Outside 1–20 there is nothing to tap; leaving the field brings it back into range.
+  fireEvent.change(amount, { target: { value: "25" } });
+  expect(screen.queryByRole("button", { name: "+25 💎" })).not.toBeInTheDocument();
+  fireEvent.blur(amount);
+  expect(amount).toHaveValue(20);
+  fireEvent.change(amount, { target: { value: "" } });
+  fireEvent.blur(amount);
+  expect(amount).toHaveValue(1);
+});
+
 it("undoes the newest admin entry with a counter entry", async () => {
   const undone = {
     balance: 1,

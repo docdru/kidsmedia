@@ -124,6 +124,7 @@
       "balance": "{{count}} 💎",
       "add": "+{{count}} 💎",
       "remove": "−{{count}} 💎",
+      "amount": "Other amount",
       "note": "Note (optional)",
       "notePlaceholder": "e.g. Room tidied",
       "none": "No gems given or spent yet.",
