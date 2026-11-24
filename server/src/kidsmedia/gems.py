@@ -25,6 +25,16 @@ def gem_balance(conn: Connection, profile_id: int) -> int:
     return int(total)
 
 
+def latest_admin_id(conn: Connection, profile_id: int) -> int | None:
+    """The newest gem change by a grown-up (`admin` row), for the tablet's popup (§16.6)."""
+    value = conn.execute(
+        select(func.max(gem_ledger.c.id)).where(
+            gem_ledger.c.profile_id == profile_id, gem_ledger.c.kind == "admin"
+        )
+    ).scalar_one()
+    return int(value) if value is not None else None
+
+
 def gems_paid(conn: Connection, profile_id: int, day: str) -> dict[int, frozenset[int]]:
     """rule_id -> the files whose listen that rule has been paid for on `day` (§16.2)."""
     paid: dict[int, set[int]] = {}

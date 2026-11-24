@@ -226,4 +226,31 @@
     <string name="gems_none">Noch keine Edelsteine</string>
     <string name="gems_opens">Edelsteine öffnen</string>
     <string name="gems_from">Edelsteine bekommst du von einem Erwachsenen.</string>
+    <!-- Warum sich Edelsteine und Sterne geändert haben (SPEC §16.6, §14.4b) -->
+    <string name="log_title">Was passiert ist</string>
+    <string name="log_empty">Noch nichts</string>
+    <string name="log_offline">Gerade keine Verbindung.</string>
+    <string name="log_today">Heute, %1$s</string>
+    <string name="log_yesterday">Gestern, %1$s</string>
+    <string name="log_gems_given">Ein Erwachsener hat dir Edelsteine geschenkt</string>
+    <string name="log_gems_taken">Ein Erwachsener hat Edelsteine weggenommen</string>
+    <string name="log_gems_from">Von einem Erwachsenen</string>
+    <string name="log_gems_spent">Mit Edelsteinen freigeschaltet</string>
+    <string name="log_gems_file">Eine Datei</string>
+    <string name="log_stars_chapter">Kapitel %1$d geschafft!</string>
+    <string name="log_stars_chapter_any">Ein Kapitel geschafft!</string>
+    <string name="log_stars_bonus">Ein Extrastern von einem Erwachsenen</string>
+    <string name="log_stars_earn">Eine Idee erledigt</string>
+    <string name="log_stars_reopen">Ein Erwachsener hat eine Idee wieder geöffnet</string>
+    <string name="log_stars_swap">Getauscht</string>
+    <string name="log_stars_wish">Ein Wunsch</string>
+    <plurals name="gems_news_got">
+        <item quantity="one">Du hast %d Edelstein bekommen!</item>
+        <item quantity="other">Du hast %d Edelsteine bekommen!</item>
+    </plurals>
+    <plurals name="gems_news_lost">
+        <item quantity="one">%d Edelstein wurde weggenommen</item>
+        <item quantity="other">%d Edelsteine wurden weggenommen</item>
+    </plurals>
+    <string name="gems_news_changed">Deine Edelsteine haben sich geändert</string>
 </resources>

@@ -93,7 +93,12 @@ data class Library(
 
 /** [used]: an enabled gem rule exists, so the tablet shows the balance (SPEC §16.3). */
 @Serializable
-data class Gems(val balance: Int = 0, val used: Boolean = false)
+data class Gems(
+    val balance: Int = 0,
+    val used: Boolean = false,
+    /** The newest gem change by a grown-up (SPEC §16.6); the popup shows the ones not seen yet. */
+    @SerialName("news_id") val newsId: Int? = null
+)
 
 @Serializable
 data class Grace(

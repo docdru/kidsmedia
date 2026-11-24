@@ -63,10 +63,10 @@ def test_gems_are_spent_at_the_count_once_and_buy_one_listen(
     cartoons = group(admin, "video", "Cartoons")
     v1, v2, v3 = (add_media(settings, audio_file, cartoons, 600, n) for n in ("v1", "v2", "v3"))
     rid = gem_rule(admin, cartoons)
-    gems(admin, 3)
+    news = gems(admin, 3)["entries"][0]["id"]
 
     lib = library(tablet)
-    assert lib["gems"] == {"balance": 3, "used": True}
+    assert lib["gems"] == {"balance": 3, "used": True, "news_id": news}
     assert lib["groups"][0]["status"]["gem_cost"] == 2
     assert not any(i["paid_today"] for i in lib["groups"][0]["items"])
 
@@ -268,9 +268,9 @@ def test_library_without_gem_rules(
     music = group(admin, "music", "Music")
     add_media(settings, audio_file, music, 200, "song")
     rule(admin, max_minutes=60)
-    gems(admin, 4)
+    news = gems(admin, 4)["entries"][0]["id"]
     lib = library(tablet)
-    assert lib["gems"] == {"balance": 4, "used": False}
+    assert lib["gems"] == {"balance": 4, "used": False, "news_id": news}
     assert lib["groups"][0]["status"]["gem_cost"] is None
     assert lib["groups"][0]["items"][0]["paid_today"] is False
     disabled = gem_rule(admin, music)
