@@ -420,12 +420,17 @@ function RuleEditor({
   );
 }
 
-/** The child's gems: balance, quick buttons and the last entries (SPEC §16.4). */
+/** The most gems one change may add or remove (the server's limit, SPEC §16.3). */
+const MAX_GEM_CHANGE = 20;
+
+/** The child's gems: balance, ±1 and a free amount, and the last entries (SPEC §16.4). */
 function GemsCard() {
   const { t, i18n } = useTranslation();
   const queryClient = useQueryClient();
   const gems = useQuery({ queryKey: ["gems"], queryFn: () => api<GemsAdmin>("GET", "/api/admin/gems?limit=10") });
   const [note, setNote] = useState("");
+  // The free amount next to the ±1 buttons; the server takes 1–20 at a time (SPEC §16.3).
+  const [amount, setAmount] = useState("5");
   // The entry an Undo created, so it doesn't offer to undo itself.
   const [undoEntry, setUndoEntry] = useState<number | null>(null);
   const change = useMutation({
@@ -445,6 +450,8 @@ function GemsCard() {
   const balance = gems.data?.balance ?? 0;
   const entries = gems.data?.entries ?? [];
   const lastAdmin = entries.find((e) => e.kind === "admin");
+  const parsed = Number(amount);
+  const free = Number.isInteger(parsed) && parsed >= 1 && parsed <= MAX_GEM_CHANGE ? parsed : null;
   const give = (delta: number) => change.mutate({ delta, note: note.trim() || undefined });
   const undo = (delta: number, original: string | null | undefined) => {
     const label = t("rules.gems.undoNote");
@@ -466,9 +473,30 @@ function GemsCard() {
             <button type="button" disabled={change.isPending} onClick={() => give(1)}>
               {t("rules.gems.add", { count: 1 })}
             </button>
-            <button type="button" disabled={change.isPending} onClick={() => give(5)}>
-              {t("rules.gems.add", { count: 5 })}
-            </button>
+          </div>
+          <div className="row wrap">
+            <label className="row">
+              {t("rules.gems.amount")}
+              <input
+                type="number"
+                className="gems-amount"
+                min={1}
+                max={MAX_GEM_CHANGE}
+                value={amount}
+                onChange={(e) => setAmount(e.target.value)}
+                onBlur={() => free == null && setAmount(String(clampGems(Number.isFinite(parsed) ? Math.round(parsed) : null) ?? 1))}
+              />
+            </label>
+            {free != null && (
+              <>
+                <button type="button" disabled={change.isPending || balance < free} onClick={() => give(-free)}>
+                  {t("rules.gems.remove", { count: free })}
+                </button>
+                <button type="button" disabled={change.isPending} onClick={() => give(free)}>
+                  {t("rules.gems.add", { count: free })}
+                </button>
+              </>
+            )}
           </div>
           <label>
             {t("rules.gems.note")}

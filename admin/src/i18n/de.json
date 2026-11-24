@@ -124,6 +124,7 @@
       "balance": "{{count}} 💎",
       "add": "+{{count}} 💎",
       "remove": "−{{count}} 💎",
+      "amount": "Andere Anzahl",
       "note": "Notiz (optional)",
       "notePlaceholder": "z. B. Zimmer aufgeräumt",
       "none": "Noch keine Edelsteine gegeben oder ausgegeben.",

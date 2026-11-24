@@ -97,6 +97,7 @@ button.inline:hover { text-decoration: underline dotted; }
 .statuslist li { display: flex; flex-direction: column; padding: 8px 10px; border-radius: 8px; border-left: 4px solid var(--ok); background: var(--bg); }
 .statuslist li.no { border-left-color: var(--danger); }
 .gems-balance { font-size: 2.2rem; font-weight: 800; margin: 0; font-variant-numeric: tabular-nums; }
+.gems-amount { width: 5em; }
 .gems-log { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 4px; }
 
 .pairing { margin-top: 12px; padding: 14px; border-radius: 12px; background: var(--bg); text-align: center; }
