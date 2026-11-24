@@ -523,18 +523,7 @@ private fun KindCard(
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
-                chip?.let {
-                    Text(
-                        it,
-                        fontSize = 16.sp,
-                        fontWeight = FontWeight.Black,
-                        color = color,
-                        modifier = Modifier
-                            .clip(RoundedCornerShape(16.dp))
-                            .background(Color.White)
-                            .padding(horizontal = 12.dp, vertical = 5.dp)
-                    )
-                }
+                if (!compact) chip?.let { Chip(it, color, Color.White) }
             }
             Column(Modifier.padding(18.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 Text(
@@ -546,16 +535,40 @@ private fun KindCard(
                     overflow = TextOverflow.Ellipsis,
                     lineHeight = 28.sp
                 )
-                Text(
-                    stringResource(R.string.activity_minutes, task.minutes),
-                    fontSize = 17.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = Muted
-                )
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(10.dp)
+                ) {
+                    Text(
+                        stringResource(R.string.activity_minutes, task.minutes),
+                        fontSize = 17.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Muted,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                        modifier = Modifier.weight(1f, fill = false)
+                    )
+                    // Four cards side by side are narrow: the chip sits here, not next to the name.
+                    if (compact) chip?.let { Chip(it, Color.White, color) }
+                }
             }
         }
     }
 }
+
+/** The "Done" / "Extra" chip of a task card. */
+@Composable
+private fun Chip(text: String, color: Color, ground: Color) = Text(
+    text,
+    fontSize = 16.sp,
+    fontWeight = FontWeight.Black,
+    color = color,
+    maxLines = 1,
+    modifier = Modifier
+        .clip(RoundedCornerShape(16.dp))
+        .background(ground)
+        .padding(horizontal = 12.dp, vertical = 5.dp)
+)
 
 fun introKey(world: StoryWorld, position: Int) = "intro-${world.id}-$position"
 
@@ -618,12 +631,12 @@ fun StoryScreen(
     }
 
     @Composable
-    fun Picture(size: Int) = Cover(
+    fun Picture(size: Modifier) = Cover(
         base,
         world,
         ActivityLogic.picture(world, chapter),
         "md",
-        Modifier.size(size.dp).clip(RoundedCornerShape(24.dp)),
+        size.clip(RoundedCornerShape(24.dp)),
         iconSize = 36
     )
 
@@ -675,14 +688,20 @@ fun StoryScreen(
                 if (!narrow) Chapters()
             }
             if (narrow) Chapters(Modifier.horizontalScroll(rememberScrollState()))
-            Surface(shape = RoundedCornerShape(32.dp), shadowElevation = 3.dp, modifier = Modifier.fillMaxWidth()) {
+            // In landscape the screen doesn't scroll: the story card takes what the chapters, the
+            // question and the activity cards leave, its picture shrinks and its text scrolls.
+            Surface(
+                shape = RoundedCornerShape(32.dp),
+                shadowElevation = 3.dp,
+                modifier = Modifier.fillMaxWidth().then(if (narrow) Modifier else Modifier.weight(1f, fill = false))
+            ) {
                 if (narrow) {
                     Column(Modifier.padding(22.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
                         Row(
                             verticalAlignment = Alignment.CenterVertically,
                             horizontalArrangement = Arrangement.spacedBy(20.dp)
                         ) {
-                            Picture(130)
+                            Picture(Modifier.size(130.dp))
                             Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(8.dp)) { Heading() }
                             ListenButton(speaking == key) { onListen(key, SpeechLogic.chapterClips(ct), lang) }
                         }
@@ -694,10 +713,10 @@ fun StoryScreen(
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.spacedBy(24.dp)
                     ) {
-                        Picture(170)
+                        Picture(Modifier.sizeIn(maxWidth = 170.dp, maxHeight = 170.dp).aspectRatio(1f))
                         Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                             Heading()
-                            Intro()
+                            Box(Modifier.weight(1f, fill = false).verticalScroll(rememberScrollState())) { Intro() }
                         }
                         ListenButton(speaking == key) { onListen(key, SpeechLogic.chapterClips(ct), lang) }
                     }
@@ -712,8 +731,8 @@ fun StoryScreen(
                     }
                 }
             } else {
-                Row(horizontalArrangement = Arrangement.spacedBy(20.dp)) {
-                    tasks.forEach { Card(it, Modifier.weight(1f).height(220.dp), compact = tasks.size >= 4) }
+                Row(Modifier.height(TASK_CARD_HEIGHT), horizontalArrangement = Arrangement.spacedBy(20.dp)) {
+                    tasks.forEach { Card(it, Modifier.weight(1f).height(TASK_CARD_HEIGHT), compact = tasks.size >= 4) }
                 }
             }
         }
@@ -722,6 +741,9 @@ fun StoryScreen(
 
 /** Below this width (a tablet held upright) the story screen stacks its parts. */
 private val NARROW = 840.dp
+
+/** Coloured header (88 dp), two lines of title and the minutes line. */
+private val TASK_CARD_HEIGHT = 220.dp
 
 // ---- task (SPEC §13.7) --------------------------------------------------------------
 
