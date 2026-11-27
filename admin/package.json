@@ -15,11 +15,11 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "@tanstack/react-query": "^5.107.1",
-    "i18next": "^27.1.3",
+    "@tanstack/react-query": "^5.108.4",
+    "i18next": "^27.2.6",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
-    "react-i18next": "^18.0.2"
+    "react-i18next": "^18.0.3"
   },
   "devDependencies": {
     "@eslint/js": "^9.20.0",
@@ -34,8 +34,8 @@
     "jsdom": "^31.0.1",
     "openapi-typescript": "^7.4.0",
     "typescript": "~5.9.3",
-    "typescript-eslint": "^8.73.0",
+    "typescript-eslint": "^8.74.0",
     "vite": "^8.3.8",
-    "vitest": "^5.1.0"
+    "vitest": "^5.1.1"
   }
 }
